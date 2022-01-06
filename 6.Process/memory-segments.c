@@ -9,7 +9,7 @@ TODO:
 	1. Text Segments
 	2. initialized data segment 
 	3. uninitialized data segment
-	4. stac
+	4. stack
 	5. heap
 */
 #define _BSD_SOURCE

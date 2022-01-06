@@ -69,6 +69,7 @@ main(int argc, char *argv[])
             errExitEN(s, "pthread_mutex_lock");
 
         while (avail == 0) {            /* Wait for something to consume */
+					printf("Consumer is wating...\n");
             s = pthread_cond_wait(&cond, &mtx);
             if (s != 0)
                 errExitEN(s, "pthread_cond_wait");

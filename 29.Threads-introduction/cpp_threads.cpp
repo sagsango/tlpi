@@ -3,6 +3,8 @@
 #define MAX_THREAD 2
 #define INCREMENT 1000000
 
+// TODO: Follow c style.
+
 std::thread t[MAX_THREAD];
 std::mutex mux;
 static int num = 0;
@@ -21,7 +23,7 @@ int main(){
 	}
 
 	for(int i=0;i<MAX_THREAD;++i){
-		//t[i].join();
+		t[i].join();
 	}
 
 	std::cout << num << std::endl;

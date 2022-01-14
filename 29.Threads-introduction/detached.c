@@ -15,7 +15,7 @@ static void *
 threadFunc(void *x)
 {
 
-	sleep(5);
+	sleep(0);
 	printf("threadFucn says Hi!\n");
     return x;
 }
@@ -37,7 +37,10 @@ main(int argc, char *argv[])
     s = pthread_create(&thr, &attr, threadFunc, (void *) 1);
     if (s != 0)
         errExitEN(s, "pthread_create");	
-		sleep(30);
+
+		sleep(10); 
+		// TODO: When any one of the thread exit/[or in case of main thread only]their cpb entry get deleted even if some other threads are exicuting.
+
     s = pthread_attr_destroy(&attr);    // No longer needed //
 		/*
     if (s != 0)

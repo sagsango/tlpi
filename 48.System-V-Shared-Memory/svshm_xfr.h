@@ -24,7 +24,7 @@
 #define READ_SEM 1              /* Reader has access to shared memory */
 
 #ifndef BUF_SIZE                /* Allow "cc -D" to override definition */
-#define BUF_SIZE 1024           /* Size of transfer buffer */
+#define BUF_SIZE 2           /* Size of transfer buffer */
 #endif
 
 struct shmseg {                 /* Defines structure of shared memory segment */

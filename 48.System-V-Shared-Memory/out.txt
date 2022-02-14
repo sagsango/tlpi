@@ -1,0 +1,64 @@
+“If IPC_CREAT was also specified, and a segment with the specified key already exists, fail with the error EEXIST.
+The above flags are described in more detail in Section 45.1. In addition, Linux permits the following nonstandard flags:
+
+SHM_HUGETLB (since Linux 2.6)
+A privileged (CAP_IPC_LOCK) process can use this flag to create a shared memory segment that uses huge pages. Huge pages are a feature provided by many modern hardware architectures to manage memory using very large page sizes. (For example, x86-32 allows 4-MB pages as an alternative to 4-kB pages.) On systems that have large amounts of memory, and where applications require large blocks of memory, using huge pages reduces the number of entries required in the hardware memory management unit’s translation look-aside buffer (TLB). This is beneficial because entries in the TLB are usually a scarce resource. See the kernel source file Documentation/vm/hugetlbpage.txt for further information.
+SHM_NORESERVE (since Linux 2.6.15)
+This flag serves the same purpose for shmget() as the MAP_NORESERVE flag serves for mmap(). See Section 49.9.
+On success, shmget() returns the identifier for the new or existing shared memory segment.
+48.3 Using Shared Memory
+
+The shmat() system call attaches[…]”
+
+Excerpt From
+The Linux Programming Interface
+Michael Kerrisk
+This material may be protected by copyright.
+“If IPC_CREAT was also specified, and a segment with the specified key already exists, fail with the error EEXIST.
+The above flags are described in more detail in Section 45.1. In addition, Linux permits the following nonstandard flags:
+
+SHM_HUGETLB (since Linux 2.6)
+A privileged (CAP_IPC_LOCK) process can use this flag to create a shared memory segment that uses huge pages. Huge pages are a feature provided by many modern hardware architectures to manage memory using very large page sizes. (For example, x86-32 allows 4-MB pages as an alternative to 4-kB pages.) On systems that have large amounts of memory, and where applications require large blocks of memory, using huge pages reduces the number of entries required in the hardware memory management unit’s translation look-aside buffer (TLB). This is beneficial because entries in the TLB are usually a scarce resource. See the kernel source file Documentation/vm/hugetlbpage.txt for further information.
+SHM_NORESERVE (since Linux 2.6.15)
+This flag serves the same purpose for shmget() as the MAP_NORESERVE flag serves for mmap(). See Section 49.9.
+On success, shmget() returns the identifier for the new or existing shared memory segment.
+48.3 Using Shared Memory
+
+The shmat() system call attaches[…]”
+
+Excerpt From
+The Linux Programming Interface
+Michael Kerrisk
+This material may be protected by copyright.
+“If IPC_CREAT was also specified, and a segment with the specified key already exists, fail with the error EEXIST.
+The above flags are described in more detail in Section 45.1. In addition, Linux permits the following nonstandard flags:
+
+SHM_HUGETLB (since Linux 2.6)
+A privileged (CAP_IPC_LOCK) process can use this flag to create a shared memory segment that uses huge pages. Huge pages are a feature provided by many modern hardware architectures to manage memory using very large page sizes. (For example, x86-32 allows 4-MB pages as an alternative to 4-kB pages.) On systems that have large amounts of memory, and where applications require large blocks of memory, using huge pages reduces the number of entries required in the hardware memory management unit’s translation look-aside buffer (TLB). This is beneficial because entries in the TLB are usually a scarce resource. See the kernel source file Documentation/vm/hugetlbpage.txt for further information.
+SHM_NORESERVE (since Linux 2.6.15)
+This flag serves the same purpose for shmget() as the MAP_NORESERVE flag serves for mmap(). See Section 49.9.
+On success, shmget() returns the identifier for the new or existing shared memory segment.
+48.3 Using Shared Memory
+
+The shmat() system call attaches[…]”
+
+Excerpt From
+The Linux Programming Interface
+Michael Kerrisk
+This material may be protected by copyright.
+“If IPC_CREAT was also specified, and a segment with the specified key already exists, fail with the error EEXIST.
+The above flags are described in more detail in Section 45.1. In addition, Linux permits the following nonstandard flags:
+
+SHM_HUGETLB (since Linux 2.6)
+A privileged (CAP_IPC_LOCK) process can use this flag to create a shared memory segment that uses huge pages. Huge pages are a feature provided by many modern hardware architectures to manage memory using very large page sizes. (For example, x86-32 allows 4-MB pages as an alternative to 4-kB pages.) On systems that have large amounts of memory, and where applications require large blocks of memory, using huge pages reduces the number of entries required in the hardware memory management unit’s translation look-aside buffer (TLB). This is beneficial because entries in the TLB are usually a scarce resource. See the kernel source file Documentation/vm/hugetlbpage.txt for further information.
+SHM_NORESERVE (since Linux 2.6.15)
+This flag serves the same purpose for shmget() as the MAP_NORESERVE flag serves for mmap(). See Section 49.9.
+On success, shmget() returns the identifier for the new or existing shared memory segment.
+48.3 Using Shared Memory
+
+The shmat() system call attaches[…]”
+
+Excerpt From
+The Linux Programming Interface
+Michael Kerrisk
+This material may be protected by copyright.

@@ -1,0 +1,2 @@
+There program has been compiled and run on uslinux01.commvault.com
+gcc -std=gnu11  -lrt -lpthread -o pmsg_create pmsg_create.o error_functions.o get_num.o

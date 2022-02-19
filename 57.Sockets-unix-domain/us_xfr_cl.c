@@ -30,12 +30,24 @@ main(int argc, char *argv[])
 
     /* Copy stdin to socket */
 
-    while ((numRead = read(STDIN_FILENO, buf, BUF_SIZE)) > 0)
+    while ((numRead = read(STDIN_FILENO, buf, BUF_SIZE)) > 0){
         if (write(sfd, buf, numRead) != numRead)
             fatal("partial/failed write");
+				if (strncmp(buf,"Bye Server!", (size_t)strlen("Bye Server!")) == 0 )
+						break;
+		}
+
 
     if (numRead == -1)
         errExit("read");
+
+		if ((numRead = read(sfd, buf, BUF_SIZE)) > 0 )
+			write( STDOUT_FILENO, buf, numRead);
+
+  	if (numRead == -1)
+        errExit("read");
+
+
 
     exit(EXIT_SUCCESS);         /* Closes our socket; server sees EOF */
 }

@@ -43,6 +43,7 @@ main(int argc, char *argv[])
 
     for (;;) {          /* Handle client connections iteratively */
 
+				printf("Ready for the new connection with client.\n");
         /* Accept a connection. The connection is returned on a new
            socket, 'cfd'; the listening socket ('sfd') remains open
            and can be used to accept further connections. */
@@ -53,14 +54,23 @@ main(int argc, char *argv[])
 
         /* Transfer data from connected socket to stdout until EOF */
 
-        while ((numRead = read(cfd, buf, BUF_SIZE)) > 0)
-            if (write(STDOUT_FILENO, buf, numRead) != numRead)
+        while ((numRead = read(cfd, buf, BUF_SIZE)) > 0){
+            if (strncmp(buf,"Bye Server!", (size_t)strlen("Bye Server!")) == 0 )
+								break;
+						else if (write(STDOUT_FILENO, buf, numRead) != numRead)
                 fatal("partial/failed write");
+				}
 
         if (numRead == -1)
             errExit("read");
 
+				memset(buf, 0, BUF_SIZE);
+				sprintf(buf, "%s", "Bye Client!\n");
+				write(cfd, buf, BUF_SIZE);
+
         if (close(cfd) == -1)
             errMsg("close");
+
+				printf("Connection with the client closed.\n");
     }
 }

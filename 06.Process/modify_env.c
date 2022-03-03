@@ -11,19 +11,16 @@
 #include <stdlib.h>
 #include "tlpi_hdr.h"
 
-
 extern char **environ;
 int
 main(int argc, char *argv[])
 {
-
-		printf("We are Exiting the program, otherwise our system will get messed-up\n");	
-		exit(EXIT_SUCCESS); //Remove this exit, to run entire program.
-
     int j;
     char **ep;
 
+#ifndef __APPLE__
     clearenv();         /* Erase entire environment */
+#endif
 
     /* Add any definitions specified on command line to environment */
 
@@ -47,4 +44,3 @@ main(int argc, char *argv[])
 
     exit(EXIT_SUCCESS);
 }
-

@@ -47,7 +47,11 @@ main(int argc, char *argv[])
 
 		errFnd = FALSE;
 		for (j = 3; j < argc; j++) {
+#ifdef __APPLE__
 			char stat_cmd[256] = "stat -x ";
+#elif __linux__
+			char stat_cmd[256] = "stat ";
+#endif
 			strcat(stat_cmd, argv[3]);
 			system(stat_cmd);
 

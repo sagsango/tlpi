@@ -5,6 +5,12 @@
    Usage: as described in usageError()
 
    Examples:
+
+   	NOTE:
+       		./t_mount -t ext4 /dev/sda6 /t_mount_target/
+
+
+
         t_mount -t ext3 /dev/sda12 /testfs
 
         t_mount -t ext2 -f r -o nogrpid /dev/sda9 /mydir ext2
@@ -145,8 +151,12 @@ main(int argc, char *argv[])
     if (argc != optind + 2)
         usageError(argv[0], "Wrong number of arguments\n");
 
-    if (mount(argv[optind], argv[optind + 1], fstype, flags, data) == -1)
+    printf("source: %s, target: %s, flags: %ld, data: %s, fstype: %s\n", argv[optind], argv[optind+1], flags, data, fstype);
+
+    if (mount(argv[optind], argv[optind + 1], fstype, flags, data) == -1){
         errExit("mount");
+    }
+        
 
     exit(EXIT_SUCCESS);
 }

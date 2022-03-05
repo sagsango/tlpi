@@ -5,17 +5,16 @@
    Usage: as described in usageError()
 
    Examples:
-
-   	NOTE:
-       		./t_mount -t ext4 /dev/sda6 /t_mount_target/
-
-
-
+   
         t_mount -t ext3 /dev/sda12 /testfs
 
         t_mount -t ext2 -f r -o nogrpid /dev/sda9 /mydir ext2
                 (The "r" for flags specifies that the file system
                 is to be mounted read-only.)
+
+	 NOTE: this worked on Linux
+       		./t_mount -t ext4 /dev/sda6 t_mount_target/
+
 
    This program is Linux-specific.
 */

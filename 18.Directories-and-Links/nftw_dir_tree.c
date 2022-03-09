@@ -60,7 +60,9 @@ dirTree(const char *pathname, const struct stat *sbuf, int type,
 		printf("        ");
 
 	printf(" %*s", 4 * ftwb->level, "");        /* Indent suitably */
-	printf("%s\n",  &pathname[ftwb->base]);     /* Print basename */
+	//printf("%s\n",  &pathname[ftwb->base]);     /* Print basename */
+	printf("%s\n",  &pathname[0]);     /* Print basename */
+
 	return 0;                                   /* Tell nftw() to continue */
 }
 	int

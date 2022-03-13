@@ -19,7 +19,7 @@ main(int argc, char *argv[])
 	setbuf(stdout, NULL);       /* Disable buffering of stdout */
 
 	// TODO: try "ps alx| grep .." & "ps aux| grep .."
-	snprintf(cmd, CMD_SIZE, "ps | grep %s", basename(argv[0]));
+	snprintf(cmd, CMD_SIZE, "ps aux | grep %s", basename(argv[0]));
 
 	printf("Parent PID=%ld\n", (long) getpid());
 

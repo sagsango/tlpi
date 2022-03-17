@@ -6,10 +6,23 @@
 
    The program creates 'num-threads' threads, each of which loop
    'num-threads' times, waiting on the same barrier.
+
+
+TODO:
+pthread_barrier:
+   In parallel computing, a barrier is a type of synchronization method. 
+   A barrier for a group of threads or processes in the source code means 
+   any thread/process must stop at this point and cannot proceed until 
+   all other threads/processes reach this barrier.
+
 */
+
+
 #include <pthread.h>
 #include "tlpi_hdr.h"
+#ifdef __APPLE__
 #include "pthread_barrier.h" 
+#endif
 
 static pthread_barrier_t barrier;
                                 /* Barrier waited on by all threads */

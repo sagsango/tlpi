@@ -1,4 +1,4 @@
-#include <ndbm.h>
+#include <db.h>
 #include <stdio.h>
 #include <fcntl.h>
 #define NAME      "Bill"
@@ -6,7 +6,14 @@
 #define DB_NAME   "phones"
 main()
 {
-     DBM *db;
+	/* TODO: 
+		 This program was copied from oracle db,
+		 which is similar to api aviable in linux
+
+		 search in man page: dbopen
+	*/
+
+     DB *db;
      datum name = {NAME, sizeof (NAME)};
      datum put_phone_no = {PHONE_NO, sizeof (PHONE_NO)};
      datum get_phone_no;

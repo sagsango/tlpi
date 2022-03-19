@@ -1,3 +1,7 @@
 See all the reenter and nonreenter function list.
 You will find the system calls related to the
 db.
+
+
+search in man page : opendb(3)
+grep all the man page : grep db

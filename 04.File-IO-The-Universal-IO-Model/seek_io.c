@@ -20,11 +20,39 @@
    Example:
 
 				./seek_io input.txt r10 r10 r10 s0 r10 r10 r10
-*/
+
+   TODO:
+        Make a file with hole.
+        ./seek_io hello.txt r1 wHello s100 wHi s1 r2 s98 r2 s0 r100
+				see hello.txt
+ */
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <ctype.h>
 #include "tlpi_hdr.h"
+
+int printContent(int fd){
+#define READ_LEN 1
+  char * buf = malloc( READ_LEN );
+  int read_bytes, offset = 0;
+
+  if (lseek(fd, offset, SEEK_SET) == -1)
+    errExit("lseek");
+
+  printf("File Content:\n");
+  while( (read_bytes = read(fd, buf, sizeof(buf))) > 0 ){
+    for(int i = 0; i < read_bytes; ++i){
+      printf("%c",buf[i]);
+    }
+  }
+  if( read_bytes == -1 ){
+    perror("read()");
+    exit(EXIT_FAILURE);
+  }
+  printf("\n");
+  return 0;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -93,6 +121,9 @@ main(int argc, char *argv[])
             cmdLineErr("Argument must start with [rRws]: %s\n", argv[ap]);
         }
     }
+
+    // Printing whole content.
+    printContent(fd);
 
     if (close(fd) == -1)
         errExit("close");

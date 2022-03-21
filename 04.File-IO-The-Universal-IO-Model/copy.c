@@ -1,6 +1,12 @@
 /* copy.c
 
    Copy the file named argv[1] to a new file named in argv[2].
+
+	 $ ./copy test test.old           Copy a regular file
+	 $ ./copy a.txt /dev/tty          Copy a regular file to this terminal
+	 $ ./copy /dev/tty b.txt          Copy input from this terminal to a regular file
+	 $ ./copy /dev/pts/16 /dev/tty    Copy input from another terminal
+
 */
 #include <sys/stat.h>
 #include <fcntl.h>

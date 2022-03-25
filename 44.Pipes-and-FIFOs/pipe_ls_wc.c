@@ -3,6 +3,12 @@
    Demonstrate the use of a pipe to connect two filters. We use fork()
    to create two children. The first one execs ls(1), which writes to
    the pipe, the second execs wc(1) to read from the pipe.
+
+
+TODO:
+  we are using same read(), write() API, 
+  eveywhere, and everything is a file.
+
 */
 #include <sys/wait.h>
 #include "tlpi_hdr.h"
@@ -31,7 +37,7 @@ main(int argc, char *argv[])
                 errExit("close 2");
         }
 
-        execlp("ls", "ls", (char *) NULL);          /* Writes to pipe */
+        execlp("ls", "ls", (char *) NULL);          /* Writes to pipe instead of Terminal*/
         errExit("execlp ls");
 
     default:            /* Parent falls through to create next child */
@@ -55,6 +61,8 @@ main(int argc, char *argv[])
                 errExit("close 4");
         }
 
+        // instead of taking input from terminal
+        // wc wil take input from pipe
         execlp("wc", "wc", "-l", (char *) NULL);
         errExit("execlp wc");
 

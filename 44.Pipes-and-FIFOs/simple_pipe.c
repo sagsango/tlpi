@@ -39,7 +39,7 @@ main(int argc, char *argv[])
             numRead = read(pfd[0], buf, BUF_SIZE);
             if (numRead == -1)
                 errExit("read");
-            if (numRead == 0)
+            if (numRead == 0) /* write end closed so there will be no data to read, will get EOF */
                 break;                      /* End-of-file */
             if (write(STDOUT_FILENO, buf, numRead) != numRead)
                 fatal("child - partial/failed write");

@@ -16,7 +16,7 @@
 #include "tlpi_hdr.h"
 
 #define SIZE 1000
-#define READ_BYTES 10000 // TODO: change read bytes.
+#define READ_BYTES 1 // TODO: change read bytes.
 int
 main(int argc, char *argv[])
 {
@@ -68,11 +68,6 @@ main(int argc, char *argv[])
         }
     }
 
-		for(j = 1; j < argc; ++j){
-				wait(NULL);
-				//printf("Done Waiting %d times\n", j);
-		}
-
     /* Parent comes here; close write end of pipe so we can see EOF */
 
     if (close(pfd[1]) == -1)                /* Write end is unused */
@@ -84,7 +79,11 @@ main(int argc, char *argv[])
 		memset(buf,0,sizeof(buf));
     while( read(pfd[0], &buf, READ_BYTES) != 0 ){
         //fatal("parent didn't get EOF");
-				printf("Parent Reads:\n %s", buf);
+
+		    printf("Parent Reads:\n%s", buf);
+        //printf("%s", buf);
+        memset(buf,0,sizeof(buf));
+
 		}
     printf("%s  Parent ready to go\n", currTime("%T"));
 

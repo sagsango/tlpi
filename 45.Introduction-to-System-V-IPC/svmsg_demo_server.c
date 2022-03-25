@@ -1,6 +1,24 @@
 /* svmsg_demo_server.c
    Demonstration System V message queue-based server.
+
+TODO:
+	* System V IPC objects have kernel persistence. 
+	Once created, an object continues to exist until it 
+	is explicitly deleted or the system is shut down. 
+	This property of System V IPC objects can be advantageous.
+
+		If program crashed and new instance is created then,
+	old ipc will be giving unexpected result, so should
+	use new one.
+
+		Here we are first checking if ipc already exist, then
+	reove that, now try to make new one untill make call
+	is successfull.
+
+
+	*	see API-summery.png
 */
+
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>

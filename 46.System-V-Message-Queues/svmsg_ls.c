@@ -3,7 +3,17 @@
    Display a list of all System V message queues on the system.
 
    This program is Linux-specific.
+
+TODO:
+    To list all message queues on the system, we can do the following:
+    * Use a MSG_INFO operation to find out the maximum index (maxind) of the entries array 
+    for message queues.
+    * Perform a loop for all values from 0 up to and including maxind, employing a MSG_STAT
+    operation for each value. During this loop, we ignore the errors that may occur if an 
+    item of the entries array is empty (EINVAL) or if we don’t have permissions on the object
+    to which it refers (EACCES).
 */
+
 #define _GNU_SOURCE
 #include <sys/types.h>
 #include <sys/msg.h>

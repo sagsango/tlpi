@@ -2,7 +2,24 @@
 
    Show how to initialize System V semaphores in a manner that avoids
    race conditions. (Compare with svsem_bad_init.c.)
+
+
+TODO:
+* struct semid_ds {
+    struct ipc_perm sem_perm;       // Ownership and permissions / 
+    time_t          sem_otime;      // Time of last semop() /    
+    time_t          sem_ctime;      // Time of last change /
+    unsigned long   sem_nsems;      // Number of semaphores in set / 
+};
+
+* sem_otime
+    This field is set to 0 when the semaphore set is created, and then set 
+    to the current time on each successful semop(), or when the semaphore 
+    value is modified as a consequence of a SEM_UNDO operation (Section 47.8). 
+    This field and sem_ctime are typed as time_t, and store time in seconds 
+    since the Epoch.
 */
+
 #include <sys/types.h>
 #include <sys/sem.h>
 #include <sys/stat.h>

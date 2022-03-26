@@ -1,7 +1,15 @@
 /* svsem_demo.c
 
    A simple demonstration of System V semaphores.
+
+TODO:
+  * Any process can incremet or decrement by any value
+  which meanse values greater than one at a time also.
+  * It is not a boud that if process has done -x, then
+  it can not do +y where x != y.
+
 */
+
 #include <sys/types.h>
 #include <sys/sem.h>
 #include <sys/stat.h>

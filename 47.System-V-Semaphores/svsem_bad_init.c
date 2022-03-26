@@ -3,7 +3,16 @@
    A demonstration of the wrong way to initialize a system V semaphore.
 
    Compare this program with svsem_good_init.c.
+
+
+TODO:
+  * if the first process’s time slice happens to expire at the point marked XXXX 
+  in the code. This sequence is problematic for two reasons. First, process B 
+  performs a semop() on an uninitialized semaphore (i.e., one whose value is 
+  arbitrary). Second, the semctl() call in process A overwrites the changes made by process B.
+
 */
+
 #include <sys/types.h>
 #include <sys/sem.h>
 #include <sys/stat.h>

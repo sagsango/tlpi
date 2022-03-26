@@ -1,0 +1,11 @@
+* The POSIX IPC interface is more consistent with the traditional
+UNIX file model. IPC objects are identified by names, and managed
+using open, close, and unlink calls that operate in a manner 
+similarto the analogous file-related system calls.
+
+* POSIX IPC provides an interface that is superior in many respects
+to the System V IPC interface. However, POSIX IPC is somewhat less 
+portable than System V IPC. Means System V IPC is supported by almost
+all the UNIX but POSIX is not.
+
+

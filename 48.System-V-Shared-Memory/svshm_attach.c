@@ -43,7 +43,7 @@ main(int argc, char *argv[])
     }
 
     printf("Sleeping 5 seconds\n");
-    sleep(5);
+    sleep(500);
 
     exit(EXIT_SUCCESS);
 }

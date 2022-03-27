@@ -56,4 +56,7 @@ main(int argc, char *argv[])
         errExit("mmap");
 
     exit(EXIT_SUCCESS);
+
+    //TODO: process have not called unmap()
+    //      auto unmapping happens when process ends.
 }

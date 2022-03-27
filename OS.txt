@@ -1,6 +1,15 @@
-1. Process and threads
-2. Memory and Disk
-3. Interprocess communication
+* Parts of OS:
+	1. Process and threads
+	2. Memory and Disk
+	3. Interprocess communication
       A. Pipes & FIFO
       B. Messageing Queues, Semaphores & Shared Memory
       C. [Signals]
+
+
+*	During Writing a program we should think about:
+	1. If multiple process/threds exicute the code.
+	2. If process exit expected/unexpected, then how 
+		shared resource (variable, semaphore, threads, 
+		fd... ) be in the consistence state.
+	3. How to handle signals.

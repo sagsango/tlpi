@@ -4,6 +4,10 @@
 
    Demonstrate message notification via signals (catching the signals with
    a signal handler) on a POSIX message queue.
+
+TODO:
+  see man page, of signal APIs
+  for better understanding.
 */
 #include <signal.h>
 #include <mqueue.h>

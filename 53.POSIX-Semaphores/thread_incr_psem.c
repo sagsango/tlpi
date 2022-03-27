@@ -41,6 +41,8 @@ main(int argc, char *argv[])
 
     /* Initialize a semaphore with the value 1 */
 
+
+    // TODO: sem for thread & process have diff, init api arguments.
     if (sem_init(&sem, 0, 1) == -1)
         errExit("sem_init");
 
@@ -63,5 +65,9 @@ main(int argc, char *argv[])
         errExitEN(s, "pthread_join");
 
     printf("glob = %d\n", glob);
+
+    if (sem_destroy(&sem) == -1)
+       errExit("sem_destroy");
+
     exit(EXIT_SUCCESS);
 }

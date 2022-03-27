@@ -7,7 +7,9 @@
    On Linux, named semaphores are supported with kernel 2.6 or later, and
    a glibc that provides the NPTL threading implementation.
 */
+#if !defined( __linux__ ) // On Linux 20.04: casusing warning - implicit declaration of function ‘sem_timedwait’
 #define _POSIX_C_SOURCE 199309
+#endif
 #include <semaphore.h>
 #include <time.h>
 #include "tlpi_hdr.h"

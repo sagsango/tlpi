@@ -1,0 +1,3 @@
+What bind does, can ue use in UDP?
+What coeent does, how to use in UDP?
+If only server calls bind() then how client recive packets in TCP? Does connect(), make it? thats why connection full.

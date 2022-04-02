@@ -13,3 +13,7 @@
 		shared resource (variable, semaphore, threads, 
 		fd... ) be in the consistence state.
 	3. How to handle signals.
+
+
+NOTE:
+  1. All system calls are atomic.

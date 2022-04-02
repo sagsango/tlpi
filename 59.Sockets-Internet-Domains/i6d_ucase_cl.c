@@ -2,6 +2,8 @@
 
    Client for i6d_ucase_sv.c: send each command-line argument as a datagram to
    the server, and then display the contents of the server's response datagram.
+TODO:
+   Here we havent bind() the client UDP socket.
 */
 #include "i6d_ucase.h"
 int

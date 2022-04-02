@@ -65,11 +65,15 @@ main(int argc, char *argv[])
        that can be used to successfully create and bind a socket */
 
     optval = 1;
-    for (rp = result; rp != NULL; rp = rp->ai_next) {
+    for (rp = result; rp != NULL; rp = rp->ai_next) { 
+      // TODO: What happens when multiple host address get bind? 
+      //       No it wont happen because port will be used by only one host address.
         lfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
         if (lfd == -1)
             continue;                   /* On error, try next address */
 
+
+        // “TCP server should usually set this option on its listening socket.” TODO: Why?
         if (setsockopt(lfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval))
                 == -1)
              errExit("setsockopt");

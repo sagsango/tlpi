@@ -12,3 +12,11 @@
                                            between client and server */
 
 #define PORT_NUM 50002                  /* Server port number */
+/*
+TODO:
+  Server Post number is fixed, now run the program with diff client
+  see how client port number get assigned automatically and will
+  differ for different client.
+  
+  This automatic assinment is done by the kernal.
+*/

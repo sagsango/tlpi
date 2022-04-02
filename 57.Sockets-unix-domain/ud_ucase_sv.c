@@ -4,6 +4,10 @@
    convert their contents to uppercase, and then return them to the senders.
 
    See also ud_ucase_cl.c.
+
+TODO:
+  * Datagram sockets are unrealible and message can be duplicated
+  * Datagram sockets in UNIX-domain/within-host are reliable and message s are not duplicated.
 */
 #include "ud_ucase.h"
 int

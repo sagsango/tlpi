@@ -6,7 +6,7 @@
    See also us_xfr_cl.c.
 */
 #include "us_xfr.h"
-#define BACKLOG 5
+#define BACKLOG 5 // Max pending connection stream socket may have in the queue.
 int
 main(int argc, char *argv[])
 {
@@ -44,11 +44,11 @@ main(int argc, char *argv[])
     for (;;) {          /* Handle client connections iteratively */
 
 				printf("Ready for the new connection with client.\n");
-        /* Accept a connection. The connection is returned on a new
+        /* TODO: Accept a connection. The connection is returned on a new
            socket, 'cfd'; the listening socket ('sfd') remains open
            and can be used to accept further connections. */
 
-        cfd = accept(sfd, NULL, NULL);
+        cfd = accept(sfd, NULL, NULL); // This will wait untill there is no client request.
         if (cfd == -1)
             errExit("accept");
 
@@ -63,6 +63,8 @@ main(int argc, char *argv[])
 
         if (numRead == -1)
             errExit("read");
+
+        // We get EOF/Zero_numRead if pear closes the socket.
 
 				memset(buf, 0, BUF_SIZE);
 				sprintf(buf, "%s", "Bye Client!\n");

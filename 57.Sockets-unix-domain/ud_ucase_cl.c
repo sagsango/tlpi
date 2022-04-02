@@ -3,6 +3,10 @@
    A UNIX domain client that communicates with the server in ud_ucase_sv.c.
    This client sends each command-line argument as a datagram to the server,
    and then displays the contents of the server's response datagram.
+
+
+TODO: Pay attension UDP client socket calles bind().
+      Although it is not required see the UDP server-client program in gfg
 */
 #include "ud_ucase.h"
 int
@@ -25,12 +29,21 @@ main(int argc, char *argv[])
 
     memset(&claddr, 0, sizeof(struct sockaddr_un));
     claddr.sun_family = AF_UNIX;
-		// TODO: Try with both paths.
-    //snprintf(claddr.sun_path, sizeof(claddr.sun_path),
-    //        "/tmp/ud_ucase_cl.%ld", (long) getpid());
-		snprintf(claddr.sun_path, sizeof(claddr.sun_path),
-            "/tmp/ud_ucase_cl");
+    snprintf(claddr.sun_path, sizeof(claddr.sun_path), "/tmp/ud_ucase_cl.%ld", (long) getpid());
 
+
+    // TODO: In the client we are binding the address of client with client socket.
+    //       When binding is necessary? If we want reply back?
+    //       No because in TCP server we bind address, but client know the address.
+    //       https://stackoverflow.com/questions/39314086/what-does-it-mean-to-bind-a-socket-to-any-address-other-than-localhost
+    //       https://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/bind.html
+    //       see how we use connect() for UDP/Datagram client socket.
+    //       After a datagram socket has been connected:
+    //       • Datagrams can be sent through the socket using write() (or send()) and are 
+    //         automatically sent to the same peer socket. As with sendto(), each write() call 
+    //         results in a separate datagram.
+    //       • Only datagrams sent by the peer socket may be read on the socket.”
+    //       TOCHECK: does connect() call, results binding of ip and port by kernal.
 
     if (bind(sfd, (struct sockaddr *) &claddr, sizeof(struct sockaddr_un)) == -1)
         errExit("bind");

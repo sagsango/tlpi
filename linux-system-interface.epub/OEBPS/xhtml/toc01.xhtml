@@ -1,0 +1,897 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xml:lang="en-us" lang="en-us" xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xmlns:ns="http://www.w3.org/2001/10/synthesis">
+<head>
+<title>The Linux Programming Interface</title>
+<link rel="stylesheet" type="text/css" href="../styles/9781593272203.css"/>
+</head>
+<body>
+<h2 class="h2" id="toc01"><span epub:type="pagebreak" id="page_xiii"/><strong>CONTENTS IN DETAIL</strong></h2>
+<p class="tocfm"><a href="pref01.xhtml"><strong>PREFACE</strong></a></p>
+<p class="tocchap"><a href="ch01.xhtml"><strong>1&#160;&#160;&#160;&#160;&#160;&#160;&#160;HISTORY AND STANDARDS</strong></a></p>
+<p class="tocsec"><a href="ch01.xhtml#ch01lev1sec01">1.1&#160;&#160;&#160;&#160;&#160;A Brief History of UNIX and C</a></p>
+<p class="tocsec"><a href="ch01.xhtml#ch01lev1sec02">1.2&#160;&#160;&#160;&#160;&#160;A Brief History of Linux</a></p>
+<p class="tocsec1"><a href="ch01.xhtml#ch01lev2sec01">1.2.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The GNU Project</a></p>
+<p class="tocsec1"><a href="ch01.xhtml#ch01lev2sec02">1.2.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The Linux Kernel</a></p>
+<p class="tocsec"><a href="ch01.xhtml#ch01lev1sec03">1.3&#160;&#160;&#160;&#160;&#160;Standardization</a></p>
+<p class="tocsec1"><a href="ch01.xhtml#ch01lev2sec03">1.3.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The C Programming Language</a></p>
+<p class="tocsec1"><a href="ch01.xhtml#ch01lev2sec04">1.3.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The First POSIX Standards</a></p>
+<p class="tocsec1"><a href="ch01.xhtml#ch01lev2sec05">1.3.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;X/Open Company and The Open Group</a></p>
+<p class="tocsec1"><a href="ch01.xhtml#ch01lev2sec06">1.3.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;SUSv3 and POSIX.1-2001</a></p>
+<p class="tocsec1"><a href="ch01.xhtml#ch01lev2sec07">1.3.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;SUSv4 and POSIX.1-2008</a></p>
+<p class="tocsec1"><a href="ch01.xhtml#ch01lev2sec08">1.3.6&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;UNIX Standards Timeline</a></p>
+<p class="tocsec1"><a href="ch01.xhtml#ch01lev2sec09">1.3.7&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Implementation Standards</a></p>
+<p class="tocsec1"><a href="ch01.xhtml#ch01lev2sec10">1.3.8&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Linux, Standards, and the Linux Standard Base</a></p>
+<p class="tocsec"><a href="ch01.xhtml#ch01lev1sec04">1.4&#160;&#160;&#160;&#160;&#160;Summary</a></p>
+<p class="tocchap"><a href="ch02.xhtml"><strong>2&#160;&#160;&#160;&#160;&#160;&#160;&#160;FUNDAMENTAL CONCEPTS</strong></a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec01">2.1&#160;&#160;&#160;&#160;&#160;The Core Operating System: The Kernel</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec02">2.2&#160;&#160;&#160;&#160;&#160;The Shell</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec03">2.3&#160;&#160;&#160;&#160;&#160;Users and Groups</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec04">2.4&#160;&#160;&#160;&#160;&#160;Single Directory Hierarchy, Directories, Links, and Files</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec05">2.5&#160;&#160;&#160;&#160;&#160;File I/O Model</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec06">2.6&#160;&#160;&#160;&#160;&#160;Programs</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec07">2.7&#160;&#160;&#160;&#160;&#160;Processes</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec08">2.8&#160;&#160;&#160;&#160;&#160;Memory Mappings</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec09">2.9&#160;&#160;&#160;&#160;&#160;Static and Shared Libraries</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec10">2.10&#160;&#160;&#160;Interprocess Communication and Synchronization</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec11">2.11&#160;&#160;&#160;Signals</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec12">2.12&#160;&#160;&#160;Threads</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec13">2.13&#160;&#160;&#160;Process Groups and Shell Job Control</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec14">2.14&#160;&#160;&#160;Sessions, Controlling Terminals, and Controlling Processes</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec15">2.15&#160;&#160;&#160;Pseudoterminals</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec16">2.16&#160;&#160;&#160;Date and Time</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec17">2.17&#160;&#160;&#160;Client-Server Architecture</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec18">2.18&#160;&#160;&#160;Realtime</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec19">2.19&#160;&#160;&#160;The <span class="literal">/proc</span> File System</a></p>
+<p class="tocsec"><a href="ch02.xhtml#ch02lev1sec20">2.20&#160;&#160;&#160;Summary</a></p>
+<p class="tocchap"><a href="ch03.xhtml"><strong>3&#160;&#160;&#160;&#160;&#160;&#160;&#160;SYSTEM PROGRAMMING CONCEPTS</strong></a></p>
+<p class="tocsec"><a href="ch03.xhtml#ch03lev1sec01">3.1&#160;&#160;&#160;&#160;&#160;System Calls</a></p>
+<p class="tocsec"><a href="ch03.xhtml#ch03lev1sec02">3.2&#160;&#160;&#160;&#160;&#160;Library Functions</a></p>
+<p class="tocsec"><a href="ch03.xhtml#ch03lev1sec03">3.3&#160;&#160;&#160;&#160;&#160;The Standard C Library; The GNU C Library (<em>glibc</em>)</a></p>
+<p class="tocsec"><a href="ch03.xhtml#ch03lev1sec04">3.4&#160;&#160;&#160;&#160;&#160;Handling Errors from System Calls and Library Functions</a></p>
+<p class="tocsec"><a href="ch03.xhtml#ch03lev1sec05">3.5&#160;&#160;&#160;&#160;&#160;Notes on the Example Programs in This Book</a></p>
+<p class="tocsec1"><a href="ch03.xhtml#ch03lev2sec01">3.5.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Command-Line Options and Arguments</a></p>
+<p class="tocsec1"><a href="ch03.xhtml#ch03lev2sec02">3.5.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Common Functions and Header Files</a></p>
+<p class="tocsec"><span epub:type="pagebreak" id="page_xiv"/><a href="ch03.xhtml#ch03lev1sec06">3.6&#160;&#160;&#160;&#160;&#160;Portability Issues</a></p>
+<p class="tocsec1"><a href="ch03.xhtml#ch03lev2sec03">3.6.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Feature Test Macros</a></p>
+<p class="tocsec1"><a href="ch03.xhtml#ch03lev2sec04">3.6.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;System Data Types</a></p>
+<p class="tocsec1"><a href="ch03.xhtml#ch03lev2sec05">3.6.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Miscellaneous Portability Issues</a></p>
+<p class="tocsec"><a href="ch03.xhtml#ch03lev1sec07">3.7&#160;&#160;&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch03.xhtml#ch03lev1sec08">3.8&#160;&#160;&#160;&#160;&#160;Exercise</a></p>
+<p class="tocchap"><a href="ch04.xhtml"><strong>4&#160;&#160;&#160;&#160;&#160;&#160;&#160;FILE I/O: THE UNIVERSAL I/O MODEL</strong></a></p>
+<p class="tocsec"><a href="ch04.xhtml#ch04lev1sec01">4.1&#160;&#160;&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch04.xhtml#ch04lev1sec02">4.2&#160;&#160;&#160;&#160;&#160;Universality of I/O</a></p>
+<p class="tocsec"><a href="ch04.xhtml#ch04lev1sec03">4.3&#160;&#160;&#160;&#160;&#160;Opening a File: <em>open()</em></a></p>
+<p class="tocsec1"><a href="ch04.xhtml#ch04lev2sec01">4.3.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <em>open() flags</em> Argument</a></p>
+<p class="tocsec1"><a href="ch04.xhtml#ch04lev2sec02">4.3.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Errors from <em>open()</em></a></p>
+<p class="tocsec1"><a href="ch04.xhtml#ch04lev2sec03">4.3.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <em>creat()</em> System Call</a></p>
+<p class="tocsec"><a href="ch04.xhtml#ch04lev1sec04">4.4&#160;&#160;&#160;&#160;&#160;Reading from a File: <em>read()</em></a></p>
+<p class="tocsec"><a href="ch04.xhtml#ch04lev1sec05">4.5&#160;&#160;&#160;&#160;&#160;Writing to a File: <em>write()</em></a></p>
+<p class="tocsec"><a href="ch04.xhtml#ch04lev1sec06">4.6&#160;&#160;&#160;&#160;&#160;Closing a File: <em>close()</em></a></p>
+<p class="tocsec"><a href="ch04.xhtml#ch04lev1sec07">4.7&#160;&#160;&#160;&#160;&#160;Changing the File Offset: <em>lseek()</em></a></p>
+<p class="tocsec"><a href="ch04.xhtml#ch04lev1sec08">4.8&#160;&#160;&#160;&#160;&#160;Operations Outside the Universal I/O Model: <em>ioctl()</em></a></p>
+<p class="tocsec"><a href="ch04.xhtml#ch04lev1sec09">4.9&#160;&#160;&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch04.xhtml#ch04lev1sec10">4.10&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch05.xhtml"><strong>5&#160;&#160;&#160;&#160;&#160;&#160;&#160;FILE I/O: FURTHER DETAILS</strong></a></p>
+<p class="tocsec"><a href="ch05.xhtml#ch05lev1sec01">5.1&#160;&#160;&#160;&#160;&#160;Atomicity and Race Conditions</a></p>
+<p class="tocsec"><a href="ch05.xhtml#ch05lev1sec02">5.2&#160;&#160;&#160;&#160;&#160;File Control Operations: <em>fcntl()</em></a></p>
+<p class="tocsec"><a href="ch05.xhtml#ch05lev1sec03">5.3&#160;&#160;&#160;&#160;&#160;Open File Status Flags</a></p>
+<p class="tocsec"><a href="ch05.xhtml#ch05lev1sec04">5.4&#160;&#160;&#160;&#160;&#160;Relationship Between File Descriptors and Open Files</a></p>
+<p class="tocsec"><a href="ch05.xhtml#ch05lev1sec05">5.5&#160;&#160;&#160;&#160;&#160;Duplicating File Descriptors</a></p>
+<p class="tocsec"><a href="ch05.xhtml#ch05lev1sec06">5.6&#160;&#160;&#160;&#160;&#160;File I/O at a Specified Offset: <em>pread()</em> and <em>pwrite()</em></a></p>
+<p class="tocsec"><a href="ch05.xhtml#ch05lev1sec07">5.7&#160;&#160;&#160;&#160;&#160;Scatter-Gather I/O: <em>readv()</em> and <em>writev()</em></a></p>
+<p class="tocsec"><a href="ch05.xhtml#ch05lev1sec08">5.8&#160;&#160;&#160;&#160;&#160;Truncating a File: <em>truncate()</em> and <em>ftruncate()</em></a></p>
+<p class="tocsec"><a href="ch05.xhtml#ch05lev1sec09">5.9&#160;&#160;&#160;&#160;&#160;Nonblocking I/O</a></p>
+<p class="tocsec"><a href="ch05.xhtml#ch05lev1sec10">5.10&#160;&#160;&#160;I/O on Large Files</a></p>
+<p class="tocsec"><a href="ch05.xhtml#ch05lev1sec11">5.11&#160;&#160;&#160;The <span class="literal">/dev/fd</span> Directory</a></p>
+<p class="tocsec"><a href="ch05.xhtml#ch05lev1sec12">5.12&#160;&#160;&#160;Creating Temporary Files</a></p>
+<p class="tocsec"><a href="ch05.xhtml#ch05lev1sec13">5.13&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch05.xhtml#ch05lev1sec14">5.14&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch06.xhtml"><strong>6&#160;&#160;&#160;&#160;&#160;&#160;&#160;PROCESSES</strong></a></p>
+<p class="tocsec"><a href="ch06.xhtml#ch06lev1sec01">6.1&#160;&#160;&#160;&#160;&#160;Processes and Programs</a></p>
+<p class="tocsec"><a href="ch06.xhtml#ch06lev1sec02">6.2&#160;&#160;&#160;&#160;&#160;Process ID and Parent Process ID</a></p>
+<p class="tocsec"><a href="ch06.xhtml#ch06lev1sec03">6.3&#160;&#160;&#160;&#160;&#160;Memory Layout of a Process</a></p>
+<p class="tocsec"><a href="ch06.xhtml#ch06lev1sec04">6.4&#160;&#160;&#160;&#160;&#160;Virtual Memory Management</a></p>
+<p class="tocsec"><a href="ch06.xhtml#ch06lev1sec05">6.5&#160;&#160;&#160;&#160;&#160;The Stack and Stack Frames</a></p>
+<p class="tocsec"><a href="ch06.xhtml#ch06lev1sec06">6.6&#160;&#160;&#160;&#160;&#160;Command-Line Arguments (<em>argc</em>, <em>argv</em>)</a></p>
+<p class="tocsec"><a href="ch06.xhtml#ch06lev1sec07">6.7&#160;&#160;&#160;&#160;&#160;Environment List</a></p>
+<p class="tocsec"><a href="ch06.xhtml#ch06lev1sec08">6.8&#160;&#160;&#160;&#160;&#160;Performing a Nonlocal Goto: <em>setjmp()</em> and <em>longjmp()</em></a></p>
+<p class="tocsec"><a href="ch06.xhtml#ch06lev1sec09">6.9&#160;&#160;&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch06.xhtml#ch06lev1sec10">6.10&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><span epub:type="pagebreak" id="page_xv"/><a href="ch07.xhtml"><strong>7&#160;&#160;&#160;&#160;&#160;&#160;&#160;MEMORY ALLOCATION</strong></a></p>
+<p class="tocsec"><a href="ch07.xhtml#ch07lev1sec01">7.1&#160;&#160;&#160;&#160;&#160;Allocating Memory on the Heap</a></p>
+<p class="tocsec1"><a href="ch07.xhtml#ch07lev2sec01">7.1.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Adjusting the Program Break: <em>brk()</em> and <em>sbrk()</em></a></p>
+<p class="tocsec1"><a href="ch07.xhtml#ch07lev2sec02">7.1.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Allocating Memory on the Heap: <em>malloc()</em> and <em>free()</em></a></p>
+<p class="tocsec1"><a href="ch07.xhtml#ch07lev2sec03">7.1.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Implementation of <em>malloc()</em> and <em>free()</em></a></p>
+<p class="tocsec1"><a href="ch07.xhtml#ch07lev2sec04">7.1.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Other Methods of Allocating Memory on the Heap</a></p>
+<p class="tocsec"><a href="ch07.xhtml#ch07lev1sec02">7.2&#160;&#160;&#160;&#160;&#160;Allocating Memory on the Stack: <em>alloca()</em></a></p>
+<p class="tocsec"><a href="ch07.xhtml#ch07lev1sec03">7.3&#160;&#160;&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch07.xhtml#ch07lev1sec04">7.4&#160;&#160;&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch08.xhtml"><strong>8&#160;&#160;&#160;&#160;&#160;&#160;&#160;USERS AND GROUPS</strong></a></p>
+<p class="tocsec"><a href="ch08.xhtml#ch08lev1sec01">8.1&#160;&#160;&#160;&#160;&#160;The Password File: <span class="literal">/etc/passwd</span></a></p>
+<p class="tocsec"><a href="ch08.xhtml#ch08lev1sec02">8.2&#160;&#160;&#160;&#160;&#160;The Shadow Password File: <span class="literal">/etc/shadow</span></a></p>
+<p class="tocsec"><a href="ch08.xhtml#ch08lev1sec03">8.3&#160;&#160;&#160;&#160;&#160;The Group File: <span class="literal">/etc/group</span></a></p>
+<p class="tocsec"><a href="ch08.xhtml#ch08lev1sec04">8.4&#160;&#160;&#160;&#160;&#160;Retrieving User and Group Information</a></p>
+<p class="tocsec"><a href="ch08.xhtml#ch08lev1sec05">8.5&#160;&#160;&#160;&#160;&#160;Password Encryption and User Authentication</a></p>
+<p class="tocsec"><a href="ch08.xhtml#ch08lev1sec06">8.6&#160;&#160;&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch08.xhtml#ch08lev1sec07">8.7&#160;&#160;&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch09.xhtml"><strong>9&#160;&#160;&#160;&#160;&#160;&#160;&#160;PROCESS CREDENTIALS</strong></a></p>
+<p class="tocsec"><a href="ch09.xhtml#ch09lev1sec01">9.1&#160;&#160;&#160;&#160;&#160;Real User ID and Real Group ID</a></p>
+<p class="tocsec"><a href="ch09.xhtml#ch09lev1sec02">9.2&#160;&#160;&#160;&#160;&#160;Effective User ID and Effective Group ID</a></p>
+<p class="tocsec"><a href="ch09.xhtml#ch09lev1sec03">9.3&#160;&#160;&#160;&#160;&#160;Set-User-ID and Set-Group-ID Programs</a></p>
+<p class="tocsec"><a href="ch09.xhtml#ch09lev1sec04">9.4&#160;&#160;&#160;&#160;&#160;Saved Set-User-ID and Saved Set-Group-ID</a></p>
+<p class="tocsec"><a href="ch09.xhtml#ch09lev1sec05">9.5&#160;&#160;&#160;&#160;&#160;File-System User ID and File-System Group ID</a></p>
+<p class="tocsec"><a href="ch09.xhtml#ch09lev1sec06">9.6&#160;&#160;&#160;&#160;&#160;Supplementary Group IDs</a></p>
+<p class="tocsec"><a href="ch09.xhtml#ch09lev1sec07">9.7&#160;&#160;&#160;&#160;&#160;Retrieving and Modifying Process Credentials</a></p>
+<p class="tocsec1"><a href="ch09.xhtml#ch09lev2sec01">9.7.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Retrieving and Modifying Real, Effective, and Saved Set IDs</a></p>
+<p class="tocsec1"><a href="ch09.xhtml#ch09lev2sec02">9.7.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Retrieving and Modifying File-System IDs</a></p>
+<p class="tocsec1"><a href="ch09.xhtml#ch09lev2sec03">9.7.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Retrieving and Modifying Supplementary Group IDs</a></p>
+<p class="tocsec1"><a href="ch09.xhtml#ch09lev2sec04">9.7.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Summary of Calls for Modifying Process Credentials</a></p>
+<p class="tocsec1"><a href="ch09.xhtml#ch09lev2sec05">9.7.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Example: Displaying Process Credentials</a></p>
+<p class="tocsec"><a href="ch09.xhtml#ch09lev1sec08">9.8&#160;&#160;&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch09.xhtml#ch09lev1sec09">9.9&#160;&#160;&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch10.xhtml"><strong>10&#160;&#160;&#160;&#160;&#160;TIME</strong></a></p>
+<p class="tocsec"><a href="ch10.xhtml#ch10lev1sec01">10.1&#160;&#160;&#160;Calendar Time</a></p>
+<p class="tocsec"><a href="ch10.xhtml#ch10lev1sec02">10.2&#160;&#160;&#160;Time-Conversion Functions</a></p>
+<p class="tocsec1"><a href="ch10.xhtml#ch10lev2sec01">10.2.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Converting <em>time_t</em> to Printable Form</a></p>
+<p class="tocsec1"><a href="ch10.xhtml#ch10lev2sec02">10.2.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Converting Between <em>time_t</em> and Broken-Down Time</a></p>
+<p class="tocsec1"><a href="ch10.xhtml#ch10lev2sec03">10.2.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Converting Between Broken-Down Time and Printable Form</a></p>
+<p class="tocsec"><a href="ch10.xhtml#ch10lev1sec03">10.3&#160;&#160;&#160;Timezones</a></p>
+<p class="tocsec"><a href="ch10.xhtml#ch10lev1sec04">10.4&#160;&#160;&#160;Locales</a></p>
+<p class="tocsec"><a href="ch10.xhtml#ch10lev1sec05">10.5&#160;&#160;&#160;Updating the System Clock</a></p>
+<p class="tocsec"><a href="ch10.xhtml#ch10lev1sec06">10.6&#160;&#160;&#160;The Software Clock (Jiffies)</a></p>
+<p class="tocsec"><a href="ch10.xhtml#ch10lev1sec07">10.7&#160;&#160;&#160;Process Time</a></p>
+<p class="tocsec"><a href="ch10.xhtml#ch10lev1sec08">10.8&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch10.xhtml#ch10lev1sec09">10.9&#160;&#160;&#160;Exercise</a></p>
+<p class="tocchap"><span epub:type="pagebreak" id="page_xvi"/><a href="ch11.xhtml"><strong>11&#160;&#160;&#160;&#160;&#160;SYSTEM LIMITS AND OPTIONS</strong></a></p>
+<p class="tocsec"><a href="ch11.xhtml#ch11lev1sec01">11.1&#160;&#160;&#160;System Limits</a></p>
+<p class="tocsec"><a href="ch11.xhtml#ch11lev1sec02">11.2&#160;&#160;&#160;Retrieving System Limits (and Options) at Run Time</a></p>
+<p class="tocsec"><a href="ch11.xhtml#ch11lev1sec03">11.3&#160;&#160;&#160;Retrieving File-Related Limits (and Options) at Run Time</a></p>
+<p class="tocsec"><a href="ch11.xhtml#ch11lev1sec04">11.4&#160;&#160;&#160;Indeterminate Limits</a></p>
+<p class="tocsec"><a href="ch11.xhtml#ch11lev1sec05">11.5&#160;&#160;&#160;System Options</a></p>
+<p class="tocsec"><a href="ch11.xhtml#ch11lev1sec06">11.6&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch11.xhtml#ch11lev1sec07">11.7&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch12.xhtml"><strong>12&#160;&#160;&#160;&#160;&#160;SYSTEM AND PROCESS INFORMATION</strong></a></p>
+<p class="tocsec"><a href="ch12.xhtml#ch12lev1sec01">12.1&#160;&#160;&#160;The <span class="literal">/proc</span> File System</a></p>
+<p class="tocsec1"><a href="ch12.xhtml#ch12lev2sec01">12.1.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Obtaining Information About a Process: <span class="literal">/proc/</span><em>PID</em></a></p>
+<p class="tocsec1"><a href="ch12.xhtml#ch12lev2sec02">12.1.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;System Information Under <span class="literal">/proc</span></a></p>
+<p class="tocsec1"><a href="ch12.xhtml#ch12lev2sec03">12.1.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Accessing <span class="literal">/proc</span> Files</a></p>
+<p class="tocsec"><a href="ch12.xhtml#ch12lev1sec02">12.2&#160;&#160;&#160;System Identification: <em>uname()</em></a></p>
+<p class="tocsec"><a href="ch12.xhtml#ch12lev1sec03">12.3&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch12.xhtml#ch12lev1sec04">12.4&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch13.xhtml"><strong>13&#160;&#160;&#160;&#160;&#160;FILE I/O BUFFERING</strong></a></p>
+<p class="tocsec"><a href="ch13.xhtml#ch13lev1sec01">13.1&#160;&#160;&#160;Kernel Buffering of File I/O: The Buffer Cache</a></p>
+<p class="tocsec"><a href="ch13.xhtml#ch13lev1sec02">13.2&#160;&#160;&#160;Buffering in the <em>stdio</em> Library</a></p>
+<p class="tocsec"><a href="ch13.xhtml#ch13lev1sec03">13.3&#160;&#160;&#160;Controlling Kernel Buffering of File I/O</a></p>
+<p class="tocsec"><a href="ch13.xhtml#ch13lev1sec04">13.4&#160;&#160;&#160;Summary of I/O Buffering</a></p>
+<p class="tocsec"><a href="ch13.xhtml#ch13lev1sec05">13.5&#160;&#160;&#160;Advising the Kernel About I/O Patterns</a></p>
+<p class="tocsec"><a href="ch13.xhtml#ch13lev1sec06">13.6&#160;&#160;&#160;Bypassing the Buffer Cache: Direct I/O</a></p>
+<p class="tocsec"><a href="ch13.xhtml#ch13lev1sec07">13.7&#160;&#160;&#160;Mixing Library Functions and System Calls for File I/O</a></p>
+<p class="tocsec"><a href="ch13.xhtml#ch13lev1sec08">13.8&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch13.xhtml#ch13lev1sec09">13.9&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch14.xhtml"><strong>14&#160;&#160;&#160;&#160;&#160;FILE SYSTEMS</strong></a></p>
+<p class="tocsec"><a href="ch14.xhtml#ch14lev1sec01">14.1&#160;&#160;&#160;Device Special Files (Devices)</a></p>
+<p class="tocsec"><a href="ch14.xhtml#ch14lev1sec02">14.2&#160;&#160;&#160;Disks and Partitions</a></p>
+<p class="tocsec"><a href="ch14.xhtml#ch14lev1sec03">14.3&#160;&#160;&#160;File Systems</a></p>
+<p class="tocsec"><a href="ch14.xhtml#ch14lev1sec04">14.4&#160;&#160;&#160;I-nodes</a></p>
+<p class="tocsec"><a href="ch14.xhtml#ch14lev1sec05">14.5&#160;&#160;&#160;The Virtual File System (VFS)</a></p>
+<p class="tocsec"><a href="ch14.xhtml#ch14lev1sec06">14.6&#160;&#160;&#160;Journaling File Systems</a></p>
+<p class="tocsec"><a href="ch14.xhtml#ch14lev1sec07">14.7&#160;&#160;&#160;Single Directory Hierarchy and Mount Points</a></p>
+<p class="tocsec"><a href="ch14.xhtml#ch14lev1sec08">14.8&#160;&#160;&#160;Mounting and Unmounting File Systems</a></p>
+<p class="tocsec1"><a href="ch14.xhtml#ch14lev2sec01">14.8.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Mounting a File System: <em>mount()</em></a></p>
+<p class="tocsec1"><a href="ch14.xhtml#ch14lev2sec02">14.8.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Unmounting a File System: <em>umount()</em> and <em>umount2()</em></a></p>
+<p class="tocsec"><a href="ch14.xhtml#ch14lev1sec09">14.9&#160;&#160;&#160;Advanced Mount Features</a></p>
+<p class="tocsec1"><a href="ch14.xhtml#ch14lev2sec03">14.9.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Mounting a File System at Multiple Mount Points</a></p>
+<p class="tocsec1"><a href="ch14.xhtml#ch14lev2sec04">14.9.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Stacking Multiple Mounts on the Same Mount Point</a></p>
+<p class="tocsec1"><a href="ch14.xhtml#ch14lev2sec05">14.9.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Mount Flags That Are Per-Mount Options</a></p>
+<p class="tocsec1"><a href="ch14.xhtml#ch14lev2sec06">14.9.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Bind Mounts</a></p>
+<p class="tocsec1"><a href="ch14.xhtml#ch14lev2sec07">14.9.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Recursive Bind Mounts</a></p>
+<p class="tocsec"><a href="ch14.xhtml#ch14lev1sec10">14.10 A Virtual Memory File System: <em>tmpfs</em></a></p>
+<p class="tocsec"><a href="ch14.xhtml#ch14lev1sec11">14.11 Obtaining Information About a File System: <em>statvfs()</em></a></p>
+<p class="tocsec"><a href="ch14.xhtml#ch14lev1sec12">14.12 Summary</a></p>
+<p class="tocsec"><a href="ch14.xhtml#ch14lev1sec13">14.13 Exercise</a></p>
+<p class="tocchap"><span epub:type="pagebreak" id="page_xvii"/><a href="ch15.xhtml"><strong>15&#160;&#160;&#160;&#160;&#160;FILE ATTRIBUTES</strong></a></p>
+<p class="tocsec"><a href="ch15.xhtml#ch15lev1sec01">15.1&#160;&#160;&#160;Retrieving File Information: <em>stat()</em></a></p>
+<p class="tocsec"><a href="ch15.xhtml#ch15lev1sec02">15.2&#160;&#160;&#160;File Timestamps</a></p>
+<p class="tocsec1"><a href="ch15.xhtml#ch15lev2sec01">15.2.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Changing File Timestamps with <em>utime()</em> and <em>utimes()</em></a></p>
+<p class="tocsec1"><a href="ch15.xhtml#ch15lev2sec02">15.2.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Changing File Timestamps with <em>utimensat()</em> and <em>futimens()</em></a></p>
+<p class="tocsec"><a href="ch15.xhtml#ch15lev1sec03">15.3&#160;&#160;&#160;File Ownership</a></p>
+<p class="tocsec1"><a href="ch15.xhtml#ch15lev2sec03">15.3.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Ownership of New Files</a></p>
+<p class="tocsec1"><a href="ch15.xhtml#ch15lev2sec04">15.3.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Changing File Ownership: <em>chown()</em>, <em>fchown()</em>, and <em>lchown()</em></a></p>
+<p class="tocsec"><a href="ch15.xhtml#ch15lev1sec04">15.4&#160;&#160;&#160;File Permissions</a></p>
+<p class="tocsec1"><a href="ch15.xhtml#ch15lev2sec05">15.4.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Permissions on Regular Files</a></p>
+<p class="tocsec1"><a href="ch15.xhtml#ch15lev2sec06">15.4.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Permissions on Directories</a></p>
+<p class="tocsec1"><a href="ch15.xhtml#ch15lev2sec07">15.4.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Permission-Checking Algorithm</a></p>
+<p class="tocsec1"><a href="ch15.xhtml#ch15lev2sec08">15.4.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Checking File Accessibility: <em>access()</em></a></p>
+<p class="tocsec1"><a href="ch15.xhtml#ch15lev2sec09">15.4.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Set-User-ID, Set-Group-ID, and Sticky Bits</a></p>
+<p class="tocsec1"><a href="ch15.xhtml#ch15lev2sec10">15.4.6&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The Process File Mode Creation Mask: <em>umask()</em></a></p>
+<p class="tocsec1"><a href="ch15.xhtml#ch15lev2sec11">15.4.7&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Changing File Permissions: <em>chmod()</em> and <em>fchmod()</em></a></p>
+<p class="tocsec"><a href="ch15.xhtml#ch15lev1sec05">15.5&#160;&#160;&#160;I-node Flags (<em>ext2</em> Extended File Attributes)</a></p>
+<p class="tocsec"><a href="ch15.xhtml#ch15lev1sec06">15.6&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch15.xhtml#ch15lev1sec07">15.7&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch16.xhtml"><strong>16&#160;&#160;&#160;&#160;&#160;EXTENDED ATTRIBUTES</strong></a></p>
+<p class="tocsec"><a href="ch16.xhtml#ch16lev1sec01">16.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch16.xhtml#ch16lev1sec02">16.2&#160;&#160;&#160;Extended Attribute Implementation Details</a></p>
+<p class="tocsec"><a href="ch16.xhtml#ch16lev1sec03">16.3&#160;&#160;&#160;System Calls for Manipulating Extended Attributes</a></p>
+<p class="tocsec"><a href="ch16.xhtml#ch16lev1sec04">16.4&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch16.xhtml#ch16lev1sec05">16.5&#160;&#160;&#160;Exercise</a></p>
+<p class="tocchap"><a href="ch17.xhtml"><strong>17&#160;&#160;&#160;&#160;&#160;ACCESS CONTROL LISTS</strong></a></p>
+<p class="tocsec"><a href="ch17.xhtml#ch17lev1sec01">17.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch17.xhtml#ch17lev1sec02">17.2&#160;&#160;&#160;ACL Permission-Checking Algorithm</a></p>
+<p class="tocsec"><a href="ch17.xhtml#ch17lev1sec03">17.3&#160;&#160;&#160;Long and Short Text Forms for ACLs</a></p>
+<p class="tocsec"><a href="ch17.xhtml#ch17lev1sec04">17.4&#160;&#160;&#160;The <span class="literal">ACL_MASK</span> Entry and the ACL Group Class</a></p>
+<p class="tocsec"><a href="ch17.xhtml#ch17lev1sec05">17.5&#160;&#160;&#160;The <em>getfacl</em> and <em>setfacl</em> Commands</a></p>
+<p class="tocsec"><a href="ch17.xhtml#ch17lev1sec06">17.6&#160;&#160;&#160;Default ACLs and File Creation</a></p>
+<p class="tocsec"><a href="ch17.xhtml#ch17lev1sec07">17.7&#160;&#160;&#160;ACL Implementation Limits</a></p>
+<p class="tocsec"><a href="ch17.xhtml#ch17lev1sec08">17.8&#160;&#160;&#160;The ACL API</a></p>
+<p class="tocsec"><a href="ch17.xhtml#ch17lev1sec09">17.9&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch17.xhtml#ch17lev1sec10">17.10 Exercise</a></p>
+<p class="tocchap"><a href="ch18.xhtml"><strong>18&#160;&#160;&#160;&#160;&#160;DIRECTORIES AND LINKS</strong></a></p>
+<p class="tocsec"><a href="ch18.xhtml#ch18lev1sec01">18.1&#160;&#160;&#160;Directories and (Hard) Links</a></p>
+<p class="tocsec"><a href="ch18.xhtml#ch18lev1sec02">18.2&#160;&#160;&#160;Symbolic (Soft) Links</a></p>
+<p class="tocsec"><a href="ch18.xhtml#ch18lev1sec03">18.3&#160;&#160;&#160;Creating and Removing (Hard) Links: <em>link()</em> and <em>unlink()</em></a></p>
+<p class="tocsec"><a href="ch18.xhtml#ch18lev1sec04">18.4&#160;&#160;&#160;Changing the Name of a File: <em>rename()</em></a></p>
+<p class="tocsec"><a href="ch18.xhtml#ch18lev1sec05">18.5&#160;&#160;&#160;Working with Symbolic Links: <em>symlink()</em> and <em>readlink()</em></a></p>
+<p class="tocsec"><a href="ch18.xhtml#ch18lev1sec06">18.6&#160;&#160;&#160;Creating and Removing Directories: <em>mkdir()</em> and <em>rmdir()</em></a></p>
+<p class="tocsec"><a href="ch18.xhtml#ch18lev1sec07">18.7&#160;&#160;&#160;Removing a File or Directory: <em>remove()</em></a></p>
+<p class="tocsec"><a href="ch18.xhtml#ch18lev1sec08">18.8&#160;&#160;&#160;Reading Directories: <em>opendir()</em> and <em>readdir()</em></a></p>
+<p class="tocsec"><a href="ch18.xhtml#ch18lev1sec09">18.9&#160;&#160;&#160;File Tree Walking: <em>nftw()</em></a></p>
+<p class="tocsec"><a href="ch18.xhtml#ch18lev1sec10">18.10 The Current Working Directory of a Process</a></p>
+<p class="tocsec"><a href="ch18.xhtml#ch18lev1sec11">18.11 Operating Relative to a Directory File Descriptor</a></p>
+<p class="tocsec"><a href="ch18.xhtml#ch18lev1sec12">18.12 Changing the Root Directory of a Process: <em>chroot()</em></a></p>
+<p class="tocsec"><a href="ch18.xhtml#ch18lev1sec13">18.13 Resolving a Pathname: <em>realpath()</em></a></p>
+<p class="tocsec"><span epub:type="pagebreak" id="page_xviii"/><a href="ch18.xhtml#ch18lev1sec14">18.14 Parsing Pathname Strings: <em>dirname()</em> and <em>basename()</em></a></p>
+<p class="tocsec"><a href="ch18.xhtml#ch18lev1sec15">18.15 Summary</a></p>
+<p class="tocsec"><a href="ch18.xhtml#ch18lev1sec16">18.16 Exercises</a></p>
+<p class="tocchap"><a href="ch19.xhtml"><strong>19&#160;&#160;&#160;&#160;&#160;MONITORING FILE EVENTS</strong></a></p>
+<p class="tocsec"><a href="ch19.xhtml#ch19lev1sec01">19.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch19.xhtml#ch19lev1sec02">19.2&#160;&#160;&#160;The <em>inotify</em> API</a></p>
+<p class="tocsec"><a href="ch19.xhtml#ch19lev1sec03">19.3&#160;&#160;&#160;<em>inotify</em> Events</a></p>
+<p class="tocsec"><a href="ch19.xhtml#ch19lev1sec04">19.4&#160;&#160;&#160;Reading <em>inotify</em> Events</a></p>
+<p class="tocsec"><a href="ch19.xhtml#ch19lev1sec05">19.5&#160;&#160;&#160;Queue Limits and <span class="literal">/proc</span> Files</a></p>
+<p class="tocsec"><a href="ch19.xhtml#ch19lev1sec06">19.6&#160;&#160;&#160;An Older System for Monitoring File Events: <em>dnotify</em></a></p>
+<p class="tocsec"><a href="ch19.xhtml#ch19lev1sec07">19.7&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch19.xhtml#ch19lev1sec08">19.8&#160;&#160;&#160;Exercise</a></p>
+<p class="tocchap"><a href="ch20.xhtml"><strong>20&#160;&#160;&#160;&#160;&#160;SIGNALS: FUNDAMENTAL CONCEPTS</strong></a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec01">20.1&#160;&#160;&#160;Concepts and Overview</a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec02">20.2&#160;&#160;&#160;Signal Types and Default Actions</a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec03">20.3&#160;&#160;&#160;Changing Signal Dispositions: <em>signal()</em></a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec04">20.4&#160;&#160;&#160;Introduction to Signal Handlers</a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec05">20.5&#160;&#160;&#160;Sending Signals: <em>kill()</em></a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec06">20.6&#160;&#160;&#160;Checking for the Existence of a Process</a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec07">20.7&#160;&#160;&#160;Other Ways of Sending Signals: <em>raise()</em> and <em>killpg()</em></a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec08">20.8&#160;&#160;&#160;Displaying Signal Descriptions</a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec09">20.9&#160;&#160;&#160;Signal Sets</a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec10">20.10 The Signal Mask (Blocking Signal Delivery)</a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec11">20.11 Pending Signals</a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec12">20.12 Signals Are Not Queued</a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec13">20.13 Changing Signal Dispositions: <em>sigaction()</em></a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec14">20.14 Waiting for a Signal: <em>pause()</em></a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec15">20.15 Summary</a></p>
+<p class="tocsec"><a href="ch20.xhtml#ch20lev1sec16">20.16 Exercises</a></p>
+<p class="tocchap"><a href="ch21.xhtml"><strong>21&#160;&#160;&#160;&#160;&#160;SIGNALS: SIGNAL HANDLERS</strong></a></p>
+<p class="tocsec"><a href="ch21.xhtml#ch21lev1sec01">21.1&#160;&#160;&#160;Designing Signal Handlers</a></p>
+<p class="tocsec1"><a href="ch21.xhtml#ch21lev2sec01">21.1.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Signals Are Not Queued (Revisited)</a></p>
+<p class="tocsec1"><a href="ch21.xhtml#ch21lev2sec02">21.1.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Reentrant and Async-Signal-Safe Functions</a></p>
+<p class="tocsec1"><a href="ch21.xhtml#ch21lev2sec03">21.1.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Global Variables and the <em>sig_atomic_t</em> Data Type</a></p>
+<p class="tocsec"><a href="ch21.xhtml#ch21lev1sec02">21.2&#160;&#160;&#160;Other Methods of Terminating a Signal Handler</a></p>
+<p class="tocsec1"><a href="ch21.xhtml#ch21lev2sec04">21.2.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Performing a Nonlocal Goto from a Signal Handler</a></p>
+<p class="tocsec1"><a href="ch21.xhtml#ch21lev2sec05">21.2.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Terminating a Process Abnormally: <em>abort()</em></a></p>
+<p class="tocsec"><a href="ch21.xhtml#ch21lev1sec03">21.3&#160;&#160;&#160;Handling a Signal on an Alternate Stack: <em>sigaltstack()</em></a></p>
+<p class="tocsec"><a href="ch21.xhtml#ch21lev1sec04">21.4&#160;&#160;&#160;The <span class="literal">SA_SIGINFO</span> Flag</a></p>
+<p class="tocsec"><a href="ch21.xhtml#ch21lev1sec05">21.5&#160;&#160;&#160;Interruption and Restarting of System Calls</a></p>
+<p class="tocsec"><a href="ch21.xhtml#ch21lev1sec06">21.6&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch21.xhtml#ch21lev1sec07">21.7&#160;&#160;&#160;Exercise</a></p>
+<p class="tocchap"><a href="ch22.xhtml"><strong>22&#160;&#160;&#160;&#160;&#160;SIGNALS: ADVANCED FEATURES</strong></a></p>
+<p class="tocsec"><a href="ch22.xhtml#ch22lev1sec01">22.1&#160;&#160;&#160;Core Dump Files</a></p>
+<p class="tocsec"><a href="ch22.xhtml#ch22lev1sec02">22.2&#160;&#160;&#160;Special Cases for Delivery, Disposition, and Handling</a></p>
+<p class="tocsec"><a href="ch22.xhtml#ch22lev1sec03">22.3&#160;&#160;&#160;Interruptible and Uninterruptible Process Sleep States</a></p>
+<p class="tocsec"><a href="ch22.xhtml#ch22lev1sec04">22.4&#160;&#160;&#160;Hardware-Generated Signals</a></p>
+<p class="tocsec"><a href="ch22.xhtml#ch22lev1sec05">22.5&#160;&#160;&#160;Synchronous and Asynchronous Signal Generation</a></p>
+<p class="tocsec"><span epub:type="pagebreak" id="page_xix"/><a href="ch22.xhtml#ch22lev1sec06">22.6&#160;&#160;&#160;Timing and Order of Signal Delivery</a></p>
+<p class="tocsec"><a href="ch22.xhtml#ch22lev1sec07">22.7&#160;&#160;&#160;Implementation and Portability of <em>signal()</em></a></p>
+<p class="tocsec"><a href="ch22.xhtml#ch22lev1sec08">22.8&#160;&#160;&#160;Realtime Signals</a></p>
+<p class="tocsec1"><a href="ch22.xhtml#ch22lev2sec01">22.8.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Sending Realtime Signals</a></p>
+<p class="tocsec1"><a href="ch22.xhtml#ch22lev2sec02">22.8.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Handling Realtime Signals</a></p>
+<p class="tocsec"><a href="ch22.xhtml#ch22lev1sec09">22.9&#160;&#160;&#160;Waiting for a Signal Using a Mask: <em>sigsuspend()</em></a></p>
+<p class="tocsec"><a href="ch22.xhtml#ch22lev1sec10">22.10 Synchronously Waiting for a Signal</a></p>
+<p class="tocsec"><a href="ch22.xhtml#ch22lev1sec11">22.11 Fetching Signals via a File Descriptor</a></p>
+<p class="tocsec"><a href="ch22.xhtml#ch22lev1sec12">22.12 Interprocess Communication with Signals</a></p>
+<p class="tocsec"><a href="ch22.xhtml#ch22lev1sec13">22.13 Earlier Signal APIs (System V and BSD)</a></p>
+<p class="tocsec"><a href="ch22.xhtml#ch22lev1sec14">22.14 Summary</a></p>
+<p class="tocsec"><a href="ch22.xhtml#ch22lev1sec15">22.15 Exercises</a></p>
+<p class="tocchap"><a href="ch23.xhtml"><strong>23&#160;&#160;&#160;&#160;&#160;TIMERS AND SLEEPING</strong></a></p>
+<p class="tocsec"><a href="ch23.xhtml#ch23lev1sec01">23.1&#160;&#160;&#160;Interval Timers</a></p>
+<p class="tocsec"><a href="ch23.xhtml#ch23lev1sec02">23.2&#160;&#160;&#160;Scheduling and Accuracy of Timers</a></p>
+<p class="tocsec"><a href="ch23.xhtml#ch23lev1sec03">23.3&#160;&#160;&#160;Setting Timeouts on Blocking Operations</a></p>
+<p class="tocsec"><a href="ch23.xhtml#ch23lev1sec04">23.4&#160;&#160;&#160;Suspending Execution for a Fixed Interval (Sleeping)</a></p>
+<p class="tocsec1"><a href="ch23.xhtml#ch23lev2sec01">23.4.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Low-Resolution Sleeping: <em>sleep()</em></a></p>
+<p class="tocsec1"><a href="ch23.xhtml#ch23lev2sec02">23.4.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;High-Resolution Sleeping: <em>nanosleep()</em></a></p>
+<p class="tocsec"><a href="ch23.xhtml#ch23lev1sec05">23.5&#160;&#160;&#160;POSIX Clocks</a></p>
+<p class="tocsec1"><a href="ch23.xhtml#ch23lev2sec03">23.5.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Retrieving the Value of a Clock: <em>clock_gettime()</em></a></p>
+<p class="tocsec1"><a href="ch23.xhtml#ch23lev2sec04">23.5.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Setting the Value of a Clock: <em>clock_settime()</em></a></p>
+<p class="tocsec1"><a href="ch23.xhtml#ch23lev2sec05">23.5.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Obtaining the Clock ID of a Specific Process or Thread</a></p>
+<p class="tocsec1"><a href="ch23.xhtml#ch23lev2sec06">23.5.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Improved High-Resolution Sleeping: <em>clock_nanosleep()</em></a></p>
+<p class="tocsec"><a href="ch23.xhtml#ch23lev1sec06">23.6&#160;&#160;&#160;POSIX Interval Timers</a></p>
+<p class="tocsec1"><a href="ch23.xhtml#ch23lev2sec07">23.6.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Creating a Timer: <em>timer_create()</em></a></p>
+<p class="tocsec1"><a href="ch23.xhtml#ch23lev2sec08">23.6.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Arming and Disarming a Timer: <em>timer_settime()</em></a></p>
+<p class="tocsec1"><a href="ch23.xhtml#ch23lev2sec09">23.6.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Retrieving the Current Value of a Timer: <em>timer_gettime()</em></a></p>
+<p class="tocsec1"><a href="ch23.xhtml#ch23lev2sec10">23.6.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Deleting a Timer: <em>timer_delete()</em></a></p>
+<p class="tocsec1"><a href="ch23.xhtml#ch23lev2sec11">23.6.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Notification via a Signal</a></p>
+<p class="tocsec1"><a href="ch23.xhtml#ch23lev2sec12">23.6.6&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Timer Overruns</a></p>
+<p class="tocsec1"><a href="ch23.xhtml#ch23lev2sec13">23.6.7&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Notification via a Thread</a></p>
+<p class="tocsec"><a href="ch23.xhtml#ch23lev1sec07">23.7&#160;&#160;&#160;Timers That Notify via File Descriptors: The <em>timerfd</em> API</a></p>
+<p class="tocsec"><a href="ch23.xhtml#ch23lev1sec08">23.8&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch23.xhtml#ch23lev1sec09">23.9&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch24.xhtml"><strong>24&#160;&#160;&#160;&#160;&#160;PROCESS CREATION</strong></a></p>
+<p class="tocsec"><a href="ch24.xhtml#ch24lev1sec01">24.1&#160;&#160;&#160;Overview of <em>fork()</em>, <em>exit()</em>, <em>wait()</em>, and <em>execve()</em></a></p>
+<p class="tocsec"><a href="ch24.xhtml#ch24lev1sec02">24.2&#160;&#160;&#160;Creating a New Process: <em>fork()</em></a></p>
+<p class="tocsec1"><a href="ch24.xhtml#ch24lev2sec01">24.2.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;File Sharing Between Parent and Child</a></p>
+<p class="tocsec1"><a href="ch24.xhtml#ch24lev2sec02">24.2.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Memory Semantics of <em>fork()</em></a></p>
+<p class="tocsec"><a href="ch24.xhtml#ch24lev1sec03">24.3&#160;&#160;&#160;The <em>vfork()</em> System Call</a></p>
+<p class="tocsec"><a href="ch24.xhtml#ch24lev1sec04">24.4&#160;&#160;&#160;Race Conditions After <em>fork()</em></a></p>
+<p class="tocsec"><a href="ch24.xhtml#ch24lev1sec05">24.5&#160;&#160;&#160;Avoiding Race Conditions by Synchronizing with Signals</a></p>
+<p class="tocsec"><a href="ch24.xhtml#ch24lev1sec06">24.6&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch24.xhtml#ch24lev1sec07">24.7&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch25.xhtml"><strong>25&#160;&#160;&#160;&#160;&#160;PROCESS TERMINATION</strong></a></p>
+<p class="tocsec"><a href="ch25.xhtml#ch25lev1sec01">25.1&#160;&#160;&#160;Terminating a Process: <em>_exit()</em> and <em>exit()</em></a></p>
+<p class="tocsec"><a href="ch25.xhtml#ch25lev1sec02">25.2&#160;&#160;&#160;Details of Process Termination</a></p>
+<p class="tocsec"><a href="ch25.xhtml#ch25lev1sec03">25.3&#160;&#160;&#160;Exit Handlers</a></p>
+<p class="tocsec"><a href="ch25.xhtml#ch25lev1sec04">25.4&#160;&#160;&#160;Interactions Between <em>fork()</em>, <em>stdio</em> Buffers, and <em>_exit()</em></a></p>
+<p class="tocsec"><span epub:type="pagebreak" id="page_xx"/><a href="ch25.xhtml#ch25lev1sec05">25.5&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch25.xhtml#ch25lev1sec06">25.6&#160;&#160;&#160;Exercise</a></p>
+<p class="tocchap"><a href="ch26.xhtml"><strong>26&#160;&#160;&#160;&#160;&#160;MONITORING CHILD PROCESSES</strong></a></p>
+<p class="tocsec"><a href="ch26.xhtml#ch26lev1sec01">26.1&#160;&#160;&#160;Waiting on a Child Process</a></p>
+<p class="tocsec1"><a href="ch26.xhtml#ch26lev2sec01">26.1.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <em>wait()</em> System Call</a></p>
+<p class="tocsec1"><a href="ch26.xhtml#ch26lev2sec02">26.1.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <em>waitpid()</em> System Call</a></p>
+<p class="tocsec1"><a href="ch26.xhtml#ch26lev2sec03">26.1.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The Wait Status Value</a></p>
+<p class="tocsec1"><a href="ch26.xhtml#ch26lev2sec04">26.1.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Process Termination from a Signal Handler</a></p>
+<p class="tocsec1"><a href="ch26.xhtml#ch26lev2sec05">26.1.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <em>waitid()</em> System Call</a></p>
+<p class="tocsec1"><a href="ch26.xhtml#ch26lev2sec06">26.1.6&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <em>wait3()</em> and <em>wait4()</em> System Calls</a></p>
+<p class="tocsec"><a href="ch26.xhtml#ch26lev1sec02">26.2&#160;&#160;&#160;Orphans and Zombies</a></p>
+<p class="tocsec"><a href="ch26.xhtml#ch26lev1sec03">26.3&#160;&#160;&#160;The <span class="literal">SIGCHLD</span> Signal</a></p>
+<p class="tocsec1"><a href="ch26.xhtml#ch26lev2sec07">26.3.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Establishing a Handler for <span class="literal">SIGCHLD</span></a></p>
+<p class="tocsec1"><a href="ch26.xhtml#ch26lev2sec08">26.3.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Delivery of <span class="literal">SIGCHLD</span> for Stopped Children</a></p>
+<p class="tocsec1"><a href="ch26.xhtml#ch26lev2sec09">26.3.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Ignoring Dead Child Processes</a></p>
+<p class="tocsec"><a href="ch26.xhtml#ch26lev1sec04">26.4&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch26.xhtml#ch26lev1sec05">26.5&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch27.xhtml"><strong>27&#160;&#160;&#160;&#160;&#160;PROGRAM EXECUTION</strong></a></p>
+<p class="tocsec"><a href="ch27.xhtml#ch27lev1sec01">27.1&#160;&#160;&#160;Executing a New Program: <em>execve()</em></a></p>
+<p class="tocsec"><a href="ch27.xhtml#ch27lev1sec02">27.2&#160;&#160;&#160;The <em>exec()</em> Library Functions</a></p>
+<p class="tocsec1"><a href="ch27.xhtml#ch27lev2sec01">27.2.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <span class="literal">PATH</span> Environment Variable</a></p>
+<p class="tocsec1"><a href="ch27.xhtml#ch27lev2sec02">27.2.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Specifying Program Arguments as a List</a></p>
+<p class="tocsec1"><a href="ch27.xhtml#ch27lev2sec03">27.2.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Passing the Caller&#8217;s Environment to the New Program</a></p>
+<p class="tocsec1"><a href="ch27.xhtml#ch27lev2sec04">27.2.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Executing a File Referred to by a Descriptor: <em>fexecve()</em></a></p>
+<p class="tocsec"><a href="ch27.xhtml#ch27lev1sec03">27.3&#160;&#160;&#160;Interpreter Scripts</a></p>
+<p class="tocsec"><a href="ch27.xhtml#ch27lev1sec04">27.4&#160;&#160;&#160;File Descriptors and <em>exec()</em></a></p>
+<p class="tocsec"><a href="ch27.xhtml#ch27lev1sec05">27.5&#160;&#160;&#160;Signals and <em>exec()</em></a></p>
+<p class="tocsec"><a href="ch27.xhtml#ch27lev1sec06">27.6&#160;&#160;&#160;Executing a Shell Command: <em>system()</em></a></p>
+<p class="tocsec"><a href="ch27.xhtml#ch27lev1sec07">27.7&#160;&#160;&#160;Implementing <em>system()</em></a></p>
+<p class="tocsec"><a href="ch27.xhtml#ch27lev1sec08">27.8&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch27.xhtml#ch27lev1sec09">27.9&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch28.xhtml"><strong>28&#160;&#160;&#160;&#160;&#160;PROCESS CREATION AND PROGRAM EXECUTION IN MORE DETAIL</strong></a></p>
+<p class="tocsec"><a href="ch28.xhtml#ch28lev1sec01">28.1&#160;&#160;&#160;Process Accounting</a></p>
+<p class="tocsec"><a href="ch28.xhtml#ch28lev1sec02">28.2&#160;&#160;&#160;The <em>clone()</em> System Call</a></p>
+<p class="tocsec1"><a href="ch28.xhtml#ch28lev2sec01">28.2.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <em>clone() flags</em> Argument</a></p>
+<p class="tocsec1"><a href="ch28.xhtml#ch28lev2sec02">28.2.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Extensions to <em>waitpid()</em> for Cloned Children</a></p>
+<p class="tocsec"><a href="ch28.xhtml#ch28lev1sec03">28.3&#160;&#160;&#160;Speed of Process Creation</a></p>
+<p class="tocsec"><a href="ch28.xhtml#ch28lev1sec04">28.4&#160;&#160;&#160;Effect of <em>exec()</em> and <em>fork()</em> on Process Attributes</a></p>
+<p class="tocsec"><a href="ch28.xhtml#ch28lev1sec05">28.5&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch28.xhtml#ch28lev1sec06">28.6&#160;&#160;&#160;Exercise</a></p>
+<p class="tocchap"><a href="ch29.xhtml"><strong>29&#160;&#160;&#160;&#160;&#160;THREADS: INTRODUCTION</strong></a></p>
+<p class="tocsec"><a href="ch29.xhtml#ch29lev1sec01">29.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch29.xhtml#ch29lev1sec02">29.2&#160;&#160;&#160;Background Details of the Pthreads API</a></p>
+<p class="tocsec"><a href="ch29.xhtml#ch29lev1sec03">29.3&#160;&#160;&#160;Thread Creation</a></p>
+<p class="tocsec"><a href="ch29.xhtml#ch29lev1sec04">29.4&#160;&#160;&#160;Thread Termination</a></p>
+<p class="tocsec"><a href="ch29.xhtml#ch29lev1sec05">29.5&#160;&#160;&#160;Thread IDs</a></p>
+<p class="tocsec"><a href="ch29.xhtml#ch29lev1sec06">29.6&#160;&#160;&#160;Joining with a Terminated Thread</a></p>
+<p class="tocsec"><a href="ch29.xhtml#ch29lev1sec07">29.7&#160;&#160;&#160;Detaching a Thread</a></p>
+<p class="tocsec"><span epub:type="pagebreak" id="page_xxi"/><a href="ch29.xhtml#ch29lev1sec08">29.8&#160;&#160;&#160;Thread Attributes</a></p>
+<p class="tocsec"><a href="ch29.xhtml#ch29lev1sec09">29.9&#160;&#160;&#160;Threads Versus Processes</a></p>
+<p class="tocsec"><a href="ch29.xhtml#ch29lev1sec10">29.10 Summary</a></p>
+<p class="tocsec"><a href="ch29.xhtml#ch29lev1sec11">29.11 Exercises</a></p>
+<p class="tocchap"><a href="ch30.xhtml"><strong>30&#160;&#160;&#160;&#160;&#160;THREADS: THREAD SYNCHRONIZATION</strong></a></p>
+<p class="tocsec"><a href="ch30.xhtml#ch30lev1sec01">30.1&#160;&#160;&#160;Protecting Accesses to Shared Variables: Mutexes</a></p>
+<p class="tocsec1"><a href="ch30.xhtml#ch30lev2sec01">30.1.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Statically Allocated Mutexes</a></p>
+<p class="tocsec1"><a href="ch30.xhtml#ch30lev2sec02">30.1.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Locking and Unlocking a Mutex</a></p>
+<p class="tocsec1"><a href="ch30.xhtml#ch30lev2sec03">30.1.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Performance of Mutexes</a></p>
+<p class="tocsec1"><a href="ch30.xhtml#ch30lev2sec04">30.1.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Mutex Deadlocks</a></p>
+<p class="tocsec1"><a href="ch30.xhtml#ch30lev2sec05">30.1.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Dynamically Initializing a Mutex</a></p>
+<p class="tocsec1"><a href="ch30.xhtml#ch30lev2sec06">30.1.6&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Mutex Attributes</a></p>
+<p class="tocsec1"><a href="ch30.xhtml#ch30lev2sec07">30.1.7&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Mutex Types</a></p>
+<p class="tocsec"><a href="ch30.xhtml#ch30lev1sec02">30.2&#160;&#160;&#160;Signaling Changes of State: Condition Variables</a></p>
+<p class="tocsec1"><a href="ch30.xhtml#ch30lev2sec08">30.2.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Statically Allocated Condition Variables</a></p>
+<p class="tocsec1"><a href="ch30.xhtml#ch30lev2sec09">30.2.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Signaling and Waiting on Condition Variables</a></p>
+<p class="tocsec1"><a href="ch30.xhtml#ch30lev2sec10">30.2.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Testing a Condition Variable&#8217;s Predicate</a></p>
+<p class="tocsec1"><a href="ch30.xhtml#ch30lev2sec11">30.2.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Example Program: Joining Any Terminated Thread</a></p>
+<p class="tocsec1"><a href="ch30.xhtml#ch30lev2sec12">30.2.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Dynamically Allocated Condition Variables</a></p>
+<p class="tocsec"><a href="ch30.xhtml#ch30lev1sec03">30.3&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch30.xhtml#ch30lev1sec04">30.4&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch31.xhtml"><strong>31&#160;&#160;&#160;&#160;&#160;THREADS: THREAD SAFETY AND PER-THREAD STORAGE</strong></a></p>
+<p class="tocsec"><a href="ch31.xhtml#ch31lev1sec01">31.1&#160;&#160;&#160;Thread Safety (and Reentrancy Revisited)</a></p>
+<p class="tocsec"><a href="ch31.xhtml#ch31lev1sec02">31.2&#160;&#160;&#160;One-Time Initialization</a></p>
+<p class="tocsec"><a href="ch31.xhtml#ch31lev1sec03">31.3&#160;&#160;&#160;Thread-Specific Data</a></p>
+<p class="tocsec1"><a href="ch31.xhtml#ch31lev2sec01">31.3.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Thread-Specific Data from the Library Function&#8217;s Perspective</a></p>
+<p class="tocsec1"><a href="ch31.xhtml#ch31lev2sec02">31.3.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Overview of the Thread-Specific Data API</a></p>
+<p class="tocsec1"><a href="ch31.xhtml#ch31lev2sec03">31.3.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Details of the Thread-Specific Data API</a></p>
+<p class="tocsec1"><a href="ch31.xhtml#ch31lev2sec04">31.3.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Employing the Thread-Specific Data API</a></p>
+<p class="tocsec1"><a href="ch31.xhtml#ch31lev2sec05">31.3.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Thread-Specific Data Implementation Limits</a></p>
+<p class="tocsec"><a href="ch31.xhtml#ch31lev1sec04">31.4&#160;&#160;&#160;Thread-Local Storage</a></p>
+<p class="tocsec"><a href="ch31.xhtml#ch31lev1sec05">31.5&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch31.xhtml#ch31lev1sec06">31.6&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch32.xhtml"><strong>32&#160;&#160;&#160;&#160;&#160;THREADS: THREAD CANCELLATION</strong></a></p>
+<p class="tocsec"><a href="ch32.xhtml#ch32lev1sec01">32.1&#160;&#160;&#160;Canceling a Thread</a></p>
+<p class="tocsec"><a href="ch32.xhtml#ch32lev1sec02">32.2&#160;&#160;&#160;Cancellation State and Type</a></p>
+<p class="tocsec"><a href="ch32.xhtml#ch32lev1sec03">32.3&#160;&#160;&#160;Cancellation Points</a></p>
+<p class="tocsec"><a href="ch32.xhtml#ch32lev1sec04">32.4&#160;&#160;&#160;Testing for Thread Cancellation</a></p>
+<p class="tocsec"><a href="ch32.xhtml#ch32lev1sec05">32.5&#160;&#160;&#160;Cleanup Handlers</a></p>
+<p class="tocsec"><a href="ch32.xhtml#ch32lev1sec06">32.6&#160;&#160;&#160;Asynchronous Cancelability</a></p>
+<p class="tocsec"><a href="ch32.xhtml#ch32lev1sec07">32.7&#160;&#160;&#160;Summary</a></p>
+<p class="tocchap"><a href="ch33.xhtml"><strong>33&#160;&#160;&#160;&#160;&#160;THREADS: FURTHER DETAILS</strong></a></p>
+<p class="tocsec"><a href="ch33.xhtml#ch33lev1sec01">33.1&#160;&#160;&#160;Thread Stacks</a></p>
+<p class="tocsec"><a href="ch33.xhtml#ch33lev1sec02">33.2&#160;&#160;&#160;Threads and Signals</a></p>
+<p class="tocsec1"><a href="ch33.xhtml#ch33lev2sec01">33.2.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;How the UNIX Signal Model Maps to Threads</a></p>
+<p class="tocsec1"><a href="ch33.xhtml#ch33lev2sec02">33.2.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Manipulating the Thread Signal Mask</a></p>
+<p class="tocsec1"><a href="ch33.xhtml#ch33lev2sec03">33.2.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Sending a Signal to a Thread</a></p>
+<p class="tocsec1"><a href="ch33.xhtml#ch33lev2sec04">33.2.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Dealing with Asynchronous Signals Sanely</a></p>
+<p class="tocsec"><span epub:type="pagebreak" id="page_xxii"/><a href="ch33.xhtml#ch33lev1sec03">33.3&#160;&#160;&#160;Threads and Process Control</a></p>
+<p class="tocsec"><a href="ch33.xhtml#ch33lev1sec04">33.4&#160;&#160;&#160;Thread Implementation Models</a></p>
+<p class="tocsec"><a href="ch33.xhtml#ch33lev1sec05">33.5&#160;&#160;&#160;Linux Implementations of POSIX Threads</a></p>
+<p class="tocsec1"><a href="ch33.xhtml#ch33lev2sec05">33.5.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;LinuxThreads</a></p>
+<p class="tocsec1"><a href="ch33.xhtml#ch33lev2sec06">33.5.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;NPTL</a></p>
+<p class="tocsec1"><a href="ch33.xhtml#ch33lev2sec07">33.5.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Which Threading Implementation?</a></p>
+<p class="tocsec"><a href="ch33.xhtml#ch33lev1sec06">33.6&#160;&#160;&#160;Advanced Features of the Pthreads API</a></p>
+<p class="tocsec"><a href="ch33.xhtml#ch33lev1sec07">33.7&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch33.xhtml#ch33lev1sec08">33.8&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch34.xhtml"><strong>34&#160;&#160;&#160;&#160;&#160;PROCESS GROUPS, SESSIONS, AND JOB CONTROL</strong></a></p>
+<p class="tocsec"><a href="ch34.xhtml#ch34lev1sec01">34.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch34.xhtml#ch34lev1sec02">34.2&#160;&#160;&#160;Process Groups</a></p>
+<p class="tocsec"><a href="ch34.xhtml#ch34lev1sec03">34.3&#160;&#160;&#160;Sessions</a></p>
+<p class="tocsec"><a href="ch34.xhtml#ch34lev1sec04">34.4&#160;&#160;&#160;Controlling Terminals and Controlling Processes</a></p>
+<p class="tocsec"><a href="ch34.xhtml#ch34lev1sec05">34.5&#160;&#160;&#160;Foreground and Background Process Groups</a></p>
+<p class="tocsec"><a href="ch34.xhtml#ch34lev1sec06">34.6&#160;&#160;&#160;The <span class="literal">SIGHUP</span> Signal</a></p>
+<p class="tocsec1"><a href="ch34.xhtml#ch34lev2sec01">34.6.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Handling of <span class="literal">SIGHUP</span> by the Shell</a></p>
+<p class="tocsec1"><a href="ch34.xhtml#ch34lev2sec02">34.6.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="literal">SIGHUP</span> and Termination of the Controlling Process</a></p>
+<p class="tocsec"><a href="ch34.xhtml#ch34lev1sec07">34.7&#160;&#160;&#160;Job Control</a></p>
+<p class="tocsec1"><a href="ch34.xhtml#ch34lev2sec03">34.7.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Using Job Control Within the Shell</a></p>
+<p class="tocsec1"><a href="ch34.xhtml#ch34lev2sec04">34.7.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Implementing Job Control</a></p>
+<p class="tocsec1"><a href="ch34.xhtml#ch34lev2sec05">34.7.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Handling Job-Control Signals</a></p>
+<p class="tocsec1"><a href="ch34.xhtml#ch34lev2sec06">34.7.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Orphaned Process Groups (and <span class="literal">SIGHUP</span> Revisited)</a></p>
+<p class="tocsec"><a href="ch34.xhtml#ch34lev1sec08">34.8&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch34.xhtml#ch34lev1sec09">34.9&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch35.xhtml"><strong>35&#160;&#160;&#160;&#160;&#160;PROCESS PRIORITIES AND SCHEDULING</strong></a></p>
+<p class="tocsec"><a href="ch35.xhtml#ch35lev1sec01">35.1&#160;&#160;&#160;Process Priorities (Nice Values)</a></p>
+<p class="tocsec"><a href="ch35.xhtml#ch35lev1sec02">35.2&#160;&#160;&#160;Overview of Realtime Process Scheduling</a></p>
+<p class="tocsec1"><a href="ch35.xhtml#ch35lev2sec01">35.2.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <span class="literal">SCHED_RR</span> Policy</a></p>
+<p class="tocsec1"><a href="ch35.xhtml#ch35lev2sec02">35.2.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <span class="literal">SCHED_FIFO</span> Policy</a></p>
+<p class="tocsec1"><a href="ch35.xhtml#ch35lev2sec03">35.2.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <span class="literal">SCHED_BATCH</span> and <span class="literal">SCHED_IDLE</span> Policies</a></p>
+<p class="tocsec"><a href="ch35.xhtml#ch35lev1sec03">35.3&#160;&#160;&#160;Realtime Process Scheduling API</a></p>
+<p class="tocsec1"><a href="ch35.xhtml#ch35lev2sec04">35.3.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Realtime Priority Ranges</a></p>
+<p class="tocsec1"><a href="ch35.xhtml#ch35lev2sec05">35.3.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Modifying and Retrieving Policies and Priorities</a></p>
+<p class="tocsec1"><a href="ch35.xhtml#ch35lev2sec06">35.3.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Relinquishing the CPU</a></p>
+<p class="tocsec1"><a href="ch35.xhtml#ch35lev2sec07">35.3.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <span class="literal">SCHED_RR</span> Time Slice</a></p>
+<p class="tocsec"><a href="ch35.xhtml#ch35lev1sec04">35.4&#160;&#160;&#160;CPU Affinity</a></p>
+<p class="tocsec"><a href="ch35.xhtml#ch35lev1sec05">35.5&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch35.xhtml#ch35lev1sec06">35.6&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch36.xhtml"><strong>36&#160;&#160;&#160;&#160;&#160;PROCESS RESOURCES</strong></a></p>
+<p class="tocsec"><a href="ch36.xhtml#ch36lev1sec01">36.1&#160;&#160;&#160;Process Resource Usage</a></p>
+<p class="tocsec"><a href="ch36.xhtml#ch36lev1sec02">36.2&#160;&#160;&#160;Process Resource Limits</a></p>
+<p class="tocsec"><a href="ch36.xhtml#ch36lev1sec03">36.3&#160;&#160;&#160;Details of Specific Resource Limits</a></p>
+<p class="tocsec"><a href="ch36.xhtml#ch36lev1sec04">36.4&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch36.xhtml#ch36lev1sec05">36.5&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch37.xhtml"><strong>37&#160;&#160;&#160;&#160;&#160;DAEMONS</strong></a></p>
+<p class="tocsec"><a href="ch37.xhtml#ch37lev1sec01">37.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch37.xhtml#ch37lev1sec02">37.2&#160;&#160;&#160;Creating a Daemon</a></p>
+<p class="tocsec"><span epub:type="pagebreak" id="page_xxiii"/><a href="ch37.xhtml#ch37lev1sec03">37.3&#160;&#160;&#160;Guidelines for Writing Daemons</a></p>
+<p class="tocsec"><a href="ch37.xhtml#ch37lev1sec04">37.4&#160;&#160;&#160;Using <span class="literal">SIGHUP</span> to Reinitialize a Daemon</a></p>
+<p class="tocsec"><a href="ch37.xhtml#ch37lev1sec05">37.5&#160;&#160;&#160;Logging Messages and Errors Using <em>syslog</em></a></p>
+<p class="tocsec1"><a href="ch37.xhtml#ch37lev2sec01">37.5.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec1"><a href="ch37.xhtml#ch37lev2sec02">37.5.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <em>syslog</em> API</a></p>
+<p class="tocsec1"><a href="ch37.xhtml#ch37lev2sec03">37.5.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <span class="literal">/etc/syslog.conf</span> File</a></p>
+<p class="tocsec"><a href="ch37.xhtml#ch37lev1sec06">37.6&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch37.xhtml#ch37lev1sec07">37.7&#160;&#160;&#160;Exercise</a></p>
+<p class="tocchap"><a href="ch38.xhtml"><strong>38&#160;&#160;&#160;&#160;&#160;WRITING SECURE PRIVILEGED PROGRAMS</strong></a></p>
+<p class="tocsec"><a href="ch38.xhtml#ch38lev1sec01">38.1&#160;&#160;&#160;Is a Set-User-ID or Set-Group-ID Program Required?</a></p>
+<p class="tocsec"><a href="ch38.xhtml#ch38lev1sec02">38.2&#160;&#160;&#160;Operate with Least Privilege</a></p>
+<p class="tocsec"><a href="ch38.xhtml#ch38lev1sec03">38.3&#160;&#160;&#160;Be Careful When Executing a Program</a></p>
+<p class="tocsec"><a href="ch38.xhtml#ch38lev1sec04">38.4&#160;&#160;&#160;Avoid Exposing Sensitive Information</a></p>
+<p class="tocsec"><a href="ch38.xhtml#ch38lev1sec05">38.5&#160;&#160;&#160;Confine the Process</a></p>
+<p class="tocsec"><a href="ch38.xhtml#ch38lev1sec06">38.6&#160;&#160;&#160;Beware of Signals and Race Conditions</a></p>
+<p class="tocsec"><a href="ch38.xhtml#ch38lev1sec07">38.7&#160;&#160;&#160;Pitfalls When Performing File Operations and File I/O</a></p>
+<p class="tocsec"><a href="ch38.xhtml#ch38lev1sec08">38.8&#160;&#160;&#160;Don&#8217;t Trust Inputs or the Environment</a></p>
+<p class="tocsec"><a href="ch38.xhtml#ch38lev1sec09">38.9&#160;&#160;&#160;Beware of Buffer Overruns</a></p>
+<p class="tocsec"><a href="ch38.xhtml#ch38lev1sec10">38.10 Beware of Denial-of-Service Attacks</a></p>
+<p class="tocsec"><a href="ch38.xhtml#ch38lev1sec11">38.11 Check Return Statuses and Fail Safely</a></p>
+<p class="tocsec"><a href="ch38.xhtml#ch38lev1sec12">38.12 Summary</a></p>
+<p class="tocsec"><a href="ch38.xhtml#ch38lev1sec13">38.13 Exercises</a></p>
+<p class="tocchap"><a href="ch39.xhtml"><strong>39&#160;&#160;&#160;&#160;&#160;CAPABILITIES</strong></a></p>
+<p class="tocsec"><a href="ch39.xhtml#ch39lev1sec01">39.1&#160;&#160;&#160;Rationale for Capabilities</a></p>
+<p class="tocsec"><a href="ch39.xhtml#ch39lev1sec02">39.2&#160;&#160;&#160;The Linux Capabilities</a></p>
+<p class="tocsec"><a href="ch39.xhtml#ch39lev1sec03">39.3&#160;&#160;&#160;Process and File Capabilities</a></p>
+<p class="tocsec1"><a href="ch39.xhtml#ch39lev2sec01">39.3.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Process Capabilities</a></p>
+<p class="tocsec1"><a href="ch39.xhtml#ch39lev2sec02">39.3.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;File Capabilities</a></p>
+<p class="tocsec1"><a href="ch39.xhtml#ch39lev2sec03">39.3.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Purpose of the Process Permitted and Effective Capability Sets</a></p>
+<p class="tocsec1"><a href="ch39.xhtml#ch39lev2sec04">39.3.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Purpose of the File Permitted and Effective Capability Sets</a></p>
+<p class="tocsec1"><a href="ch39.xhtml#ch39lev2sec05">39.3.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Purpose of the Process and File Inheritable Sets</a></p>
+<p class="tocsec1"><a href="ch39.xhtml#ch39lev2sec06">39.3.6&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Assigning and Viewing File Capabilities from the Shell</a></p>
+<p class="tocsec"><a href="ch39.xhtml#ch39lev1sec04">39.4&#160;&#160;&#160;The Modern Capabilities Implementation</a></p>
+<p class="tocsec"><a href="ch39.xhtml#ch39lev1sec05">39.5&#160;&#160;&#160;Transformation of Process Capabilities During <em>exec()</em></a></p>
+<p class="tocsec1"><a href="ch39.xhtml#ch39lev2sec07">39.5.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Capability Bounding Set</a></p>
+<p class="tocsec1"><a href="ch39.xhtml#ch39lev2sec08">39.5.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Preserving <em>root</em> Semantics</a></p>
+<p class="tocsec"><a href="ch39.xhtml#ch39lev1sec06">39.6&#160;&#160;&#160;Effect on Process Capabilities of Changing User IDs</a></p>
+<p class="tocsec"><a href="ch39.xhtml#ch39lev1sec07">39.7&#160;&#160;&#160;Changing Process Capabilities Programmatically</a></p>
+<p class="tocsec"><a href="ch39.xhtml#ch39lev1sec08">39.8&#160;&#160;&#160;Creating Capabilities-Only Environments</a></p>
+<p class="tocsec"><a href="ch39.xhtml#ch39lev1sec09">39.9&#160;&#160;&#160;Discovering the Capabilities Required by a Program</a></p>
+<p class="tocsec"><a href="ch39.xhtml#ch39lev1sec10">39.10 Older Kernels and Systems Without File Capabilities</a></p>
+<p class="tocsec"><a href="ch39.xhtml#ch39lev1sec11">39.11 Summary</a></p>
+<p class="tocsec"><a href="ch39.xhtml#ch39lev1sec12">39.12 Exercise</a></p>
+<p class="tocchap"><a href="ch40.xhtml"><strong>40&#160;&#160;&#160;&#160;&#160;LOGIN ACCOUNTING</strong></a></p>
+<p class="tocsec"><a href="ch40.xhtml#ch40lev1sec01">40.1&#160;&#160;&#160;Overview of the <span class="literal">utmp</span> and <span class="literal">wtmp</span> Files</a></p>
+<p class="tocsec"><a href="ch40.xhtml#ch40lev1sec02">40.2&#160;&#160;&#160;The <em>utmpx</em> API</a></p>
+<p class="tocsec"><a href="ch40.xhtml#ch40lev1sec03">40.3&#160;&#160;&#160;The <em>utmpx</em> Structure</a></p>
+<p class="tocsec"><a href="ch40.xhtml#ch40lev1sec04">40.4&#160;&#160;&#160;Retrieving Information from the <span class="literal">utmp</span> and <span class="literal">wtmp</span> Files</a></p>
+<p class="tocsec"><a href="ch40.xhtml#ch40lev1sec05">40.5&#160;&#160;&#160;Retrieving the Login Name: <em>getlogin()</em></a></p>
+<p class="tocsec"><a href="ch40.xhtml#ch40lev1sec06">40.6&#160;&#160;&#160;Updating the <span class="literal">utmp</span> and <span class="literal">wtmp</span> Files for a Login Session</a></p>
+<p class="tocsec"><span epub:type="pagebreak" id="page_xxiv"/><a href="ch40.xhtml#ch40lev1sec07">40.7&#160;&#160;&#160;The <span class="literal">lastlog</span> File</a></p>
+<p class="tocsec"><a href="ch40.xhtml#ch40lev1sec08">40.8&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch40.xhtml#ch40lev1sec09">40.9&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch41.xhtml"><strong>41&#160;&#160;&#160;&#160;&#160;FUNDAMENTALS OF SHARED LIBRARIES</strong></a></p>
+<p class="tocsec"><a href="ch41.xhtml#ch41lev1sec01">41.1&#160;&#160;&#160;Object Libraries</a></p>
+<p class="tocsec"><a href="ch41.xhtml#ch41lev1sec02">41.2&#160;&#160;&#160;Static Libraries</a></p>
+<p class="tocsec"><a href="ch41.xhtml#ch41lev1sec03">41.3&#160;&#160;&#160;Overview of Shared Libraries</a></p>
+<p class="tocsec"><a href="ch41.xhtml#ch41lev1sec04">41.4&#160;&#160;&#160;Creating and Using Shared Libraries&#8212;A First Pass</a></p>
+<p class="tocsec1"><a href="ch41.xhtml#ch41lev2sec01">41.4.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Creating a Shared Library</a></p>
+<p class="tocsec1"><a href="ch41.xhtml#ch41lev2sec02">41.4.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Position-Independent Code</a></p>
+<p class="tocsec1"><a href="ch41.xhtml#ch41lev2sec03">41.4.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Using a Shared Library</a></p>
+<p class="tocsec1"><a href="ch41.xhtml#ch41lev2sec04">41.4.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The Shared Library Soname</a></p>
+<p class="tocsec"><a href="ch41.xhtml#ch41lev1sec05">41.5&#160;&#160;&#160;Useful Tools for Working with Shared Libraries</a></p>
+<p class="tocsec"><a href="ch41.xhtml#ch41lev1sec06">41.6&#160;&#160;&#160;Shared Library Versions and Naming Conventions</a></p>
+<p class="tocsec"><a href="ch41.xhtml#ch41lev1sec07">41.7&#160;&#160;&#160;Installing Shared Libraries</a></p>
+<p class="tocsec"><a href="ch41.xhtml#ch41lev1sec08">41.8&#160;&#160;&#160;Compatible Versus Incompatible Libraries</a></p>
+<p class="tocsec"><a href="ch41.xhtml#ch41lev1sec09">41.9&#160;&#160;&#160;Upgrading Shared Libraries</a></p>
+<p class="tocsec"><a href="ch41.xhtml#ch41lev1sec10">41.10 Specifying Library Search Directories in an Object File</a></p>
+<p class="tocsec"><a href="ch41.xhtml#ch41lev1sec11">41.11 Finding Shared Libraries at Run Time</a></p>
+<p class="tocsec"><a href="ch41.xhtml#ch41lev1sec12">41.12 Run-Time Symbol Resolution</a></p>
+<p class="tocsec"><a href="ch41.xhtml#ch41lev1sec13">41.13 Using a Static Library Instead of a Shared Library</a></p>
+<p class="tocsec"><a href="ch41.xhtml#ch41lev1sec14">41.14 Summary</a></p>
+<p class="tocsec"><a href="ch41.xhtml#ch41lev1sec15">41.15 Exercise</a></p>
+<p class="tocchap"><a href="ch42.xhtml"><strong>42&#160;&#160;&#160;&#160;&#160;ADVANCED FEATURES OF SHARED LIBRARIES</strong></a></p>
+<p class="tocsec"><a href="ch42.xhtml#ch42lev1sec01">42.1&#160;&#160;&#160;Dynamically Loaded Libraries</a></p>
+<p class="tocsec1"><a href="ch42.xhtml#ch42lev2sec01">42.1.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Opening a Shared Library: <em>dlopen()</em></a></p>
+<p class="tocsec1"><a href="ch42.xhtml#ch42lev2sec02">42.1.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Diagnosing Errors: <em>dlerror()</em></a></p>
+<p class="tocsec1"><a href="ch42.xhtml#ch42lev2sec03">42.1.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Obtaining the Address of a Symbol: <em>dlsym()</em></a></p>
+<p class="tocsec1"><a href="ch42.xhtml#ch42lev2sec04">42.1.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Closing a Shared Library: <em>dlclose()</em></a></p>
+<p class="tocsec1"><a href="ch42.xhtml#ch42lev2sec05">42.1.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Obtaining Information About Loaded Symbols: <em>dladdr()</em></a></p>
+<p class="tocsec1"><a href="ch42.xhtml#ch42lev2sec06">42.1.6&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Accessing Symbols in the Main Program</a></p>
+<p class="tocsec"><a href="ch42.xhtml#ch42lev1sec02">42.2&#160;&#160;&#160;Controlling Symbol Visibility</a></p>
+<p class="tocsec"><a href="ch42.xhtml#ch42lev1sec03">42.3&#160;&#160;&#160;Linker Version Scripts</a></p>
+<p class="tocsec1"><a href="ch42.xhtml#ch42lev2sec07">42.3.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Controlling Symbol Visibility with Version Scripts</a></p>
+<p class="tocsec1"><a href="ch42.xhtml#ch42lev2sec08">42.3.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Symbol Versioning</a></p>
+<p class="tocsec"><a href="ch42.xhtml#ch42lev1sec04">42.4&#160;&#160;&#160;Initialization and Finalization Functions</a></p>
+<p class="tocsec"><a href="ch42.xhtml#ch42lev1sec05">42.5&#160;&#160;&#160;Preloading Shared Libraries</a></p>
+<p class="tocsec"><a href="ch42.xhtml#ch42lev1sec06">42.6&#160;&#160;&#160;Monitoring the Dynamic Linker: <span class="literal">LD_DEBUG</span></a></p>
+<p class="tocsec"><a href="ch42.xhtml#ch42lev1sec07">42.7&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch42.xhtml#ch42lev1sec08">42.8&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch43.xhtml"><strong>43&#160;&#160;&#160;&#160;&#160;INTERPROCESS COMMUNICATION OVERVIEW</strong></a></p>
+<p class="tocsec"><a href="ch43.xhtml#ch43lev1sec01">43.1&#160;&#160;&#160;A Taxonomy of IPC Facilities</a></p>
+<p class="tocsec"><a href="ch43.xhtml#ch43lev1sec02">43.2&#160;&#160;&#160;Communication Facilities</a></p>
+<p class="tocsec"><a href="ch43.xhtml#ch43lev1sec03">43.3&#160;&#160;&#160;Synchronization Facilities</a></p>
+<p class="tocsec"><a href="ch43.xhtml#ch43lev1sec04">43.4&#160;&#160;&#160;Comparing IPC Facilities</a></p>
+<p class="tocsec"><a href="ch43.xhtml#ch43lev1sec05">43.5&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch43.xhtml#ch43lev1sec06">43.6&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><span epub:type="pagebreak" id="page_xxv"/><a href="ch44.xhtml"><strong>44&#160;&#160;&#160;&#160;&#160;PIPES AND FIFOS</strong></a></p>
+<p class="tocsec"><a href="ch44.xhtml#ch44lev1sec01">44.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch44.xhtml#ch44lev1sec02">44.2&#160;&#160;&#160;Creating and Using Pipes</a></p>
+<p class="tocsec"><a href="ch44.xhtml#ch44lev1sec03">44.3&#160;&#160;&#160;Pipes as a Method of Process Synchronization</a></p>
+<p class="tocsec"><a href="ch44.xhtml#ch44lev1sec04">44.4&#160;&#160;&#160;Using Pipes to Connect Filters</a></p>
+<p class="tocsec"><a href="ch44.xhtml#ch44lev1sec05">44.5&#160;&#160;&#160;Talking to a Shell Command via a Pipe: <em>popen()</em></a></p>
+<p class="tocsec"><a href="ch44.xhtml#ch44lev1sec06">44.6&#160;&#160;&#160;Pipes and <em>stdio</em> Buffering</a></p>
+<p class="tocsec"><a href="ch44.xhtml#ch44lev1sec07">44.7&#160;&#160;&#160;FIFOs</a></p>
+<p class="tocsec"><a href="ch44.xhtml#ch44lev1sec08">44.8&#160;&#160;&#160;A Client-Server Application Using FIFOs</a></p>
+<p class="tocsec"><a href="ch44.xhtml#ch44lev1sec09">44.9&#160;&#160;&#160;Nonblocking I/O</a></p>
+<p class="tocsec"><a href="ch44.xhtml#ch44lev1sec10">44.10 Semantics of <em>read()</em> and <em>write()</em> on Pipes and FIFOs</a></p>
+<p class="tocsec"><a href="ch44.xhtml#ch44lev1sec11">44.11 Summary</a></p>
+<p class="tocsec"><a href="ch44.xhtml#ch44lev1sec12">44.12 Exercises</a></p>
+<p class="tocchap"><a href="ch45.xhtml"><strong>45&#160;&#160;&#160;&#160;&#160;INTRODUCTION TO SYSTEM V IPC</strong></a></p>
+<p class="tocsec"><a href="ch45.xhtml#ch45lev1sec01">45.1&#160;&#160;&#160;API Overview</a></p>
+<p class="tocsec"><a href="ch45.xhtml#ch45lev1sec02">45.2&#160;&#160;&#160;IPC Keys</a></p>
+<p class="tocsec"><a href="ch45.xhtml#ch45lev1sec03">45.3&#160;&#160;&#160;Associated Data Structure and Object Permissions</a></p>
+<p class="tocsec"><a href="ch45.xhtml#ch45lev1sec04">45.4&#160;&#160;&#160;IPC Identifiers and Client-Server Applications</a></p>
+<p class="tocsec"><a href="ch45.xhtml#ch45lev1sec05">45.5&#160;&#160;&#160;Algorithm Employed by System V IPC <em>get</em> Calls</a></p>
+<p class="tocsec"><a href="ch45.xhtml#ch45lev1sec06">45.6&#160;&#160;&#160;The <em>ipcs</em> and <em>ipcrm</em> Commands</a></p>
+<p class="tocsec"><a href="ch45.xhtml#ch45lev1sec07">45.7&#160;&#160;&#160;Obtaining a List of All IPC Objects</a></p>
+<p class="tocsec"><a href="ch45.xhtml#ch45lev1sec08">45.8&#160;&#160;&#160;IPC Limits</a></p>
+<p class="tocsec"><a href="ch45.xhtml#ch45lev1sec09">45.9&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch45.xhtml#ch45lev1sec10">45.10 Exercises</a></p>
+<p class="tocchap"><a href="ch46.xhtml"><strong>46&#160;&#160;&#160;&#160;&#160;SYSTEM V MESSAGE QUEUES</strong></a></p>
+<p class="tocsec"><a href="ch46.xhtml#ch46lev1sec01">46.1&#160;&#160;&#160;Creating or Opening a Message Queue</a></p>
+<p class="tocsec"><a href="ch46.xhtml#ch46lev1sec02">46.2&#160;&#160;&#160;Exchanging Messages</a></p>
+<p class="tocsec1"><a href="ch46.xhtml#ch46lev2sec01">46.2.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Sending Messages</a></p>
+<p class="tocsec1"><a href="ch46.xhtml#ch46lev2sec02">46.2.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Receiving Messages</a></p>
+<p class="tocsec"><a href="ch46.xhtml#ch46lev1sec03">46.3&#160;&#160;&#160;Message Queue Control Operations</a></p>
+<p class="tocsec"><a href="ch46.xhtml#ch46lev1sec04">46.4&#160;&#160;&#160;Message Queue Associated Data Structure</a></p>
+<p class="tocsec"><a href="ch46.xhtml#ch46lev1sec05">46.5&#160;&#160;&#160;Message Queue Limits</a></p>
+<p class="tocsec"><a href="ch46.xhtml#ch46lev1sec06">46.6&#160;&#160;&#160;Displaying All Message Queues on the System</a></p>
+<p class="tocsec"><a href="ch46.xhtml#ch46lev1sec07">46.7&#160;&#160;&#160;Client-Server Programming with Message Queues</a></p>
+<p class="tocsec"><a href="ch46.xhtml#ch46lev1sec08">46.8&#160;&#160;&#160;A File-Server Application Using Message Queues</a></p>
+<p class="tocsec"><a href="ch46.xhtml#ch46lev1sec09">46.9&#160;&#160;&#160;Disadvantages of System V Message Queues</a></p>
+<p class="tocsec"><a href="ch46.xhtml#ch46lev1sec10">46.10 Summary</a></p>
+<p class="tocsec"><a href="ch46.xhtml#ch46lev1sec11">46.11 Exercises</a></p>
+<p class="tocchap"><a href="ch47.xhtml"><strong>47&#160;&#160;&#160;&#160;&#160;SYSTEM V SEMAPHORES</strong></a></p>
+<p class="tocsec"><a href="ch47.xhtml#ch47lev1sec01">47.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch47.xhtml#ch47lev1sec02">47.2&#160;&#160;&#160;Creating or Opening a Semaphore Set</a></p>
+<p class="tocsec"><a href="ch47.xhtml#ch47lev1sec03">47.3&#160;&#160;&#160;Semaphore Control Operations</a></p>
+<p class="tocsec"><a href="ch47.xhtml#ch47lev1sec04">47.4&#160;&#160;&#160;Semaphore Associated Data Structure</a></p>
+<p class="tocsec"><a href="ch47.xhtml#ch47lev1sec05">47.5&#160;&#160;&#160;Semaphore Initialization</a></p>
+<p class="tocsec"><a href="ch47.xhtml#ch47lev1sec06">47.6&#160;&#160;&#160;Semaphore Operations</a></p>
+<p class="tocsec"><a href="ch47.xhtml#ch47lev1sec07">47.7&#160;&#160;&#160;Handling of Multiple Blocked Semaphore Operations</a></p>
+<p class="tocsec"><a href="ch47.xhtml#ch47lev1sec08">47.8&#160;&#160;&#160;Semaphore Undo Values</a></p>
+<p class="tocsec"><a href="ch47.xhtml#ch47lev1sec09">47.9&#160;&#160;&#160;Implementing a Binary Semaphores Protocol</a></p>
+<p class="tocsec"><span epub:type="pagebreak" id="page_xxvi"/><a href="ch47.xhtml#ch47lev1sec10">47.10 Semaphore Limits</a></p>
+<p class="tocsec"><a href="ch47.xhtml#ch47lev1sec11">47.11 Disadvantages of System V Semaphores</a></p>
+<p class="tocsec"><a href="ch47.xhtml#ch47lev1sec12">47.12 Summary</a></p>
+<p class="tocsec"><a href="ch47.xhtml#ch47lev1sec13">47.13 Exercises</a></p>
+<p class="tocchap"><a href="ch48.xhtml"><strong>48&#160;&#160;&#160;&#160;&#160;SYSTEM V SHARED MEMORY</strong></a></p>
+<p class="tocsec"><a href="ch48.xhtml#ch48lev1sec01">48.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch48.xhtml#ch48lev1sec02">48.2&#160;&#160;&#160;Creating or Opening a Shared Memory Segment</a></p>
+<p class="tocsec"><a href="ch48.xhtml#ch48lev1sec03">48.3&#160;&#160;&#160;Using Shared Memory</a></p>
+<p class="tocsec"><a href="ch48.xhtml#ch48lev1sec04">48.4&#160;&#160;&#160;Example: Transferring Data via Shared Memory</a></p>
+<p class="tocsec"><a href="ch48.xhtml#ch48lev1sec05">48.5&#160;&#160;&#160;Location of Shared Memory in Virtual Memory</a></p>
+<p class="tocsec"><a href="ch48.xhtml#ch48lev1sec06">48.6&#160;&#160;&#160;Storing Pointers in Shared Memory</a></p>
+<p class="tocsec"><a href="ch48.xhtml#ch48lev1sec07">48.7&#160;&#160;&#160;Shared Memory Control Operations</a></p>
+<p class="tocsec"><a href="ch48.xhtml#ch48lev1sec08">48.8&#160;&#160;&#160;Shared Memory Associated Data Structure</a></p>
+<p class="tocsec"><a href="ch48.xhtml#ch48lev1sec09">48.9&#160;&#160;&#160;Shared Memory Limits</a></p>
+<p class="tocsec"><a href="ch48.xhtml#ch48lev1sec10">48.10 Summary</a></p>
+<p class="tocsec"><a href="ch48.xhtml#ch48lev1sec11">48.11 Exercises</a></p>
+<p class="tocchap"><a href="ch49.xhtml"><strong>49&#160;&#160;&#160;&#160;&#160;MEMORY MAPPINGS</strong></a></p>
+<p class="tocsec"><a href="ch49.xhtml#ch49lev1sec01">49.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch49.xhtml#ch49lev1sec02">49.2&#160;&#160;&#160;Creating a Mapping: <em>mmap()</em></a></p>
+<p class="tocsec"><a href="ch49.xhtml#ch49lev1sec03">49.3&#160;&#160;&#160;Unmapping a Mapped Region: <em>munmap()</em></a></p>
+<p class="tocsec"><a href="ch49.xhtml#ch49lev1sec04">49.4&#160;&#160;&#160;File Mappings</a></p>
+<p class="tocsec1"><a href="ch49.xhtml#ch49lev2sec01">49.4.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Private File Mappings</a></p>
+<p class="tocsec1"><a href="ch49.xhtml#ch49lev2sec02">49.4.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Shared File Mappings</a></p>
+<p class="tocsec1"><a href="ch49.xhtml#ch49lev2sec03">49.4.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Boundary Cases</a></p>
+<p class="tocsec1"><a href="ch49.xhtml#ch49lev2sec04">49.4.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Memory Protection and File Access Mode Interactions</a></p>
+<p class="tocsec"><a href="ch49.xhtml#ch49lev1sec05">49.5&#160;&#160;&#160;Synchronizing a Mapped Region: <em>msync()</em></a></p>
+<p class="tocsec"><a href="ch49.xhtml#ch49lev1sec06">49.6&#160;&#160;&#160;Additional <em>mmap()</em> Flags</a></p>
+<p class="tocsec"><a href="ch49.xhtml#ch49lev1sec07">49.7&#160;&#160;&#160;Anonymous Mappings</a></p>
+<p class="tocsec"><a href="ch49.xhtml#ch49lev1sec08">49.8&#160;&#160;&#160;Remapping a Mapped Region: <em>mremap()</em></a></p>
+<p class="tocsec"><a href="ch49.xhtml#ch49lev1sec09">49.9&#160;&#160;&#160;<span class="literal">MAP_NORESERVE</span> and Swap Space Overcommitting</a></p>
+<p class="tocsec"><a href="ch49.xhtml#ch49lev1sec10">49.10 The <span class="literal">MAP_FIXED</span> Flag</a></p>
+<p class="tocsec"><a href="ch49.xhtml#ch49lev1sec11">49.11 Nonlinear Mappings: <em>remap_file_pages()</em></a></p>
+<p class="tocsec"><a href="ch49.xhtml#ch49lev1sec12">49.12 Summary</a></p>
+<p class="tocsec"><a href="ch49.xhtml#ch49lev1sec13">49.13 Exercises</a></p>
+<p class="tocchap"><a href="ch50.xhtml"><strong>50&#160;&#160;&#160;&#160;&#160;VIRTUAL MEMORY OPERATIONS</strong></a></p>
+<p class="tocsec"><a href="ch50.xhtml#ch50lev1sec01">50.1&#160;&#160;&#160;Changing Memory Protection: <em>mprotect()</em></a></p>
+<p class="tocsec"><a href="ch50.xhtml#ch50lev1sec02">50.2&#160;&#160;&#160;Memory Locking: <em>mlock()</em> and <em>mlockall()</em></a></p>
+<p class="tocsec"><a href="ch50.xhtml#ch50lev1sec03">50.3&#160;&#160;&#160;Determining Memory Residence: <em>mincore()</em></a></p>
+<p class="tocsec"><a href="ch50.xhtml#ch50lev1sec04">50.4&#160;&#160;&#160;Advising Future Memory Usage Patterns: <em>madvise()</em></a></p>
+<p class="tocsec"><a href="ch50.xhtml#ch50lev1sec05">50.5&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch50.xhtml#ch50lev1sec06">50.6&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch51.xhtml"><strong>51&#160;&#160;&#160;&#160;&#160;INTRODUCTION TO POSIX IPC</strong></a></p>
+<p class="tocsec"><a href="ch51.xhtml#ch51lev1sec01">51.1&#160;&#160;&#160;API Overview</a></p>
+<p class="tocsec"><a href="ch51.xhtml#ch51lev1sec02">51.2&#160;&#160;&#160;Comparison of System V IPC and POSIX IPC</a></p>
+<p class="tocsec"><a href="ch51.xhtml#ch51lev1sec03">51.3&#160;&#160;&#160;Summary</a></p>
+<p class="tocchap"><span epub:type="pagebreak" id="page_xxvii"/><a href="ch52.xhtml"><strong>52&#160;&#160;&#160;&#160;&#160;POSIX MESSAGE QUEUES</strong></a></p>
+<p class="tocsec"><a href="ch52.xhtml#ch52lev1sec01">52.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch52.xhtml#ch52lev1sec02">52.2&#160;&#160;&#160;Opening, Closing, and Unlinking a Message Queue</a></p>
+<p class="tocsec"><a href="ch52.xhtml#ch52lev1sec03">52.3&#160;&#160;&#160;Relationship Between Descriptors and Message Queues</a></p>
+<p class="tocsec"><a href="ch52.xhtml#ch52lev1sec04">52.4&#160;&#160;&#160;Message Queue Attributes</a></p>
+<p class="tocsec"><a href="ch52.xhtml#ch52lev1sec05">52.5&#160;&#160;&#160;Exchanging Messages</a></p>
+<p class="tocsec1"><a href="ch52.xhtml#ch52lev2sec01">52.5.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Sending Messages</a></p>
+<p class="tocsec1"><a href="ch52.xhtml#ch52lev2sec02">52.5.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Receiving Messages</a></p>
+<p class="tocsec1"><a href="ch52.xhtml#ch52lev2sec03">52.5.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Sending and Receiving Messages with a Timeout</a></p>
+<p class="tocsec"><a href="ch52.xhtml#ch52lev1sec06">52.6&#160;&#160;&#160;Message Notification</a></p>
+<p class="tocsec1"><a href="ch52.xhtml#ch52lev2sec04">52.6.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Receiving Notification via a Signal</a></p>
+<p class="tocsec1"><a href="ch52.xhtml#ch52lev2sec05">52.6.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Receiving Notification via a Thread</a></p>
+<p class="tocsec"><a href="ch52.xhtml#ch52lev1sec07">52.7&#160;&#160;&#160;Linux-Specific Features</a></p>
+<p class="tocsec"><a href="ch52.xhtml#ch52lev1sec08">52.8&#160;&#160;&#160;Message Queue Limits</a></p>
+<p class="tocsec"><a href="ch52.xhtml#ch52lev1sec09">52.9&#160;&#160;&#160;Comparison of POSIX and System V Message Queues</a></p>
+<p class="tocsec"><a href="ch52.xhtml#ch52lev1sec10">52.10 Summary</a></p>
+<p class="tocsec"><a href="ch52.xhtml#ch52lev1sec11">52.11 Exercises</a></p>
+<p class="tocchap"><a href="ch53.xhtml"><strong>53&#160;&#160;&#160;&#160;&#160;POSIX SEMAPHORES</strong></a></p>
+<p class="tocsec"><a href="ch53.xhtml#ch53lev1sec01">53.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch53.xhtml#ch53lev1sec02">53.2&#160;&#160;&#160;Named Semaphores</a></p>
+<p class="tocsec1"><a href="ch53.xhtml#ch53lev2sec01">53.2.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Opening a Named Semaphore</a></p>
+<p class="tocsec1"><a href="ch53.xhtml#ch53lev2sec02">53.2.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Closing a Semaphore</a></p>
+<p class="tocsec1"><a href="ch53.xhtml#ch53lev2sec03">53.2.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Removing a Named Semaphore</a></p>
+<p class="tocsec"><a href="ch53.xhtml#ch53lev1sec03">53.3&#160;&#160;&#160;Semaphore Operations</a></p>
+<p class="tocsec1"><a href="ch53.xhtml#ch53lev2sec04">53.3.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Waiting on a Semaphore</a></p>
+<p class="tocsec1"><a href="ch53.xhtml#ch53lev2sec05">53.3.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Posting a Semaphore</a></p>
+<p class="tocsec1"><a href="ch53.xhtml#ch53lev2sec06">53.3.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Retrieving the Current Value of a Semaphore</a></p>
+<p class="tocsec"><a href="ch53.xhtml#ch53lev1sec04">53.4&#160;&#160;&#160;Unnamed Semaphores</a></p>
+<p class="tocsec1"><a href="ch53.xhtml#ch53lev2sec07">53.4.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Initializing an Unnamed Semaphore</a></p>
+<p class="tocsec1"><a href="ch53.xhtml#ch53lev2sec08">53.4.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Destroying an Unnamed Semaphore</a></p>
+<p class="tocsec"><a href="ch53.xhtml#ch53lev1sec05">53.5&#160;&#160;&#160;Comparisons with Other Synchronization Techniques</a></p>
+<p class="tocsec"><a href="ch53.xhtml#ch53lev1sec06">53.6&#160;&#160;&#160;Semaphore Limits</a></p>
+<p class="tocsec"><a href="ch53.xhtml#ch53lev1sec07">53.7&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch53.xhtml#ch53lev1sec08">53.8&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch54.xhtml"><strong>54&#160;&#160;&#160;&#160;&#160;POSIX SHARED MEMORY</strong></a></p>
+<p class="tocsec"><a href="ch54.xhtml#ch54lev1sec01">54.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch54.xhtml#ch54lev1sec02">54.2&#160;&#160;&#160;Creating Shared Memory Objects</a></p>
+<p class="tocsec"><a href="ch54.xhtml#ch54lev1sec03">54.3&#160;&#160;&#160;Using Shared Memory Objects</a></p>
+<p class="tocsec"><a href="ch54.xhtml#ch54lev1sec04">54.4&#160;&#160;&#160;Removing Shared Memory Objects</a></p>
+<p class="tocsec"><a href="ch54.xhtml#ch54lev1sec05">54.5&#160;&#160;&#160;Comparisons Between Shared Memory APIs</a></p>
+<p class="tocsec"><a href="ch54.xhtml#ch54lev1sec06">54.6&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch54.xhtml#ch54lev1sec07">54.7&#160;&#160;&#160;Exercise</a></p>
+<p class="tocchap"><a href="ch55.xhtml"><strong>55&#160;&#160;&#160;&#160;&#160;FILE LOCKING</strong></a></p>
+<p class="tocsec"><a href="ch55.xhtml#ch55lev1sec01">55.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch55.xhtml#ch55lev1sec02">55.2&#160;&#160;&#160;File Locking with <em>flock()</em></a></p>
+<p class="tocsec1"><a href="ch55.xhtml#ch55lev2sec01">55.2.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Semantics of Lock Inheritance and Release</a></p>
+<p class="tocsec1"><a href="ch55.xhtml#ch55lev2sec02">55.2.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Limitations of <em>flock()</em></a></p>
+<p class="tocsec"><span epub:type="pagebreak" id="page_xxviii"/><a href="ch55.xhtml#ch55lev1sec03">55.3&#160;&#160;&#160;Record Locking with <em>fcntl()</em></a></p>
+<p class="tocsec1"><a href="ch55.xhtml#ch55lev2sec03">55.3.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Deadlock</a></p>
+<p class="tocsec1"><a href="ch55.xhtml#ch55lev2sec04">55.3.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Example: An Interactive Locking Program</a></p>
+<p class="tocsec1"><a href="ch55.xhtml#ch55lev2sec05">55.3.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Example: A Library of Locking Functions</a></p>
+<p class="tocsec1"><a href="ch55.xhtml#ch55lev2sec06">55.3.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Lock Limits and Performance</a></p>
+<p class="tocsec1"><a href="ch55.xhtml#ch55lev2sec07">55.3.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Semantics of Lock Inheritance and Release</a></p>
+<p class="tocsec1"><a href="ch55.xhtml#ch55lev2sec08">55.3.6&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Lock Starvation and Priority of Queued Lock Requests</a></p>
+<p class="tocsec"><a href="ch55.xhtml#ch55lev1sec04">55.4&#160;&#160;&#160;Mandatory Locking</a></p>
+<p class="tocsec"><a href="ch55.xhtml#ch55lev1sec05">55.5&#160;&#160;&#160;The <span class="literal">/proc/locks</span> File</a></p>
+<p class="tocsec"><a href="ch55.xhtml#ch55lev1sec06">55.6&#160;&#160;&#160;Running Just One Instance of a Program</a></p>
+<p class="tocsec"><a href="ch55.xhtml#ch55lev1sec07">55.7&#160;&#160;&#160;Older Locking Techniques</a></p>
+<p class="tocsec"><a href="ch55.xhtml#ch55lev1sec08">55.8&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch55.xhtml#ch55lev1sec09">55.9&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch56.xhtml"><strong>56&#160;&#160;&#160;&#160;&#160;SOCKETS: INTRODUCTION</strong></a></p>
+<p class="tocsec"><a href="ch56.xhtml#ch56lev1sec01">56.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch56.xhtml#ch56lev1sec02">56.2&#160;&#160;&#160;Creating a Socket: <em>socket()</em></a></p>
+<p class="tocsec"><a href="ch56.xhtml#ch56lev1sec03">56.3&#160;&#160;&#160;Binding a Socket to an Address: <em>bind()</em></a></p>
+<p class="tocsec"><a href="ch56.xhtml#ch56lev1sec04">56.4&#160;&#160;&#160;Generic Socket Address Structures: <em>struct sockaddr</em></a></p>
+<p class="tocsec"><a href="ch56.xhtml#ch56lev1sec05">56.5&#160;&#160;&#160;Stream Sockets</a></p>
+<p class="tocsec1"><a href="ch56.xhtml#ch56lev2sec01">56.5.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Listening for Incoming Connections: <em>listen()</em></a></p>
+<p class="tocsec1"><a href="ch56.xhtml#ch56lev2sec02">56.5.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Accepting a Connection: <em>accept()</em></a></p>
+<p class="tocsec1"><a href="ch56.xhtml#ch56lev2sec03">56.5.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Connecting to a Peer Socket: <em>connect()</em></a></p>
+<p class="tocsec1"><a href="ch56.xhtml#ch56lev2sec04">56.5.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;I/O on Stream Sockets</a></p>
+<p class="tocsec1"><a href="ch56.xhtml#ch56lev2sec05">56.5.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Connection Termination: <em>close()</em></a></p>
+<p class="tocsec"><a href="ch56.xhtml#ch56lev1sec06">56.6&#160;&#160;&#160;Datagram Sockets</a></p>
+<p class="tocsec1"><a href="ch56.xhtml#ch56lev2sec06">56.6.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Exchanging Datagrams: <em>recvfrom()</em> and <em>sendto()</em></a></p>
+<p class="tocsec1"><a href="ch56.xhtml#ch56lev2sec07">56.6.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Using <em>connect()</em> with Datagram Sockets</a></p>
+<p class="tocsec"><a href="ch56.xhtml#ch56lev1sec07">56.7&#160;&#160;&#160;Summary</a></p>
+<p class="tocchap"><a href="ch57.xhtml"><strong>57&#160;&#160;&#160;&#160;&#160;SOCKETS: UNIX DOMAIN</strong></a></p>
+<p class="tocsec"><a href="ch57.xhtml#ch57lev1sec01">57.1&#160;&#160;&#160;UNIX Domain Socket Addresses: <em>struct sockaddr_un</em></a></p>
+<p class="tocsec"><a href="ch57.xhtml#ch57lev1sec02">57.2&#160;&#160;&#160;Stream Sockets in the UNIX Domain</a></p>
+<p class="tocsec"><a href="ch57.xhtml#ch57lev1sec03">57.3&#160;&#160;&#160;Datagram Sockets in the UNIX Domain</a></p>
+<p class="tocsec"><a href="ch57.xhtml#ch57lev1sec04">57.4&#160;&#160;&#160;UNIX Domain Socket Permissions</a></p>
+<p class="tocsec"><a href="ch57.xhtml#ch57lev1sec05">57.5&#160;&#160;&#160;Creating a Connected Socket Pair: <em>socketpair()</em></a></p>
+<p class="tocsec"><a href="ch57.xhtml#ch57lev1sec06">57.6&#160;&#160;&#160;The Linux Abstract Socket Namespace</a></p>
+<p class="tocsec"><a href="ch57.xhtml#ch57lev1sec07">57.7&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch57.xhtml#ch57lev1sec08">57.8&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch58.xhtml"><strong>58&#160;&#160;&#160;&#160;&#160;SOCKETS: FUNDAMENTALS OF TCP/IP NETWORKS</strong></a></p>
+<p class="tocsec"><a href="ch58.xhtml#ch58lev1sec01">58.1&#160;&#160;&#160;Internets</a></p>
+<p class="tocsec"><a href="ch58.xhtml#ch58lev1sec02">58.2&#160;&#160;&#160;Networking Protocols and Layers</a></p>
+<p class="tocsec"><a href="ch58.xhtml#ch58lev1sec03">58.3&#160;&#160;&#160;The Data-Link Layer</a></p>
+<p class="tocsec"><a href="ch58.xhtml#ch58lev1sec04">58.4&#160;&#160;&#160;The Network Layer: IP</a></p>
+<p class="tocsec"><a href="ch58.xhtml#ch58lev1sec05">58.5&#160;&#160;&#160;IP Addresses</a></p>
+<p class="tocsec"><a href="ch58.xhtml#ch58lev1sec06">58.6&#160;&#160;&#160;The Transport Layer</a></p>
+<p class="tocsec1"><a href="ch58.xhtml#ch58lev2sec01">58.6.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Port Numbers</a></p>
+<p class="tocsec1"><a href="ch58.xhtml#ch58lev2sec02">58.6.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;User Datagram Protocol (UDP)</a></p>
+<p class="tocsec1"><a href="ch58.xhtml#ch58lev2sec03">58.6.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Transmission Control Protocol (TCP)</a></p>
+<p class="tocsec"><a href="ch58.xhtml#ch58lev1sec07">58.7&#160;&#160;&#160;Requests for Comments (RFCs)</a></p>
+<p class="tocsec"><a href="ch58.xhtml#ch58lev1sec08">58.8&#160;&#160;&#160;Summary</a></p>
+<p class="tocchap"><span epub:type="pagebreak" id="page_xxix"/><a href="ch59.xhtml"><strong>59&#160;&#160;&#160;&#160;&#160;SOCKETS: INTERNET DOMAINS</strong></a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec01">59.1&#160;&#160;&#160;Internet Domain Sockets</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec02">59.2&#160;&#160;&#160;Network Byte Order</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec03">59.3&#160;&#160;&#160;Data Representation</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec04">59.4&#160;&#160;&#160;Internet Socket Addresses</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec05">59.5&#160;&#160;&#160;Overview of Host and Service Conversion Functions</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec06">59.6&#160;&#160;&#160;The <em>inet_pton()</em> and <em>inet_ntop()</em> Functions</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec07">59.7&#160;&#160;&#160;Client-Server Example (Datagram Sockets)</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec08">59.8&#160;&#160;&#160;Domain Name System (DNS)</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec09">59.9&#160;&#160;&#160;The <span class="literal">/etc/services</span> File</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec10">59.10 Protocol-Independent Host and Service Conversion</a></p>
+<p class="tocsec1"><a href="ch59.xhtml#ch59lev2sec01">59.10.1&#160;&#160;&#160;&#160;&#160;&#160;The <em>getaddrinfo()</em> Function</a></p>
+<p class="tocsec1"><a href="ch59.xhtml#ch59lev2sec02">59.10.2&#160;&#160;&#160;&#160;&#160;&#160;Freeing <em>addrinfo</em> Lists: <em>freeaddrinfo()</em></a></p>
+<p class="tocsec1"><a href="ch59.xhtml#ch59lev2sec03">59.10.3&#160;&#160;&#160;&#160;&#160;&#160;Diagnosing Errors: <em>gai_strerror()</em></a></p>
+<p class="tocsec1"><a href="ch59.xhtml#ch59lev2sec04">59.10.4&#160;&#160;&#160;&#160;&#160;&#160;The <em>getnameinfo()</em> Function</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec11">59.11 Client-Server Example (Stream Sockets)</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec12">59.12 An Internet Domain Sockets Library</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec13">59.13 Obsolete APIs for Host and Service Conversions</a></p>
+<p class="tocsec1"><a href="ch59.xhtml#ch59lev2sec05">59.13.1&#160;&#160;&#160;&#160;&#160;&#160;The <em>inet_aton()</em> and <em>inet_ntoa()</em> Functions</a></p>
+<p class="tocsec1"><a href="ch59.xhtml#ch59lev2sec06">59.13.2&#160;&#160;&#160;&#160;&#160;&#160;The <em>gethostbyname()</em> and <em>gethostbyaddr()</em> Functions</a></p>
+<p class="tocsec1"><a href="ch59.xhtml#ch59lev2sec07">59.13.3&#160;&#160;&#160;&#160;&#160;&#160;The <em>getservbyname()</em> and <em>getservbyport()</em> Functions</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec14">59.14 UNIX Versus Internet Domain Sockets</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec15">59.15 Further Information</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec16">59.16 Summary</a></p>
+<p class="tocsec"><a href="ch59.xhtml#ch59lev1sec17">59.17 Exercises</a></p>
+<p class="tocchap"><a href="ch60.xhtml"><strong>60&#160;&#160;&#160;&#160;&#160;SOCKETS: SERVER DESIGN</strong></a></p>
+<p class="tocsec"><a href="ch60.xhtml#ch60lev1sec01">60.1&#160;&#160;&#160;Iterative and Concurrent Servers</a></p>
+<p class="tocsec"><a href="ch60.xhtml#ch60lev1sec02">60.2&#160;&#160;&#160;An Iterative UDP <em>echo</em> Server</a></p>
+<p class="tocsec"><a href="ch60.xhtml#ch60lev1sec03">60.3&#160;&#160;&#160;A Concurrent TCP <em>echo</em> Server</a></p>
+<p class="tocsec"><a href="ch60.xhtml#ch60lev1sec04">60.4&#160;&#160;&#160;Other Concurrent Server Designs</a></p>
+<p class="tocsec"><a href="ch60.xhtml#ch60lev1sec05">60.5&#160;&#160;&#160;The <em>inetd</em> (Internet Superserver) Daemon</a></p>
+<p class="tocsec"><a href="ch60.xhtml#ch60lev1sec06">60.6&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch60.xhtml#ch60lev1sec07">60.7&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><a href="ch61.xhtml"><strong>61&#160;&#160;&#160;&#160;&#160;SOCKETS: ADVANCED TOPICS</strong></a></p>
+<p class="tocsec"><a href="ch61.xhtml#ch61lev1sec01">61.1&#160;&#160;&#160;Partial Reads and Writes on Stream Sockets</a></p>
+<p class="tocsec"><a href="ch61.xhtml#ch61lev1sec02">61.2&#160;&#160;&#160;The <em>shutdown()</em> System Call</a></p>
+<p class="tocsec"><a href="ch61.xhtml#ch61lev1sec03">61.3&#160;&#160;&#160;Socket-Specific I/O System Calls: <em>recv()</em> and <em>send()</em></a></p>
+<p class="tocsec"><a href="ch61.xhtml#ch61lev1sec04">61.4&#160;&#160;&#160;The <em>sendfile()</em> System Call</a></p>
+<p class="tocsec"><a href="ch61.xhtml#ch61lev1sec05">61.5&#160;&#160;&#160;Retrieving Socket Addresses</a></p>
+<p class="tocsec"><a href="ch61.xhtml#ch61lev1sec06">61.6&#160;&#160;&#160;A Closer Look at TCP</a></p>
+<p class="tocsec1"><a href="ch61.xhtml#ch61lev2sec01">61.6.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Format of a TCP Segment</a></p>
+<p class="tocsec1"><a href="ch61.xhtml#ch61lev2sec02">61.6.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;TCP Sequence Numbers and Acknowledgements</a></p>
+<p class="tocsec1"><a href="ch61.xhtml#ch61lev2sec03">61.6.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;TCP State Machine and State Transition Diagram</a></p>
+<p class="tocsec1"><a href="ch61.xhtml#ch61lev2sec04">61.6.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;TCP Connection Establishment</a></p>
+<p class="tocsec1"><a href="ch61.xhtml#ch61lev2sec05">61.6.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;TCP Connection Termination</a></p>
+<p class="tocsec1"><a href="ch61.xhtml#ch61lev2sec06">61.6.6&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Calling <em>shutdown()</em> on a TCP Socket</a></p>
+<p class="tocsec1"><a href="ch61.xhtml#ch61lev2sec07">61.6.7&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The TIME_WAIT State</a></p>
+<p class="tocsec"><a href="ch61.xhtml#ch61lev1sec07">61.7&#160;&#160;&#160;Monitoring Sockets: <em>netstat</em></a></p>
+<p class="tocsec"><a href="ch61.xhtml#ch61lev1sec08">61.8&#160;&#160;&#160;Using <em>tcpdump</em> to Monitor TCP Traffic</a></p>
+<p class="tocsec"><a href="ch61.xhtml#ch61lev1sec09">61.9&#160;&#160;&#160;Socket Options</a></p>
+<p class="tocsec"><a href="ch61.xhtml#ch61lev1sec10">61.10 The <span class="literal">SO_REUSEADDR</span> Socket Option</a></p>
+<p class="tocsec"><a href="ch61.xhtml#ch61lev1sec11">61.11 Inheritance of Flags and Options Across <em>accept()</em></a></p>
+<p class="tocsec"><span epub:type="pagebreak" id="page_xxx"/><a href="ch61.xhtml#ch61lev1sec12">61.12 TCP Versus UDP</a></p>
+<p class="tocsec"><a href="ch61.xhtml#ch61lev1sec13">61.13 Advanced Features</a></p>
+<p class="tocsec1"><a href="ch61.xhtml#ch61lev2sec08">61.13.1&#160;&#160;&#160;&#160;&#160;&#160;Out-of-Band Data</a></p>
+<p class="tocsec1"><a href="ch61.xhtml#ch61lev2sec09">61.13.2&#160;&#160;&#160;&#160;&#160;&#160;The <em>sendmsg()</em> and <em>recvmsg()</em> System Calls</a></p>
+<p class="tocsec1"><a href="ch61.xhtml#ch61lev2sec10">61.13.3&#160;&#160;&#160;&#160;&#160;&#160;Passing File Descriptors</a></p>
+<p class="tocsec1"><a href="ch61.xhtml#ch61lev2sec11">61.13.4&#160;&#160;&#160;&#160;&#160;&#160;Receiving Sender Credentials</a></p>
+<p class="tocsec1"><a href="ch61.xhtml#ch61lev2sec12">61.13.5&#160;&#160;&#160;&#160;&#160;&#160;Sequenced-Packet Sockets</a></p>
+<p class="tocsec1"><a href="ch61.xhtml#ch61lev2sec13">61.13.6&#160;&#160;&#160;&#160;&#160;&#160;SCTP and DCCP Transport-Layer Protocols</a></p>
+<p class="tocsec"><a href="ch61.xhtml#ch61lev1sec14">61.14 Summary</a></p>
+<p class="tocsec"><a href="ch61.xhtml#ch61lev1sec15">61.15 Exercises</a></p>
+<p class="tocchap"><a href="ch62.xhtml"><strong>62&#160;&#160;&#160;&#160;&#160;TERMINALS</strong></a></p>
+<p class="tocsec"><a href="ch62.xhtml#ch62lev1sec01">62.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch62.xhtml#ch62lev1sec02">62.2&#160;&#160;&#160;Retrieving and Modifying Terminal Attributes</a></p>
+<p class="tocsec"><a href="ch62.xhtml#ch62lev1sec03">62.3&#160;&#160;&#160;The <em>stty</em> Command</a></p>
+<p class="tocsec"><a href="ch62.xhtml#ch62lev1sec04">62.4&#160;&#160;&#160;Terminal Special Characters</a></p>
+<p class="tocsec"><a href="ch62.xhtml#ch62lev1sec05">62.5&#160;&#160;&#160;Terminal Flags</a></p>
+<p class="tocsec"><a href="ch62.xhtml#ch62lev1sec06">62.6&#160;&#160;&#160;Terminal I/O Modes</a></p>
+<p class="tocsec1"><a href="ch62.xhtml#ch62lev2sec01">62.6.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Canonical Mode</a></p>
+<p class="tocsec1"><a href="ch62.xhtml#ch62lev2sec02">62.6.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Noncanonical Mode</a></p>
+<p class="tocsec1"><a href="ch62.xhtml#ch62lev2sec03">62.6.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Cooked, Cbreak, and Raw Modes</a></p>
+<p class="tocsec"><a href="ch62.xhtml#ch62lev1sec07">62.7&#160;&#160;&#160;Terminal Line Speed (Bit Rate)</a></p>
+<p class="tocsec"><a href="ch62.xhtml#ch62lev1sec08">62.8&#160;&#160;&#160;Terminal Line Control</a></p>
+<p class="tocsec"><a href="ch62.xhtml#ch62lev1sec09">62.9&#160;&#160;&#160;Terminal Window Size</a></p>
+<p class="tocsec"><a href="ch62.xhtml#ch62lev1sec10">62.10 Terminal Identification</a></p>
+<p class="tocsec"><a href="ch62.xhtml#ch62lev1sec11">62.11 Summary</a></p>
+<p class="tocsec"><a href="ch62.xhtml#ch62lev1sec12">62.12 Exercises</a></p>
+<p class="tocchap"><a href="ch63.xhtml"><strong>63&#160;&#160;&#160;&#160;&#160;ALTERNATIVE I/O MODELS</strong></a></p>
+<p class="tocsec"><a href="ch63.xhtml#ch63lev1sec01">63.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec01">63.1.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Level-Triggered and Edge-Triggered Notification</a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec02">63.1.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Employing Nonblocking I/O with Alternative I/O Models</a></p>
+<p class="tocsec"><a href="ch63.xhtml#ch63lev1sec02">63.2&#160;&#160;&#160;I/O Multiplexing</a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec03">63.2.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <em>select()</em> System Call</a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec04">63.2.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <em>poll()</em> System Call</a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec05">63.2.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;When Is a File Descriptor Ready?</a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec06">63.2.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Comparison of <em>select()</em> and <em>poll()</em></a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec07">63.2.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Problems with <em>select()</em> and <em>poll()</em></a></p>
+<p class="tocsec"><a href="ch63.xhtml#ch63lev1sec03">63.3&#160;&#160;&#160;Signal-Driven I/O</a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec08">63.3.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;When Is &#8220;I/O Possible&#8221; Signaled?</a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec09">63.3.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Refining the Use of Signal-Driven I/O</a></p>
+<p class="tocsec"><a href="ch63.xhtml#ch63lev1sec04">63.4&#160;&#160;&#160;The <em>epoll</em> API</a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec10">63.4.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Creating an <em>epoll</em> Instance: <em>epoll_create()</em></a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec11">63.4.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Modifying the <em>epoll</em> Interest List: <em>epoll_ctl()</em></a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec12">63.4.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Waiting for Events: <em>epoll_wait()</em></a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec13">63.4.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;A Closer Look at <em>epoll</em> Semantics</a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec14">63.4.5&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Performance of <em>epoll</em> Versus I/O Multiplexing</a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec15">63.4.6&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Edge-Triggered Notification</a></p>
+<p class="tocsec"><a href="ch63.xhtml#ch63lev1sec05">63.5&#160;&#160;&#160;Waiting on Signals and File Descriptors</a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec16">63.5.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The <em>pselect()</em> System Call</a></p>
+<p class="tocsec1"><a href="ch63.xhtml#ch63lev2sec17">63.5.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;The Self-Pipe Trick</a></p>
+<p class="tocsec"><a href="ch63.xhtml#ch63lev1sec06">63.6&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch63.xhtml#ch63lev1sec07">63.7&#160;&#160;&#160;Exercises</a></p>
+<p class="tocchap"><span epub:type="pagebreak" id="page_xxxi"/><a href="ch64.xhtml"><strong>64&#160;&#160;&#160;&#160;&#160;PSEUDOTERMINALS</strong></a></p>
+<p class="tocsec"><a href="ch64.xhtml#ch64lev1sec01">64.1&#160;&#160;&#160;Overview</a></p>
+<p class="tocsec"><a href="ch64.xhtml#ch64lev1sec02">64.2&#160;&#160;&#160;UNIX 98 Pseudoterminals</a></p>
+<p class="tocsec1"><a href="ch64.xhtml#ch64lev2sec01">64.2.1&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Opening an Unused Master: <em>posix_openpt()</em></a></p>
+<p class="tocsec1"><a href="ch64.xhtml#ch64lev2sec02">64.2.2&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Changing Slave Ownership and Permissions: <em>grantpt()</em></a></p>
+<p class="tocsec1"><a href="ch64.xhtml#ch64lev2sec03">64.2.3&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Unlocking the Slave: <em>unlockpt()</em></a></p>
+<p class="tocsec1"><a href="ch64.xhtml#ch64lev2sec04">64.2.4&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Obtaining the Name of the Slave: <em>ptsname()</em></a></p>
+<p class="tocsec"><a href="ch64.xhtml#ch64lev1sec03">64.3&#160;&#160;&#160;Opening a Master: <em>ptyMasterOpen()</em></a></p>
+<p class="tocsec"><a href="ch64.xhtml#ch64lev1sec04">64.4&#160;&#160;&#160;Connecting Processes with a Pseudoterminal: <em>ptyFork()</em></a></p>
+<p class="tocsec"><a href="ch64.xhtml#ch64lev1sec05">64.5&#160;&#160;&#160;Pseudoterminal I/O</a></p>
+<p class="tocsec"><a href="ch64.xhtml#ch64lev1sec06">64.6&#160;&#160;&#160;Implementing <em>script(1)</em></a></p>
+<p class="tocsec"><a href="ch64.xhtml#ch64lev1sec07">64.7&#160;&#160;&#160;Terminal Attributes and Window Size</a></p>
+<p class="tocsec"><a href="ch64.xhtml#ch64lev1sec08">64.8&#160;&#160;&#160;BSD Pseudoterminals</a></p>
+<p class="tocsec"><a href="ch64.xhtml#ch64lev1sec09">64.9&#160;&#160;&#160;Summary</a></p>
+<p class="tocsec"><a href="ch64.xhtml#ch64lev1sec10">64.10 Exercises</a></p>
+<p class="tocbm"><a href="app01.xhtml"><strong>A&#160;&#160;&#160;&#160;&#160;&#160;TRACING SYSTEM CALLS</strong></a></p>
+<p class="tocbm"><a href="app02.xhtml"><strong>B&#160;&#160;&#160;&#160;&#160;&#160;PARSING COMMAND-LINE OPTIONS</strong></a></p>
+<p class="tocbm"><a href="app03.xhtml"><strong>C&#160;&#160;&#160;&#160;&#160;&#160;CASTING THE</strong> <span class="literal"><span class="codestrong">NULL</span></span> <strong>POINTER</strong></a></p>
+<p class="tocbm"><a href="app04.xhtml"><strong>D&#160;&#160;&#160;&#160;&#160;&#160;KERNEL CONFIGURATION</strong></a></p>
+<p class="tocbm"><a href="app05.xhtml"><strong>E&#160;&#160;&#160;&#160;&#160;&#160;FURTHER SOURCES OF INFORMATION</strong></a></p>
+<p class="tocbm"><a href="app06.xhtml"><strong>F&#160;&#160;&#160;&#160;&#160;&#160;SOLUTIONS TO SELECTED EXERCISES</strong></a></p>
+<p class="tocbm"><a href="bib.xhtml"><strong>BIBLIOGRAPHY</strong></a></p>
+<p class="tocbm"><a href="index.xhtml"><strong>INDEX</strong></a><span epub:type="pagebreak" id="page_xxxii"/></p>
+</body>
+</html>

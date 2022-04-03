@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xml:lang="en-us" lang="en-us" xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xmlns:ns="http://www.w3.org/2001/10/synthesis">
+<head>
+<title>The Linux Programming Interface</title>
+<link rel="stylesheet" type="text/css" href="../styles/9781593272203.css"/>
+</head>
+<body>
+<h2 class="h2" id="ch29"><span epub:type="pagebreak" id="page_617"/><strong><span class="big">29</span></strong><br/><strong>THREADS: INTRODUCTION</strong></h2>
+<p class="noindenta">In this and the next few chapters, we describe POSIX threads, often known as <em>Pthreads</em>. We won&#8217;t attempt to cover the entire Pthreads API, since it is rather large. Various sources of further information about threads are listed at the end of this chapter.</p>
+<p class="indent">These chapters mainly describe the standard behavior specified for the Pthreads API. In <a href="ch33.xhtml#ch33lev1sec05">Section 33.5</a>, we discuss those points where the two main Linux threading implementations&#8212;LinuxThreads and Native POSIX Threads Library (NPTL)&#8212;deviate from the standard.</p>
+<p class="indent">In this chapter, we provide an overview of the operation of threads, and then look at how threads are created and how they terminate. We conclude with a discussion of some factors that may influence the choice of a multithreaded approach versus a multiprocess approach when designing an application.</p>
+<h3 class="h3" id="ch29lev1sec01"><strong>29.1 Overview</strong></h3>
+<p class="noindenta">Like processes, threads are a mechanism that permits an application to perform multiple tasks concurrently. A single process can contain multiple threads, as illustrated in <a href="ch29.xhtml#ch29fig1">Figure 29-1</a>. All of these threads are independently executing the same program, and they all share the same global memory, including the initialized data, uninitialized data, and heap segments. (A traditional UNIX process is simply a special case of a multithreaded process; it is a process that contains just one thread.)</p>
+<div class="block">
+<p class="noindent"><span epub:type="pagebreak" id="page_618"/>We have simplified things somewhat in <a href="ch29.xhtml#ch29fig1">Figure 29-1</a>. In particular, the location of the per-thread stacks may be intermingled with shared libraries and shared memory regions, depending on the order in which threads are created, shared libraries loaded, and shared memory regions attached. Furthermore, the location of the per-thread stacks can vary depending on the Linux distribution.</p>
+</div>
+<p class="noindent">The threads in a process can execute concurrently. On a multiprocessor system, multiple threads can execute in parallel. If one thread is blocked on I/O, other threads are still eligible to execute. (Although it is sometimes useful to create a separate thread purely for the purpose of performing I/O, it is often preferable to employ one of the alternative I/O models that we describe in <a href="ch63.xhtml#ch63">Chapter 63</a>.)</p>
+<div class="image"><img src="../images/f29-01.jpg" alt="image"/></div>
+<p class="figcap"><a id="ch29fig1"/><strong>Figure 29-1:</strong> Four threads executing in a process (Linux/x86-32)</p>
+<p class="noindentb">Threads offer advantages over processes in certain applications. Consider the traditional UNIX approach to achieving concurrency by creating multiple processes. An example of this is a network server design in which a parent process accepts incoming connections from clients, and then uses <em>fork()</em> to create a separate child process to handle communication with each client (refer to <a href="ch60.xhtml#ch60lev1sec03">Section 60.3</a>). Such a design <span epub:type="pagebreak" id="page_619"/>makes it possible to serve multiple clients simultaneously. While this approach works well for many scenarios, it does have the following limitations in some applications:</p>
+<p class="bull">&#8226; It is difficult to share information between processes. Since the parent and child don&#8217;t share memory (other than the read-only text segment), we must use some form of interprocess communication in order to exchange information between processes.</p>
+<p class="bull">&#8226; Process creation with <em>fork()</em> is relatively expensive. Even with the copy-on-write technique described in <a href="ch24.xhtml#ch24lev2sec02">Section 24.2.2</a>, the need to duplicate various process attributes such as page tables and file descriptor tables means that a <em>fork()</em> call is still time-consuming.</p>
+<p class="noindenttb">Threads address both of these problems:</p>
+<p class="bull">&#8226; Sharing information between threads is easy and fast. It is just a matter of copying data into shared (global or heap) variables. However, in order to avoid the problems that can occur when multiple threads try to update the same information, we must employ the synchronization techniques described in <a href="ch30.xhtml#ch30">Chapter 30</a>.</p>
+<p class="bull">&#8226; Thread creation is faster than process creation&#8212;typically, ten times faster or better. (On Linux, threads are implemented using the <em>clone()</em> system call, and <a href="ch28.xhtml#ch28table3">Table 28-3</a>, on <a href="ch28.xhtml#page_610">page 610</a>, shows the differences in speed between <em>fork()</em> and <em>clone()</em>.) Thread creation is faster because many of the attributes that must be duplicated in a child created by <em>fork()</em> are instead shared between threads. In particular, copy-on-write duplication of pages of memory is not required, nor is duplication of page tables.</p>
+<p class="noindenttb">Besides global memory, threads also share a number of other attributes (i.e., these attributes are global to a process, rather than specific to a thread). These attributes include the following:</p>
+<p class="bull">&#8226; process ID and parent process ID;</p>
+<p class="bull">&#8226; process group ID and session ID;</p>
+<p class="bull">&#8226; controlling terminal;</p>
+<p class="bull">&#8226; process credentials (user and group IDs);</p>
+<p class="bull">&#8226; open file descriptors;</p>
+<p class="bull">&#8226; record locks created using <em>fcntl()</em>;</p>
+<p class="bull">&#8226; signal dispositions;</p>
+<p class="bull">&#8226; file system&#8211;related information: umask, current working directory, and root directory;</p>
+<p class="bull">&#8226; interval timers (<em>setitimer()</em>) and POSIX timers (<em>timer_create()</em>);</p>
+<p class="bull">&#8226; System V semaphore undo (<em>semadj</em>) values (<a href="ch47.xhtml#ch47lev1sec08">Section 47.8</a>);</p>
+<p class="bull">&#8226; resource limits;</p>
+<p class="bull">&#8226; CPU time consumed (as returned by <em>times()</em>);</p>
+<p class="bull">&#8226; resources consumed (as returned by <em>getrusage()</em>); and</p>
+<p class="bull">&#8226; nice value (set by <em>setpriority()</em> and <em>nice()</em>).</p>
+<p class="noindenttb"><span epub:type="pagebreak" id="page_620"/>Among the attributes that are distinct for each thread are the following:</p>
+<p class="bull">&#8226; thread ID (<a href="ch29.xhtml#ch29lev1sec05">Section 29.5</a>);</p>
+<p class="bull">&#8226; signal mask;</p>
+<p class="bull">&#8226; thread-specific data (<a href="ch31.xhtml#ch31lev1sec03">Section 31.3</a>);</p>
+<p class="bull">&#8226; alternate signal stack (<em>sigaltstack()</em>);</p>
+<p class="bull">&#8226; the <em>errno</em> variable;</p>
+<p class="bull">&#8226; floating-point environment (see <em>fenv(3)</em>);</p>
+<p class="bull">&#8226; realtime scheduling policy and priority (<a href="ch35.xhtml#ch35lev1sec02">Sections 35.2</a> and <a href="ch35.xhtml#ch35lev1sec03">35.3</a>);</p>
+<p class="bull">&#8226; CPU affinity (Linux-specific, described in <a href="ch35.xhtml#ch35lev1sec04">Section 35.4</a>);</p>
+<p class="bull">&#8226; capabilities (Linux-specific, described in <a href="ch39.xhtml#ch39">Chapter 39</a>); and</p>
+<p class="bull">&#8226; stack (local variables and function call linkage information).</p>
+<div class="block">
+<p class="noindent">As can be seen from <a href="ch29.xhtml#ch29fig1">Figure 29-1</a>, all of the per-thread stacks reside within the same virtual address space. This means that, given a suitable pointer, it is possible for threads to share data on each other&#8217;s stacks. This is occasionally useful, but it requires careful programming to handle the dependency that results from the fact that a local variable remains valid only for the lifetime of the stack frame in which it resides. (If a function returns, the memory region used by its stack frame may be reused by a later function call. If the thread terminates, a new thread may reuse the memory region used for the terminated thread&#8217;s stack.) Failing to correctly handle this dependency can create bugs that are hard to track down.</p>
+</div>
+<h3 class="h3" id="ch29lev1sec02"><strong>29.2 Background Details of the Pthreads API</strong></h3>
+<p class="noindenta">In the late 1980s and early 1990s, several different threading APIs existed. In 1995, POSIX.1c standardized the POSIX threads API, and this standard was later incorporated into SUSv3.</p>
+<p class="indent">Several concepts apply to the Pthreads API as a whole, and we briefly introduce these before looking in detail at the API.</p>
+<h5 class="h5" id="ch29lev3sec01"><strong>Pthreads data types</strong></h5>
+<p class="noindenta">The Pthreads API defines a number of data types, some of which are listed in <a href="ch29.xhtml#ch29table1">Table 29-1</a>. We describe most of these data types in the following pages.</p>
+<p class="tablecap"><a id="ch29table1"/><strong>Table 29-1:</strong> Pthreads data types</p>
+<table class="all">
+<thead>
+<tr>
+<td style="vertical-align: top;" class="table_th"><p class="table"><strong>Data type</strong></p></td>
+<td style="vertical-align: top;" class="table_th1"><p class="table"><strong>Description</strong></p></td>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>pthread_t</em></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table">Thread identifier</p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>pthread_mutex_t</em></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table">Mutex</p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>pthread_mutexattr_t</em></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table">Mutex attributes object</p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>pthread_cond_t</em></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table">Condition variable</p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>pthread_condattr_t</em></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table">Condition variable attributes object</p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>pthread_key_t</em></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table">Key for thread-specific data</p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>pthread_once_t</em></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table">One-time initialization control context</p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_3"><p class="table"><em>pthread_attr_t</em></p></td>
+<td style="vertical-align: top;" class="table_3a"><p class="table">Thread attributes object</p></td>
+</tr>
+</tbody>
+</table>
+<p class="noindent"><span epub:type="pagebreak" id="page_621"/>SUSv3 doesn&#8217;t specify how these data types should be represented, and portable programs should treat them as opaque data. By this, we mean that a program should avoid any reliance on knowledge of the structure or contents of a variable of one of these types. In particular, we can&#8217;t compare variables of these types using the C <em>==</em> operator.</p>
+<h5 class="h5" id="ch29lev3sec02"><strong>Threads and <em>errno</em></strong></h5>
+<p class="noindenta">In the traditional UNIX API, <em>errno</em> is a global integer variable. However, this doesn&#8217;t suffice for threaded programs. If a thread made a function call that returned an error in a global <em>errno</em> variable, then this would confuse other threads that might also be making function calls and checking <em>errno</em>. In other words, race conditions would result. Therefore, in threaded programs, each thread has its own <em>errno</em> value. On Linux, a thread-specific <em>errno</em> is achieved in a similar manner to most other UNIX implementations: <em>errno</em> is defined as a macro that expands into a function call returning a modifiable lvalue that is distinct for each thread. (Since the lvalue is modifiable, it is still possible to write assignment statements of the form <em>errno = value</em> in threaded programs.)</p>
+<p class="indent">To summarize, the <em>errno</em> mechanism has been adapted for threads in a manner that leaves error reporting unchanged from the traditional UNIX API.</p>
+<div class="block">
+<p class="noindent">The original POSIX.1 standard followed K&#38;R C usage in allowing a program to declare <em>errno</em> as <em>extern int errno</em>. SUSv3 doesn&#8217;t permit this usage (the change actually occurred in 1995 in POSIX.1c). Nowadays, a program is required to declare <em>errno</em> by including <span class="literal">&lt;errno.h&gt;</span>, which enables the implementation of a per-thread <em>errno</em>.</p>
+</div>
+<h5 class="h5" id="ch29lev3sec03"><strong>Return value from Pthreads functions</strong></h5>
+<p class="noindenta">The traditional method of returning status from system calls and some library functions is to return 0 on success and &#8211;1 on error, with <em>errno</em> being set to indicate the error. The functions in the Pthreads API do things differently. All Pthreads functions return 0 on success or a positive value on failure. The failure value is one of the same values that can be placed in <em>errno</em> by traditional UNIX system calls.</p>
+<p class="indent">Because each reference to <em>errno</em> in a threaded program carries the overhead of a function call, our example programs don&#8217;t directly assign the return value of a Pthreads function to <em>errno</em>. Instead, we use an intermediate variable and employ our <em>errExitEN()</em> diagnostic function (<a href="ch03.xhtml#ch03lev2sec02">Section 3.5.2</a>), like so:</p>
+<p class="programs">pthread_t thread;<br/>int s;<br/><br/>s = pthread_create(&#38;thread, NULL, func, &#38;arg);<br/>if (s != 0)<br/>&#160;&#160;&#160;&#160;errExitEN(s, "pthread_create");</p>
+<h5 class="h5" id="ch29lev3sec04"><span epub:type="pagebreak" id="page_622"/><strong>Compiling Pthreads programs</strong></h5>
+<p class="noindentab">On Linux, programs that use the Pthreads API must be compiled with the <em>cc &#8211;pthread</em> option. The effects of this option include the following:</p>
+<p class="bull">&#8226; The <span class="literal">_REENTRANT</span> preprocessor macro is defined. This causes the declarations of a few reentrant functions to be exposed.</p>
+<p class="bull">&#8226; The program is linked with the <em>libpthread</em> library (the equivalent of <em>&#8211;lpthread</em>).</p>
+<div class="block">
+<p class="noindent">The precise options for compiling a multithreaded program vary across implementations (and compilers). Some other implementations (e.g., Tru64) also use <em>cc &#8211;pthread</em>; Solaris and HP-UX use <em>cc &#8211;mt</em>.</p>
+</div>
+<h3 class="h3" id="ch29lev1sec03"><strong>29.3 Thread Creation</strong></h3>
+<p class="noindenta">When a program is started, the resulting process consists of a single thread, called the <em>initial</em> or <em>main</em> thread. In this section, we look at how to create additional threads.</p>
+<p class="indent">The <em>pthread_create()</em> function creates a new thread.</p>
+<div class="box">
+<p class="programsa">#include &lt;pthread.h&gt;<br/><br/>int <span class="codestrong">pthread_create</span>(pthread_t *<span class="font1">thread</span>, const pthread_attr_t *<span class="font1">attr</span>,<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;void *(*<span class="font1">start</span>)(void *), void *<span class="font1">arg</span>);</p>
+<p class="right">Returns 0 on success, or a positive error number on error</p>
+</div>
+<p class="noindent">The new thread commences execution by calling the function identified by <em>start</em> with the argument <em>arg</em> (i.e., <em>start(arg)</em>). The thread that calls <em>pthread_create()</em> continues execution with the next statement that follows the call. (This behavior is the same as the <em>glibc</em> wrapper function for the <em>clone()</em> system call described in <a href="ch28.xhtml#ch28lev1sec02">Section 28.2</a>.)</p>
+<p class="indent">The <em>arg</em> argument is declared as <em>void *</em>, meaning that we can pass a pointer to any type of object to the <em>start</em> function. Typically, <em>arg</em> points to a global or heap variable, but it can also be specified as <span class="literal">NULL</span>. If we need to pass multiple arguments to <em>start</em>, then <em>arg</em> can be specified as a pointer to a structure containing the arguments as separate fields. With judicious casting, we can even specify <em>arg</em> as an <em>int</em>.</p>
+<div class="block">
+<p class="noindent">Strictly speaking, the C standards don&#8217;t define the results of casting <em>int</em> to <em>void *</em> and vice versa. However, most C compilers permit these operations, and they produce the desired result; that is, <em>int j == (int) ((void *) j)</em>.</p>
+</div>
+<p class="noindent">The return value of <em>start</em> is likewise of type <em>void *</em>, and it can be employed in the same way as the <em>arg</em> argument. We&#8217;ll see how this value is used when we describe the <em>pthread_join()</em> function below.</p>
+<div class="block">
+<p class="noindent">Caution is required when using a cast integer as the return value of a thread&#8217;s start function. The reason for this is that <span class="literal">PTHREAD_CANCELED</span>, the value returned when a thread is canceled (see <a href="ch32.xhtml#ch32">Chapter 32</a>), is usually some implementation-defined integer value cast to <em>void *</em>. If a thread&#8217;s start function returns the same integer value, then, to another thread that is doing a <em>pthread_join()</em>, it will <span epub:type="pagebreak" id="page_623"/>wrongly appear that the thread was canceled. In an application that employs thread cancellation and chooses to return cast integer values from a thread&#8217;s start functions, we must ensure that a normally terminating thread does not return an integer whose value matches <span class="literal">PTHREAD_CANCELED</span> on that Pthreads implementation. A portable application would need to ensure that normally terminating threads don&#8217;t return integer values that match <span class="literal">PTHREAD_CANCELED</span> on any of the implementations on which the application is to run.</p>
+</div>
+<p class="noindent">The <em>thread</em> argument points to a buffer of type <em>pthread_t</em> into which the unique identifier for this thread is copied before <em>pthread_create()</em> returns. This identifier can be used in later Pthreads calls to refer to the thread.</p>
+<div class="block">
+<p class="noindent">SUSv3 explicitly notes that the implementation need not initialize the buffer pointed to by <em>thread</em> before the new thread starts executing; that is, the new thread may start running before <em>pthread_create()</em> returns to its caller. If the new thread needs to obtain its own ID, then it must do so using <em>pthread_self()</em> (described in <a href="ch29.xhtml#ch29lev1sec05">Section 29.5</a>).</p>
+</div>
+<p class="noindent">The <em>attr</em> argument is a pointer to a <em>pthread_attr_t</em> object that specifies various attributes for the new thread. We say some more about these attributes in <a href="ch29.xhtml#ch29lev1sec08">Section 29.8</a>. If <em>attr</em> is specified as <span class="literal">NULL</span>, then the thread is created with various default attributes, and this is what we&#8217;ll do in most of the example programs in this book.</p>
+<p class="indent">After a call to <em>pthread_create()</em>, a program has no guarantees about which thread will next be scheduled to use the CPU (on a multiprocessor system, both threads may simultaneously execute on different CPUs). Programs that implicitly rely on a particular order of scheduling are open to the same sorts of race conditions that we described in <a href="ch24.xhtml#ch24lev1sec04">Section 24.4</a>. If we need to enforce a particular order of execution, we must use one of the synchronization techniques described in <a href="ch30.xhtml#ch30">Chapter 30</a>.</p>
+<h3 class="h3" id="ch29lev1sec04"><strong>29.4 Thread Termination</strong></h3>
+<p class="noindentab">The execution of a thread terminates in one of the following ways:</p>
+<p class="bull">&#8226; The thread&#8217;s start function performs a <span class="literal">return</span> specifying a return value for the thread.</p>
+<p class="bull">&#8226; The thread calls <em>pthread_exit()</em> (described below).</p>
+<p class="bull">&#8226; The thread is canceled using <em>pthread_cancel()</em> (described in <a href="ch32.xhtml#ch32lev1sec01">Section 32.1</a>).</p>
+<p class="bull">&#8226; Any of the threads calls <em>exit()</em>, or the main thread performs a <span class="literal">return</span> (in the <em>main()</em> function), which causes all threads in the process to terminate immediately.</p>
+<p class="noindentt">The <em>pthread_exit()</em> function terminates the calling thread, and specifies a return value that can be obtained in another thread by calling <em>pthread_join()</em>.</p>
+<div class="box">
+<p class="programsa">#include &lt;pthread.h&gt;<br/><br/>void <span class="codestrong">pthread_exit</span>(void *<span class="font1">retval</span>);</p>
+</div>
+<p class="noindent"><span epub:type="pagebreak" id="page_624"/>Calling <em>pthread_exit()</em> is equivalent to performing a <span class="literal">return</span> in the thread&#8217;s start function, with the difference that <em>pthread_exit()</em> can be called from any function that has been called by the thread&#8217;s start function.</p>
+<p class="indent">The <em>retval</em> argument specifies the return value for the thread. The value pointed to by <em>retval</em> should not be located on the thread&#8217;s stack, since the contents of that stack become undefined on thread termination. (For example, that region of the process&#8217;s virtual memory might be immediately reused by the stack for a new thread.) The same statement applies to the value given to a <span class="literal">return</span> statement in the thread&#8217;s start function.</p>
+<p class="indent">If the main thread calls <em>pthread_exit()</em> instead of calling <em>exit()</em> or performing a <span class="literal">return</span>, then the other threads continue to execute.</p>
+<h3 class="h3" id="ch29lev1sec05"><strong>29.5 Thread IDs</strong></h3>
+<p class="noindenta">Each thread within a process is uniquely identified by a thread ID. This ID is returned to the caller of <em>pthread_create()</em>, and a thread can obtain its own ID using <em>pthread_self()</em>.</p>
+<div class="box">
+<p class="programsa">#include &lt;pthread.h&gt;<br/><br/>pthread_t <span class="codestrong">pthread_self</span>(void);</p>
+<p class="right">Returns the thread ID of the calling thread</p>
+</div>
+<p class="noindentb">Thread IDs are useful within applications for the following reasons:</p>
+<p class="bull">&#8226; Various Pthreads functions use thread IDs to identify the thread on which they are to act. Examples of such functions include <em>pthread_join()</em>, <em>pthread_detach()</em>, <em>pthread_cancel()</em>, and <em>pthread_kill()</em>, all of which we describe in this and the following chapters.</p>
+<p class="bull">&#8226; In some applications, it can be useful to tag dynamic data structures with the ID of a particular thread. This can serve to identify the thread that created or &#8220;owns&#8221; a data structure, or can be used by one thread to identify a specific thread that should subsequently do something with that data structure.</p>
+<p class="noindentt">The <em>pthread_equal()</em> function allows us to check whether two thread IDs are the same.</p>
+<div class="box">
+<p class="programsa">#include &lt;pthread.h&gt;<br/><br/>int <span class="codestrong">pthread_equal</span>(pthread_t <span class="font1">t1</span>, pthread_t <span class="font1">t2</span>);</p>
+<p class="right">Returns nonzero value if <em>t1</em> and <em>t2</em> are equal, otherwise 0</p>
+</div>
+<p class="noindent">For example, to check if the ID of the calling thread matches a thread ID saved in the variable <em>tid</em>, we could write the following:</p>
+<p class="programs">if (pthread_equal(tid, pthread_self())<br/>&#160;&#160;&#160;&#160;printf("tid matches self\n");</p>
+<p class="noindent"><span epub:type="pagebreak" id="page_625"/>The <em>pthread_equal()</em> function is needed because the <em>pthread_t</em> data type must be treated as opaque data. On Linux, <em>pthread_t</em> happens to be defined as an <em>unsigned long</em>, but on other implementations, it could be a pointer or a structure.</p>
+<div class="block">
+<p class="noindent">In NPTL, <em>pthread_t</em> is actually a pointer that has been cast to <em>unsigned long</em>.</p>
+</div>
+<p class="noindent">SUSv3 doesn&#8217;t require <em>pthread_t</em> to be implemented as a scalar type; it could be a structure. Therefore, we can&#8217;t portably use code such as the following to display a thread ID (though it does work on many implementations, including Linux, and is sometimes useful for debugging purposes):</p>
+<p class="programs">pthread_t thr;<br/><br/>printf("Thread ID = %ld\n", (long) thr);&#160;&#160;&#160;&#160;&#160;&#160;&#160;/* WRONG! */</p>
+<p class="noindent">In the Linux threading implementations, thread IDs are unique across processes. However, this is not necessarily the case on other implementations, and SUSv3 explicitly notes that an application can&#8217;t portably use a thread ID to identify a thread in another process. SUSv3 also notes that an implementation is permitted to reuse a thread ID after a terminated thread has been joined with <em>pthread_join()</em> or after a detached thread has terminated. (We explain <em>pthread_join()</em> in the next section, and detached threads in <a href="ch29.xhtml#ch29lev1sec07">Section 29.7</a>.)</p>
+<div class="block">
+<p class="noindent">POSIX thread IDs are not the same as the thread IDs returned by the Linux-specific <em>gettid()</em> system call. POSIX thread IDs are assigned and maintained by the threading implementation. The thread ID returned by <em>gettid()</em> is a number (similar to a process ID) that is assigned by the kernel. Although each POSIX thread has a unique kernel thread ID in the Linux NPTL threading implementation, an application generally doesn&#8217;t need to know about the kernel IDs (and won&#8217;t be portable if it depends on knowing them).</p>
+</div>
+<h3 class="h3" id="ch29lev1sec06"><strong>29.6 Joining with a Terminated Thread</strong></h3>
+<p class="noindenta">The <em>pthread_join()</em> function waits for the thread identified by <em>thread</em> to terminate. (If that thread has already terminated, <em>pthread_join()</em> returns immediately.) This operation is termed <em>joining</em>.</p>
+<div class="box">
+<p class="programsa">#include &lt;pthread.h&gt;<br/><br/>int <span class="codestrong">pthread_join</span>(pthread_t <span class="font1">thread</span>, void **<span class="font1">retval</span>);</p>
+<p class="right">Returns 0 on success, or a positive error number on error</p>
+</div>
+<p class="noindent">If <em>retval</em> is a non-<span class="literal">NULL</span> pointer, then it receives a copy of the terminated thread&#8217;s return value&#8212;that is, the value that was specified when the thread performed a <span class="literal">return</span> or called <em>pthread_exit()</em>.</p>
+<p class="indent">Calling <em>pthread_join()</em> for a thread ID that has been previously joined can lead to unpredictable behavior; for example, it might instead join with a thread created later that happened to reuse the same thread ID.</p>
+<p class="indent"><span epub:type="pagebreak" id="page_626"/>If a thread is not detached (see <a href="ch29.xhtml#ch29lev1sec07">Section 29.7</a>), then we must join with it using <em>pthread_join()</em>. If we fail to do this, then, when the thread terminates, it produces the thread equivalent of a zombie process (<a href="ch26.xhtml#ch26lev1sec02">Section 26.2</a>). Aside from wasting system resources, if enough thread zombies accumulate, we won&#8217;t be able to create additional threads.</p>
+<p class="indentb">The task that <em>pthread_join()</em> performs for threads is similar to that performed by <em>waitpid()</em> for processes. However, there are some notable differences:</p>
+<p class="bull">&#8226; Threads are peers. Any thread in a process can use <em>pthread_join()</em> to join with any other thread in the process. For example, if thread A creates thread B, which creates thread C, then it is possible for thread A to join with thread C, or vice versa. This differs from the hierarchical relationship between processes. When a parent process creates a child using <em>fork()</em>, it is the only process that can <em>wait()</em> on that child. There is no such relationship between the thread that calls <em>pthread_create()</em> and the resulting new thread.</p>
+<p class="bull">&#8226; There is no way of saying &#8220;join with any thread&#8221; (for processes, we can do this using the call <em>waitpid(&#8211;1, &#38;status, options)</em>); nor is there a way to do a nonblocking join (analogous to the <em>waitpid()</em> <span class="literal">WNOHANG</span> flag). There are ways to achieve similar functionality using condition variables; we show an example in <a href="ch30.xhtml#ch30lev2sec11">Section 30.2.4</a>.</p>
+<div class="block">
+<p class="noindent">The limitation that <em>pthread_join()</em> can join only with a specific thread ID is intentional. The idea is that a program should join only with the threads that it &#8220;knows&#8221; about. The problem with a &#8220;join with any thread&#8221; operation stems from the fact that there is no hierarchy of threads, so such an operation could indeed join with <em>any</em> thread, including one that was privately created by a library function. (The condition-variable technique that we show in <a href="ch30.xhtml#ch30lev2sec11">Section 30.2.4</a> allows a thread to join only with any other thread that it knows about.) As a consequence, the library would no longer be able to join with that thread in order to obtain its status, and it would erroneously try to join with a thread ID that had already been joined. In other words, a &#8220;join with any thread&#8221; operation is incompatible with modular program design.</p>
+</div>
+<h5 class="h5" id="ch29lev3sec05"><strong>Example program</strong></h5>
+<p class="noindenta">The program in <a href="ch29.xhtml#ch29ex1">Listing 29-1</a> creates another thread and then joins with it.</p>
+<p class="examplet"><a id="ch29ex1"/><strong>Listing 29-1:</strong> A simple program using Pthreads</p>
+<p class="programsli">___________________________________________________ <span class="codestrong">threads/simple_thread.c</span><br/><br/>#include &lt;pthread.h&gt;<br/>#include "tlpi_hdr.h"<br/><br/>static void *<br/>threadFunc(void *arg)<br/>{<br/>&#160;&#160;&#160;&#160;char *s = (char *) arg;<br/><br/>&#160;&#160;&#160;&#160;printf("%s", s);<br/><br/>&#160;&#160;&#160;&#160;return (void *) strlen(s);<br/>}<br/><br/>int<br/>main(int argc, char *argv[])<br/>{<br/>&#160;&#160;&#160;&#160;pthread_t t1;<br/>&#160;&#160;&#160;&#160;void *res;<br/>&#160;&#160;&#160;&#160;int s;<br/><br/>&#160;&#160;&#160;&#160;s = pthread_create(&#38;t1, NULL, threadFunc, "Hello world\n");<br/>&#160;&#160;&#160;&#160;if (s != 0)<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;errExitEN(s, "pthread_create");<br/><br/>&#160;&#160;&#160;&#160;printf("Message from main()\n");<br/>&#160;&#160;&#160;&#160;s = pthread_join(t1, &#38;res);<br/>&#160;&#160;&#160;&#160;if (s != 0)<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;errExitEN(s, "pthread_join");<br/><br/>&#160;&#160;&#160;&#160;printf("Thread returned %ld\n", (long) res);<br/><br/>&#160;&#160;&#160;&#160;exit(EXIT_SUCCESS);<br/>}<br/>___________________________________________________ <span class="codestrong">threads/simple_thread.c</span></p>
+<p class="noindent"><span epub:type="pagebreak" id="page_627"/>When we run the program in <a href="ch29.xhtml#ch29ex1">Listing 29-1</a>, we see the following:</p>
+<p class="programs">$ <span class="codestrong">./simple_thread</span><br/>Message from main()<br/>Hello world<br/>Thread returned 12</p>
+<p class="noindent">Depending on how the two threads were scheduled, the order of the first two lines of output might be reversed.</p>
+<h3 class="h3" id="ch29lev1sec07"><strong>29.7 Detaching a Thread</strong></h3>
+<p class="noindenta">By default, a thread is <em>joinable</em>, meaning that when it terminates, another thread can obtain its return status using <em>pthread_join()</em>. Sometimes, we don&#8217;t care about the thread&#8217;s return status; we simply want the system to automatically clean up and remove the thread when it terminates. In this case, we can mark the thread as <em>detached</em>, by making a call to <em>pthread_detach()</em> specifying the thread&#8217;s identifier in <em>thread</em>.</p>
+<div class="box">
+<p class="programsa">#include &lt;pthread.h&gt;<br/><br/>int <span class="codestrong">pthread_detach</span>(pthread_t <span class="font1">thread</span>);</p>
+<p class="right">Returns 0 on success, or a positive error number on error</p>
+</div>
+<p class="noindent">As an example of the use of <em>pthread_detach()</em>, a thread can detach itself using the following call:</p>
+<p class="programs">pthread_detach(pthread_self());</p>
+<p class="noindent"><span epub:type="pagebreak" id="page_628"/>Once a thread has been detached, it is no longer possible to use <em>pthread_join()</em> to obtain its return status, and the thread can&#8217;t be made joinable again.</p>
+<p class="indent">Detaching a thread doesn&#8217;t make it immune to a call to <em>exit()</em> in another thread or a <span class="literal">return</span> in the main thread. In such an event, all threads in the process are immediately terminated, regardless of whether they are joinable or detached. To put things another way, <em>pthread_detach()</em> simply controls what happens after a thread terminates, not how or when it terminates.</p>
+<h3 class="h3" id="ch29lev1sec08"><strong>29.8 Thread Attributes</strong></h3>
+<p class="noindenta">We mentioned earlier that the <em>pthread_create() attr</em> argument, whose type is <em>pthread_attr_t</em>, can be used to specify the attributes used in the creation of a new thread. We won&#8217;t go into the details of these attributes (for those details, see the references listed at the end of this chapter) or show the prototypes of the various Pthreads functions that can be used to manipulate a <em>pthread_attr_t</em> object. We&#8217;ll just mention that these attributes include information such as the location and size of the thread&#8217;s stack, the thread&#8217;s scheduling policy and priority (akin to the process realtime scheduling policies and priorities described in <a href="ch35.xhtml#ch35lev1sec02">Sections 35.2</a> and <a href="ch35.xhtml#ch35lev1sec03">35.3</a>), and whether the thread is joinable or detached.</p>
+<p class="indent">As an example of the use of thread attributes, the code shown in <a href="ch29.xhtml#ch29ex2">Listing 29-2</a> creates a new thread that is made detached at the time of thread creation (rather than subsequently, using <em>pthread_detach()</em>). This code first initializes a thread attributes structure with default values, sets the attribute required to create a detached thread, and then creates a new thread using the thread attributes structure. Once the thread has been created, the attributes object is no longer needed, and so is destroyed.</p>
+<p class="examplet"><a id="ch29ex2"/><strong>Listing 29-2:</strong> Creating a thread with the detached attribute</p>
+<p class="programsli">_____________________________________________ <span class="font1">from</span> <span class="codestrong">threads/detached_attrib.c</span><br/><br/>&#160;&#160;&#160;&#160;pthread_t thr;<br/>&#160;&#160;&#160;&#160;pthread_attr_t attr;<br/>&#160;&#160;&#160;&#160;int s;<br/><br/>&#160;&#160;&#160;&#160;s = pthread_attr_init(&#38;attr);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;/* Assigns default values */<br/>&#160;&#160;&#160;&#160;if (s != 0)<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;errExitEN(s, "pthread_attr_init");<br/><br/>&#160;&#160;&#160;&#160;s = pthread_attr_setdetachstate(&#38;attr, PTHREAD_CREATE_DETACHED);<br/>&#160;&#160;&#160;&#160;if (s != 0)<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;errExitEN(s, "pthread_attr_setdetachstate");<br/><br/>&#160;&#160;&#160;&#160;s = pthread_create(&#38;thr, &#38;attr, threadFunc, (void *) 1);<br/>&#160;&#160;&#160;&#160;if (s != 0)<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;errExitEN(s, "pthread_create");<br/><br/>&#160;&#160;&#160;&#160;s = pthread_attr_destroy(&#38;attr);&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;/* No longer needed */<br/>&#160;&#160;&#160;&#160;if (s != 0)<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;errExitEN(s, "pthread_attr_destroy");<br/>_____________________________________________ <span class="font1">from</span> <span class="codestrong">threads/detached_attrib.c</span></p>
+<h3 class="h3" id="ch29lev1sec09"><span epub:type="pagebreak" id="page_629"/><strong>29.9 Threads Versus Processes</strong></h3>
+<p class="noindentab">In this section, we briefly consider some of the factors that might influence our choice of whether to implement an application as a group of threads or as a group of processes. We begin by considering the advantages of a multithreaded approach:</p>
+<p class="bull">&#8226; Sharing data between threads is easy. By contrast, sharing data between processes requires more work (e.g., creating a shared memory segment or using a pipe).</p>
+<p class="bull">&#8226; Thread creation is faster than process creation; context-switch time may be lower for threads than for processes.</p>
+<p class="noindenttb">Using threads can have some disadvantages compared to using processes:</p>
+<p class="bull">&#8226; When programming with threads, we need to ensure that the functions we call are thread-safe or are called in a thread-safe manner. (We describe the concept of thread safety in <a href="ch31.xhtml#ch31lev1sec01">Section 31.1</a>.) Multiprocess applications don&#8217;t need to be concerned with this.</p>
+<p class="bull">&#8226; A bug in one thread (e.g., modifying memory via an incorrect pointer) can damage all of the threads in the process, since they share the same address space and other attributes. By contrast, processes are more isolated from one another.</p>
+<p class="bull">&#8226; Each thread is competing for use of the finite virtual address space of the host process. In particular, each thread&#8217;s stack and thread-specific data (or thread-local storage) consumes a part of the process virtual address space, which is consequently unavailable for other threads. Although the available virtual address space is large (e.g., typically 3 GB on x86-32), this factor may be a significant limitation for processes employing large numbers of threads or threads that require large amounts of memory. By contrast, separate processes can each employ the full range of available virtual memory (subject to the limitations of RAM and swap space).</p>
+<p class="noindenttb">The following are some other points that may influence our choice of threads versus processes:</p>
+<p class="bull">&#8226; Dealing with signals in a multithreaded application requires careful design. (As a general principle, it is usually desirable to avoid the use of signals in multithreaded programs.) We say more about threads and signals in <a href="ch33.xhtml#ch33lev1sec02">Section 33.2</a>.</p>
+<p class="bull">&#8226; In a multithreaded application, all threads must be running the same program (although perhaps in different functions). In a multiprocess application, different processes can run different programs.</p>
+<p class="bull">&#8226; Aside from data, threads also share certain other information (e.g., file descriptors, signal dispositions, current working directory, and user and group IDs). This may be an advantage or a disadvantage, depending on the application.</p>
+<h3 class="h3" id="ch29lev1sec10"><strong>29.10 Summary</strong></h3>
+<p class="noindenta">In a multithreaded process, multiple threads are concurrently executing the same program. All of the threads share the same global and heap variables, but each thread has a private stack for local variables. The threads in a process also share a <span epub:type="pagebreak" id="page_630"/>number of other attributes, including process ID, open file descriptors, signal dispositions, current working directory, and resource limits.</p>
+<p class="indent">The key difference between threads and processes is the easier sharing of information that threads provide, and this is the main reason that some application designs map better onto a multithread design than onto a multiprocess design. Threads can also provide better performance for some operations (e.g., thread creation is faster than process creation), but this factor is usually secondary in influencing the choice of threads versus processes.</p>
+<p class="indent">Threads are created using <em>pthread_create()</em>. Each thread can then independently terminate using <em>pthread_exit()</em>. (If any thread calls <em>exit()</em>, then all threads immediately terminate.) Unless a thread has been marked as detached (e.g., via a call to <em>pthread_detach()</em>), it must be joined by another thread using <em>pthread_join()</em>, which returns the termination status of the joined thread.</p>
+<h5 class="h5" id="ch29lev3sec06"><strong>Further information</strong></h5>
+<p class="noindenta">[<a href="bib.xhtml#bib10">Butenhof, 1996</a>] provides an exposition of Pthreads that is both readable and thorough. [<a href="bib.xhtml#bib78">Robbins &#38; Robbins, 2003</a>] also provides good coverage of Pthreads. [<a href="bib.xhtml#bib99">Tanenbaum, 2007</a>] provides a more theoretical introduction to thread concepts, covering topics such as mutexes, critical regions, conditional variables, and deadlock detection and avoidance. [<a href="bib.xhtml#bib104">Vahalia, 1996</a>] provides background on the implementation of threads.</p>
+<h3 class="h3" id="ch29lev1sec11"><strong>29.11 Exercises</strong></h3>
+<p class="exer"><a id="ch29exe1"/><strong>29-1.</strong>&#160;&#160;&#160;What possible outcomes might there be if a thread executes the following code:</p>
+<p class="programs1">pthread_join(pthread_self(), NULL);</p>
+<p class="exerp">Write a program to see what actually happens on Linux. If we have a variable, <em>tid</em>, containing a thread ID, how can a thread prevent itself from making a call, <em>pthread_join(tid, NULL)</em>, that is equivalent to the above statement?</p>
+<p class="exer"><a id="ch29exe2"/><strong>29-2.</strong>&#160;&#160;&#160;Aside from the absence of error checking and various variable and structure declarations, what is the problem with the following program?</p>
+<p class="programs1">static void *<br/>threadFunc(void *arg)<br/>{<br/>&#160;&#160;&#160;&#160;struct someStruct *pbuf = (struct someStruct *) arg;<br/><br/>&#160;&#160;&#160;&#160;/* Do some work with structure pointed to by 'pbuf' */<br/>}<br/><br/>int<br/>main(int argc, char *argv[])<br/>{<br/>&#160;&#160;&#160;&#160;struct someStruct buf;<br/><br/>&#160;&#160;&#160;&#160;pthread_create(&#38;thr, NULL, threadFunc, (void *) &#38;buf);<br/>&#160;&#160;&#160;&#160;pthread_exit(NULL);<br/>}</p>
+</body>
+</html>

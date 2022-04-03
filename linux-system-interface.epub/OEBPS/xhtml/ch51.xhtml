@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xml:lang="en-us" lang="en-us" xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xmlns:ns="http://www.w3.org/2001/10/synthesis">
+<head>
+<title>The Linux Programming Interface</title>
+<link rel="stylesheet" type="text/css" href="../styles/9781593272203.css"/>
+</head>
+<body>
+<h2 class="h2" id="ch51"><span epub:type="pagebreak" id="page_1057"/><strong><span class="big">51</span></strong><br/><strong>INTRODUCTION TO POSIX IPC</strong></h2>
+<p class="noindentab">The POSIX.1b realtime extensions defined a set of IPC mechanisms that are analogous to the System V IPC mechanisms described in <a href="ch45.xhtml#ch45">Chapters 45</a> to <a href="ch48.xhtml#ch48">48</a>. (One of the POSIX.1b developers&#8217; aims was to devise a set of IPC mechanisms that did not suffer the deficiencies of the System V IPC facilities.) These IPC mechanisms are collectively referred to as POSIX IPC. The three POSIX IPC mechanisms are the following:</p>
+<p class="bull">&#8226; <em>Message queues</em> can be used to pass messages between processes. As with System V message queues, message boundaries are preserved, so that readers and writers communicate in units of messages (as opposed to the undelimited byte stream provided by a pipe). POSIX message queues permit each message to be assigned a priority, which allows high-priority messages to be queued ahead of low-priority messages. This provides some of the same functionality that is available via the type field of System V messages.</p>
+<p class="bull">&#8226; <em>Semaphores</em> permit multiple processes to synchronize their actions. As with System V semaphores, a POSIX semaphore is a kernel-maintained integer whose value is never permitted to go below 0. POSIX semaphores are simpler to use than System V semaphores: they are allocated individually (as opposed to System V semaphore <em>sets</em>), and they are operated on individually using two operations that increase and decrease a semaphore&#8217;s value by one (as opposed to the ability of the <em>semop()</em> system call to atomically add or subtract arbitrary values from multiple semaphores in a System V semaphore set).</p>
+<p class="bull"><span epub:type="pagebreak" id="page_1058"/>&#8226; <em>Shared memory</em> enables multiple processes to share the same region of memory. As with System V shared memory, POSIX shared memory provides fast IPC. Once one process has updated the shared memory, the change is immediately visible to other processes sharing the same region.</p>
+<p class="noindentt">This chapter provides an overview of the POSIX IPC facilities, focusing on their common features.</p>
+<h3 class="h3" id="ch51lev1sec01"><strong>51.1 API Overview</strong></h3>
+<p class="noindenta">The three POSIX IPC mechanisms have a number of common features. <a href="ch51.xhtml#ch51table1">Table 51-1</a> summarizes their APIs, and we go into the details of their common features in the next few pages.</p>
+<div class="block">
+<p class="noindent">Except for a mention in <a href="ch51.xhtml#ch51table1">Table 51-1</a>, in the remainder of this chapter, we&#8217;ll overlook the fact that POSIX semaphores come in two flavors: named semaphores and unnamed semaphores. Named semaphores are like the other POSIX IPC mechanisms that we describe in this chapter: they are identified by a name, and are accessible by any process that has suitable permissions on the object. An unnamed semaphore doesn&#8217;t have an associated identifier; instead, it is placed in an area of memory that is shared by a group of processes or by the threads of a single process. We go into the details of both types of semaphores in <a href="ch53.xhtml#ch53">Chapter 53</a>.</p>
+</div>
+<p class="tablecap"><a id="ch51table1"/><strong>Table 51-1:</strong> Summary of programming interfaces for POSIX IPC objects</p>
+<table class="all">
+<thead>
+<tr>
+<td style="vertical-align: top;" class="table_th"><p class="table"><strong>Interface</strong></p></td>
+<td style="vertical-align: top;" class="table_th"><p class="table"><strong>Message queues</strong></p></td>
+<td style="vertical-align: top;" class="table_th"><p class="table"><strong>Semaphores</strong></p></td>
+<td style="vertical-align: top;" class="table_th1"><p class="table"><strong>Shared memory</strong></p></td>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table">Header file</p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table"><span class="literal">&lt;mqueue.h&gt;</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table"><span class="literal">&lt;semaphore.h&gt;</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table"><span class="literal">&lt;sys/mman.h&gt;</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1b"><p class="table">Object handle</p></td>
+<td style="vertical-align: top;" class="table_1b"><p class="table"><em>mqd_t</em></p></td>
+<td style="vertical-align: top;" class="table_1b"><p class="table"><em>sem_t *</em></p></td>
+<td style="vertical-align: top;" class="table_2b"><p class="table"><em>int</em> (file descriptor)</p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table">Create/open</p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>mq_open()</em></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>sem_open()</em></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table"><em>shm_open()</em> + <em>mmap()</em></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table">Close</p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>mq_close()</em></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>sem_close()</em></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table"><em>munmap()</em></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table">Unlink</p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>mq_unlink()</em></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>sem_unlink()</em></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table"><em>shm_unlink()</em></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table">Perform IPC</p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>mq_send()</em>, <em>mq_receive()</em></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>sem_post()</em>, <em>sem_wait()</em>, <em>sem_getvalue()</em></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table">operate on locations in shared region</p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table">Miscellaneous operations</p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>mq_setattr()</em>&#8212;set attributes</p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>sem_init()</em>&#8212;initialize unnamed semaphore</p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table">(none)</p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table">&#160;</p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>mq_getattr()</em>&#8212;get attributes</p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table"><em>sem_destroy()</em>&#8212;destroy unnamed semaphore</p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table">&#160;</p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_3"><p class="table">&#160;</p></td>
+<td style="vertical-align: top;" class="table_3"><p class="table"><em>mq_notify()</em>&#8212;request notification</p></td>
+<td style="vertical-align: top;" class="table_3"><p class="table">&#160;</p></td>
+<td style="vertical-align: top;" class="table_3a"><p class="table">&#160;</p></td>
+</tr>
+</tbody>
+</table>
+<h5 class="h5" id="ch51lev3sec01"><strong>IPC object names</strong></h5>
+<p class="noindenta">To access a POSIX IPC object, we must have some means of identifying it. The only portable means that SUSv3 specifies to identify a POSIX IPC object is via a name consisting of an initial slash, followed by one or more nonslash characters; for example, <span class="literal">/myobject</span>. Linux and some other implementations (e.g., Solaris) permit this type of portable naming for IPC objects.</p>
+<p class="indent"><span epub:type="pagebreak" id="page_1059"/>On Linux, names for POSIX shared memory and message queue objects are limited to <span class="literal">NAME_MAX</span> (255) characters. For semaphores, the limit is 4 characters less, since the implementation prepends the string <em>sem</em>. to the semaphore name.</p>
+<p class="indent">SUSv3 doesn&#8217;t prohibit names of a form other than <span class="literal">/myobject</span>, but says that the semantics of such names are implementation-defined. The rules for creating IPC object names on some systems are different. For example, on Tru64 5.1, IPC object names are created as names within the standard file system, and the name is interpreted as an absolute or relative pathname. If the caller doesn&#8217;t have permission to create a file in that directory, then the IPC <em>open</em> call fails. This means that unprivileged programs can&#8217;t create names of the form <span class="literal">/myobject</span> on Tru64, since unprivileged users normally can&#8217;t create files in the root directory (<span class="literal">/</span>). Some other implementations have similar implementation-specific rules for the construction of the names given to IPC <em>open</em> calls. Therefore, in portable applications, we should isolate the generation of IPC object names into a separate function or header file that can be tailored to the target implementation.</p>
+<h5 class="h5" id="ch51lev3sec02"><strong>Creating or opening an IPC object</strong></h5>
+<p class="noindentab">Each IPC mechanism has an associated <em>open</em> call (<em>mq_open()</em>, <em>sem_open()</em>, or <em>shm_open()</em>), which is analogous to the traditional UNIX <em>open()</em> system call used for files. Given an IPC object name, the IPC <em>open</em> call either:</p>
+<p class="bull">&#8226; creates a new object with the given name, opens that object, and returns a handle for it; or</p>
+<p class="bull">&#8226; opens an existing object and returns a handle for that object.</p>
+<p class="noindentt">The handle returned by the IPC <em>open</em> call is analogous to the file descriptor returned by the traditional <em>open()</em> system call&#8212;it is used in subsequent calls to refer to the object.</p>
+<p class="indent">The type of handle returned by the IPC <em>open</em> call depends on the type of object. For message queues, it is a message queue descriptor, a value of type <em>mqd_t</em>. For semaphores, it is a pointer of type <em>sem_t *</em>. For shared memory, it is a file descriptor.</p>
+<p class="indent">All of the IPC <em>open</em> calls permit at least three arguments&#8212;<em>name</em>, <em>oflag</em>, and <em>mode</em>&#8212;as exemplified by the following <em>shm_open()</em> call:</p>
+<p class="programs">fd = shm_open("/mymem", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);</p>
+<p class="noindentb">These arguments are analogous to the arguments of the traditional UNIX <em>open()</em> system call. The <em>name</em> argument identifies the object to be created or opened. The <em>oflag</em> argument is a bit mask that can include at least the following flags:</p>
+<p class="term"><span class="literal">O_CREAT</span></p>
+<p class="termlist">Create the object if it doesn&#8217;t already exist. If this flag is not specified and the object doesn&#8217;t exist, an error results (<span class="literal">ENOENT</span>).</p>
+<p class="term"><span class="literal">O_EXCL</span></p>
+<p class="termlist">If <span class="literal">O_CREAT</span> is also specified and the object already exists, an error results (<span class="literal">EEXIST</span>). The two steps&#8212;check for existence and creation&#8212;are performed atomically (<a href="ch05.xhtml#ch05lev1sec01">Section 5.1</a>). This flag has no effect if <span class="literal">O_CREAT</span> is not specified.</p>
+<p class="noindentt"><span epub:type="pagebreak" id="page_1060"/>Depending on the type of object, <em>oflag</em> may also include one of the values <span class="literal">O_RDONLY</span>, <span class="literal">O_WRONLY</span>, or <span class="literal">O_RDWR</span>, with meanings similar to <em>open()</em>. Additional flags are allowed for some IPC mechanisms.</p>
+<p class="indent">The remaining argument, <em>mode</em>, is a bit mask specifying the permissions to be placed on a new object, if one is created by the call (i.e., <span class="literal">O_CREAT</span> was specified and the object did not already exist). The values that may be specified for <em>mode</em> are the same as for files (<a href="ch15.xhtml#ch15table4">Table 15-4</a>, on <a href="ch15.xhtml#page_295">page 295</a>). As with the <em>open()</em> system call, the permissions mask in <em>mode</em> is masked against the process umask (<a href="ch15.xhtml#ch15lev2sec10">Section 15.4.6</a>). The ownership and group ownership of a new IPC object are taken from the effective user and group IDs of the process making the IPC <em>open</em> call. (To be strictly accurate, on Linux, the ownership of a new POSIX IPC object is determined by the process&#8217;s file-system IDs, which normally have the same value as the corresponding effective IDs. Refer to <a href="ch09.xhtml#ch09lev1sec05">Section 9.5</a>.)</p>
+<div class="block">
+<p class="noindent">On systems where IPC objects appear in the standard file system, SUSv3 permits an implementation to set the group ID of a new IPC object to the group ID of the parent directory.</p>
+</div>
+<h5 class="h5" id="ch51lev3sec03"><strong>Closing an IPC object</strong></h5>
+<p class="noindenta">For POSIX message queues and semaphores, there is an IPC <em>close</em> call that indicates that the calling process has finished using the object and the system may deallocate any resources that were associated with the object for this process. A POSIX shared memory object is closed by unmapping it with <em>munmap()</em>.</p>
+<p class="indent">IPC objects are automatically closed if the process terminates or performs an <em>exec()</em>.</p>
+<h5 class="h5" id="ch51lev3sec04"><strong>IPC object permissions</strong></h5>
+<p class="noindenta">IPC objects have a permissions mask that is the same as for files. Permissions for accessing an IPC object are similar to those for accessing files (<a href="ch15.xhtml#ch15lev2sec07">Section 15.4.3</a>), except that execute permission has no meaning for POSIX IPC objects.</p>
+<p class="indent">Since kernel 2.6.19, Linux supports the use of access control lists (ACLs) for setting the permissions on POSIX shared memory objects and named semaphores. Currently, ACLs are not supported for POSIX message queues.</p>
+<h5 class="h5" id="ch51lev3sec05"><strong>IPC object deletion and object persistence</strong></h5>
+<p class="noindenta">As with open files, POSIX IPC objects are <em>reference counted</em>&#8212;the kernel maintains a count of the number of open references to the object. By comparison with System V IPC objects, this makes it easier for applications to determine when the object can be safely deleted.</p>
+<p class="indent">Each IPC object has a corresponding <em>unlink</em> call whose operation is analogous to the traditional <em>unlink()</em> system call for files. The <em>unlink</em> call immediately removes the object&#8217;s name, and then destroys the object once all processes cease using it (i.e., when the reference count falls to zero). For message queues and semaphores, this means that the object is destroyed after all processes have closed the object; for shared memory, destruction occurs after all processes have unmapped the object using <em>munmap()</em>.</p>
+<p class="indent">After an object is unlinked, IPC <em>open</em> calls specifying the same object name will refer to a new object (or fail, if <span class="literal">O_CREAT</span> was not specified).</p>
+<p class="indent"><span epub:type="pagebreak" id="page_1061"/>As with System V IPC, POSIX IPC objects have kernel persistence. Once created, an object continues to exist until it is unlinked or the system is shut down. This allows a process to create an object, modify its state, and then exit, leaving the object to be accessed by some process that is started at a later time.</p>
+<h5 class="h5" id="ch51lev3sec06"><strong>Listing and removing POSIX IPC objects via the command line</strong></h5>
+<p class="noindenta">System V IPC provides two commands, <em>ipcs</em> and <em>ipcrm</em>, for listing and deleting IPC objects. No standard commands are provided to perform the analogous tasks for POSIX IPC objects. However, on many systems, including Linux, IPC objects are implemented within a real or virtual file system, mounted somewhere under the root directory (<span class="literal">/</span>), and the standard <em>ls</em> and <em>rm</em> commands can be used to list and remove IPC objects. (SUSv3 doesn&#8217;t specify the use of <em>ls</em> and <em>rm</em> for these tasks.) The main problem with using these commands is the nonstandard nature of POSIX IPC object names and their location in the file system.</p>
+<p class="indent">On Linux, POSIX IPC objects are contained in virtual file systems mounted under directories that have the sticky bit set. This bit is the restricted deletion flag (<a href="ch15.xhtml#ch15lev2sec09">Section 15.4.5</a>); setting it means that an unprivileged process can unlink only the POSIX IPC objects that it owns.</p>
+<h5 class="h5" id="ch51lev3sec07"><strong>Compiling programs that use POSIX IPC on Linux</strong></h5>
+<p class="noindenta">On Linux, programs employing POSIX message queues and shared memory must be linked with the realtime library, <em>librt</em>, using the <em>cc &#8211;lrt</em> option. Programs employing POSIX semaphores must be compiled using the <em>cc &#8211;pthread</em> option.</p>
+<h3 class="h3" id="ch51lev1sec02"><strong>51.2 Comparison of System V IPC and POSIX IPC</strong></h3>
+<p class="noindenta">As we look at the POSIX IPC mechanisms in the following chapters, we&#8217;ll compare each mechanism against its System V counterpart. Here, we consider a few general comparisons for these two types of IPC.</p>
+<p class="indentb">POSIX IPC has the following general advantages when compared to System V IPC:</p>
+<p class="bull">&#8226; The POSIX IPC interface is simpler than the System V IPC interface.</p>
+<p class="bull">&#8226; The POSIX IPC model&#8212;the use of names instead of keys, and the <em>open</em>, <em>close</em>, and <em>unlink</em> functions&#8212;is more consistent with the traditional UNIX file model.</p>
+<p class="bull">&#8226; POSIX IPC objects are reference counted. This simplifies object deletion, because we can unlink a POSIX IPC object, knowing that it will be destroyed only when all processes have closed it.</p>
+<p class="noindenttb">However, there is one notable advantage in favor of System V IPC: portability. POSIX IPC is less portable than System V IPC in the following respects:</p>
+<p class="bull">&#8226; System V IPC is specified in SUSv3 and supported on nearly every UNIX implementation. By contrast, each of the POSIX IPC mechanisms is an optional component in SUSv3. Some UNIX implementations don&#8217;t support (all of) the POSIX IPC mechanisms. This situation is reflected in microcosm on <span epub:type="pagebreak" id="page_1062"/>Linux: POSIX shared memory is supported only since kernel 2.4; a full implementation of POSIX semaphores is available only since kernel 2.6; and POSIX message queues are supported only since kernel 2.6.6.</p>
+<p class="bull">&#8226; Despite the SUSv3 specification for POSIX IPC object names, the various implementations follow different conventions for naming IPC objects. These differences require us to do (a little) extra work to write portable applications.</p>
+<p class="bull">&#8226; Various details of POSIX IPC are not specified in SUSv3. In particular, no commands are specified for displaying and deleting the IPC objects that exist on a system. (In many implementations, standard file-system commands are used, but the details of the pathnames used to identify IPC objects vary.)</p>
+<h3 class="h3" id="ch51lev1sec03"><strong>51.3 Summary</strong></h3>
+<p class="noindenta">POSIX IPC is the general name given to three IPC mechanisms&#8212;message queues, semaphores, and shared memory&#8212;that were devised by POSIX.1b as alternatives to the analogous System V IPC mechanisms.</p>
+<p class="indent">The POSIX IPC interface is more consistent with the traditional UNIX file model. IPC objects are identified by names, and managed using <em>open</em>, <em>close</em>, and <em>unlink</em> calls that operate in a manner similar to the analogous file-related system calls.</p>
+<p class="indent">POSIX IPC provides an interface that is superior in many respects to the System V IPC interface. However, POSIX IPC is somewhat less portable than System V IPC.</p>
+</body>
+</html>

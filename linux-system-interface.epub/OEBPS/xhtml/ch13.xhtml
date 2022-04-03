@@ -1,0 +1,522 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xml:lang="en-us" lang="en-us" xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xmlns:ns="http://www.w3.org/2001/10/synthesis">
+<head>
+<title>The Linux Programming Interface</title>
+<link rel="stylesheet" type="text/css" href="../styles/9781593272203.css"/>
+</head>
+<body>
+<h2 class="h2" id="ch13"><span epub:type="pagebreak" id="page_233"/><strong><span class="big">13</span></strong><br/><strong>FILE I/O BUFFERING</strong></h2>
+<p class="noindenta">In the interests of speed and efficiency, I/O system calls (i.e., the kernel) and the I/O functions of the standard C library (i.e., the <em>stdio</em> functions) buffer data when operating on disk files. In this chapter, we describe both types of buffering and consider how they affect application performance. We also look at various techniques for influencing and disabling both types of buffering, and look at a technique called direct I/O, which is useful for bypassing kernel buffering in certain circumstances.</p>
+<h3 class="h3" id="ch13lev1sec01"><strong>13.1 Kernel Buffering of File I/O: The Buffer Cache</strong></h3>
+<p class="noindenta">When working with disk files, the <em>read()</em> and <em>write()</em> system calls don&#8217;t directly initiate disk access. Instead, they simply copy data between a user-space buffer and a buffer in the kernel <em>buffer cache</em>. For example, the following call transfers 3 bytes of data from a buffer in user-space memory to a buffer in kernel space:</p>
+<p class="programs">write(fd, "abc", 3);</p>
+<p class="noindent">At this point, <em>write()</em> returns. At some later point, the kernel writes (flushes) its buffer to the disk. (Hence, we say that the system call is not <em>synchronized</em> with the disk operation.) If, in the interim, another process attempts to read these bytes of the file, then the kernel automatically supplies the data from the buffer cache, rather than from (the outdated contents of) the file.</p>
+<p class="indent"><span epub:type="pagebreak" id="page_234"/>Correspondingly, for input, the kernel reads data from the disk and stores it in a kernel buffer. Calls to <em>read()</em> fetch data from this buffer until it is exhausted, at which point the kernel reads the next segment of the file into the buffer cache. (This is a simplification; for sequential file access, the kernel typically performs read-ahead to try to ensure that the next blocks of a file are read into the buffer cache before the reading process requires them. We say a bit more about read-ahead in <a href="ch13.xhtml#ch13lev1sec05">Section 13.5</a>.)</p>
+<p class="indent">The aim of this design is to allow <em>read()</em> and <em>write()</em> to be fast, since they don&#8217;t need to wait on a (slow) disk operation. This design is also efficient, since it reduces the number of disk transfers that the kernel must perform.</p>
+<p class="indent">The Linux kernel imposes no fixed upper limit on the size of the buffer cache. The kernel will allocate as many buffer cache pages as are required, limited only by the amount of available physical memory and the demands for physical memory for other purposes (e.g., holding the text and data pages required by running processes). If available memory is scarce, then the kernel flushes some modified buffer cache pages to disk, in order to free those pages for reuse.</p>
+<div class="block">
+<p class="noindent">Speaking more precisely, from kernel 2.4 onward, Linux no longer maintains a separate buffer cache. Instead, file I/O buffers are included in the page cache, which, for example, also contains pages from memory-mapped files. Nevertheless, in the discussion in the main text, we use the term <em>buffer cache</em>, since that term is historically common on UNIX implementations.</p>
+</div>
+<h5 class="h5" id="ch13lev3sec01"><strong>Effect of buffer size on I/O system call performance</strong></h5>
+<p class="noindenta">The kernel performs the same number of disk accesses, regardless of whether we perform 1000 writes of a single byte or a single write of a 1000 bytes. However, the latter is preferable, since it requires a single system call, while the former requires 1000. Although much faster than disk operations, system calls nevertheless take an appreciable amount of time, since the kernel must trap the call, check the validity of the system call arguments, and transfer data between user space and kernel space (refer to <a href="ch03.xhtml#ch03lev1sec01">Section 3.1</a> for further details).</p>
+<p class="indentb">The impact of performing file I/O using different buffer sizes can be seen by running the program in <a href="ch04.xhtml#ch4ex1">Listing 4-1</a> (on <a href="ch04.xhtml#page_71">page 71</a>) with different <span class="literal">BUF_SIZE</span> values. (The <span class="literal">BUF_SIZE</span> constant specifies how many bytes are transferred by each call to <em>read()</em> and <em>write()</em>.) <a href="ch13.xhtml#ch13table1">Table 13-1</a> shows the time that this program requires to copy a file of 100 million bytes on a Linux <em>ext2</em> file system using different <span class="literal">BUF_SIZE</span> values. Note the following points concerning the information in this table:</p>
+<p class="bull">&#8226; The <em>Elapsed</em> and <em>Total CPU</em> time columns have the obvious meanings. The <em>User CPU</em> and <em>System CPU</em> columns show a breakdown of the <em>Total CPU</em> time into, respectively, the time spent executing code in user mode and the time spent executing kernel code (i.e., system calls).</p>
+<p class="bull">&#8226; The tests shown in the table were performed using a vanilla 2.6.30 kernel on an <em>ext2</em> file system with a block size of 4096 bytes.</p>
+<div class="block1">
+<p class="noindent">When we talk about a <em>vanilla kernel</em>, we mean an unpatched mainline kernel. This is in contrast to kernels that are supplied by most distributors, which often include various patches to fix bugs or add features.</p>
+</div>
+<p class="bull"><span epub:type="pagebreak" id="page_235"/>&#8226; Each row shows the average of 20 runs for the given buffer size. In these tests, as in other tests shown later in this chapter, the file system was unmounted and remounted between each execution of the program to ensure that the buffer cache for the file system was empty. Timing was done using the shell <em>time</em> command.</p>
+<p class="tablecap"><a id="ch13table1"/><strong>Table 13-1:</strong> Time required to duplicate a file of 100 million bytes</p>
+<table class="all">
+<thead>
+<tr>
+<td style="vertical-align: middle;" class="table_th" rowspan="2"><p class="tablec"><span class="literal"><span class="codestrong">BUF_SIZE</span></span></p></td>
+<td style="vertical-align: top;" class="table_th1" colspan="4"><p class="tablec"><strong>Time (seconds)</strong></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_th"><p class="tablec"><strong>Elapsed</strong></p></td>
+<td style="vertical-align: top;" class="table_th"><p class="tablec"><strong>Total CPU</strong></p></td>
+<td style="vertical-align: top;" class="table_th"><p class="tablec"><strong>User CPU</strong></p></td>
+<td style="vertical-align: top;" class="table_th1"><p class="tablec"><strong>System CPU</strong></p></td>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">1</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">107.43</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">107.32</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">8.20</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">99.12</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">2</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">54.16</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">53.89</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">4.13</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">49.76</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">4</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">31.72</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">30.96</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">2.30</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">28.66</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">8</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">15.59</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">14.34</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">1.08</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">13.26</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">16</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">7.50</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">7.14</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.51</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">6.63</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">32</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">3.76</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">3.68</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.26</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">3.41</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">64</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">2.19</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">2.04</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.13</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">1.91</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">128</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">2.16</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">1.59</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.11</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">1.48</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">256</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">2.06</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">1.75</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.10</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">1.65</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">512</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">2.06</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">1.03</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.05</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">0.98</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1b"><p class="tabler"><span class="literal">1024</span></p></td>
+<td style="vertical-align: top;" class="table_1b"><p class="tabler"><span class="literal">2.05</span></p></td>
+<td style="vertical-align: top;" class="table_1b"><p class="tabler"><span class="literal">0.65</span></p></td>
+<td style="vertical-align: top;" class="table_1b"><p class="tabler"><span class="literal">0.02</span></p></td>
+<td style="vertical-align: top;" class="table_2b"><p class="tabler"><span class="literal">0.63</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">4096</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">2.05</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.38</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.01</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">0.38</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">16384</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">2.05</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.34</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.00</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">0.33</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_3"><p class="tabler"><span class="literal">65536</span></p></td>
+<td style="vertical-align: top;" class="table_3"><p class="tabler"><span class="literal">2.06</span></p></td>
+<td style="vertical-align: top;" class="table_3"><p class="tabler"><span class="literal">0.32</span></p></td>
+<td style="vertical-align: top;" class="table_3"><p class="tabler"><span class="literal">0.00</span></p></td>
+<td style="vertical-align: top;" class="table_3a"><p class="tabler"><span class="literal">0.32</span></p></td>
+</tr>
+</tbody>
+</table>
+<p class="noindent">Since the total amount of data transferred (and hence the number of disk operations) is the same for the various buffer sizes, what <a href="ch13.xhtml#ch13table1">Table 13-1</a> illustrates is the overhead of making <em>read()</em> and <em>write()</em> calls. With a buffer size of 1 byte, 100 million calls are made to <em>read()</em> and <em>write()</em>. With a buffer size of 4096 bytes, the number of invocations of each system call falls to around 24,000, and near optimal performance is reached. Beyond this point, there is no significant performance improvement, because the cost of making <em>read()</em> and <em>write()</em> system calls becomes negligible compared to the time required to copy data between user space and kernel space, and to perform actual disk I/O.</p>
+<div class="block">
+<p class="noindent">The final rows of <a href="ch13.xhtml#ch13table1">Table 13-1</a> allow us to make rough estimates of the times required for data transfer between user space and kernel space, and for file I/O. Since the number of system calls in these cases is relatively small, their contribution to the elapsed and CPU times is negligible. Thus, we can say that the <em>System CPU</em> time is essentially measuring the time for data transfers between user space and kernel space. The <em>Elapsed</em> time value gives us an estimate of the time required for data transfer to and from the disk. (As we&#8217;ll see in a moment, this is mainly the time required for disk reads.)</p>
+</div>
+<p class="noindent">In summary, if we are transferring a large amount of data to or from a file, then by buffering data in large blocks, and thus performing fewer system calls, we can greatly improve I/O performance.</p>
+<p class="indent">The data in <a href="ch13.xhtml#ch13table1">Table 13-1</a> measures a range of factors: the time to perform <em>read()</em> and <em>write()</em> system calls, the time to transfer data between buffers in kernel space and user space, and the time to transfer data between kernel buffers and the disk. Let&#8217;s consider the last factor further. Obviously, transferring the contents of the <span epub:type="pagebreak" id="page_236"/>input file into the buffer cache is unavoidable. However, we already saw that <em>write()</em> returns immediately after transferring data from user space to the kernel buffer cache. Since the RAM size on the test system (4 GB) far exceeds the size of the file being copied (100 MB), we can assume that by the time the program completes, the output file has not actually been written to disk. Therefore, as a further experiment, we ran a program that simply wrote arbitrary data to a file using different <em>write()</em> buffer sizes. The results are shown in <a href="ch13.xhtml#ch13table2">Table 13-2</a>.</p>
+<p class="indent">Again, the data shown in <a href="ch13.xhtml#ch13table2">Table 13-2</a> was obtained from kernel 2.6.30, on an <em>ext2</em> file system with a 4096-byte block size, and each row shows the average of 20 runs. We don&#8217;t show the test program (<span class="literal">filebuff/write_bytes.c</span>), but it is available in the source code distribution for this book.</p>
+<p class="tablecap"><a id="ch13table2"/><strong>Table 13-2:</strong> Time required to write a file of 100 million bytes</p>
+<table class="all">
+<thead>
+<tr>
+<td style="vertical-align: middle;" class="table_th" rowspan="2"><p class="tablec"><span class="literal"><span class="codestrong">BUF_SIZE</span></span></p></td>
+<td style="vertical-align: top;" class="table_th1" colspan="4"><p class="tablec"><strong>Time (seconds)</strong></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_th"><p class="tablec"><strong>Elapsed</strong></p></td>
+<td style="vertical-align: top;" class="table_th"><p class="tablec"><strong>Total CPU</strong></p></td>
+<td style="vertical-align: top;" class="table_th"><p class="tablec"><strong>User CPU</strong></p></td>
+<td style="vertical-align: top;" class="table_th1"><p class="tablec"><strong>System CPU</strong></p></td>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">1</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">72.13</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">72.11</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">5.00</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">67.11</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">2</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">36.19</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">36.17</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">2.47</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">33.70</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">4</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">20.01</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">19.99</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">1.26</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">18.73</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">8</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">9.35</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">9.32</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.62</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">8.70</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">16</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">4.70</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">4.68</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.31</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">4.37</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">32</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">2.39</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">2.39</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.16</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">2.23</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">64</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">1.24</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">1.24</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.07</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">1.16</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">128</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.67</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.67</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.04</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">0.63</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">256</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.38</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.38</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.02</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">0.36</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">512</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.24</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.24</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.01</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">0.23</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1b"><p class="tabler"><span class="literal">1024</span></p></td>
+<td style="vertical-align: top;" class="table_1b"><p class="tabler"><span class="literal">0.17</span></p></td>
+<td style="vertical-align: top;" class="table_1b"><p class="tabler"><span class="literal">0.17</span></p></td>
+<td style="vertical-align: top;" class="table_1b"><p class="tabler"><span class="literal">0.01</span></p></td>
+<td style="vertical-align: top;" class="table_2b"><p class="tabler"><span class="literal">0.16</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">4096</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.11</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.11</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.00</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">0.11</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">16384</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.10</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.10</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tabler"><span class="literal">0.00</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tabler"><span class="literal">0.10</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_3"><p class="tabler"><span class="literal">65536</span></p></td>
+<td style="vertical-align: top;" class="table_3"><p class="tabler"><span class="literal">0.09</span></p></td>
+<td style="vertical-align: top;" class="table_3"><p class="tabler"><span class="literal">0.09</span></p></td>
+<td style="vertical-align: top;" class="table_3"><p class="tabler"><span class="literal">0.00</span></p></td>
+<td style="vertical-align: top;" class="table_3a"><p class="tabler"><span class="literal">0.09</span></p></td>
+</tr>
+</tbody>
+</table>
+<p class="noindent"><a href="ch13.xhtml#ch13table2">Table 13-2</a> shows the costs just for making <em>write()</em> system calls and transferring data from user space to the kernel buffer cache using different <em>write()</em> buffer sizes. For larger buffer sizes, we see significant differences from the data shown in <a href="ch13.xhtml#ch13table1">Table 13-1</a>. For example, for a 65,536-byte buffer size, the elapsed time in <a href="ch13.xhtml#ch13table1">Table 13-1</a> is 2.06 seconds, while for <a href="ch13.xhtml#ch13table2">Table 13-2</a> it is 0.09 seconds. This is because no actual disk I/O is being performed in the latter case. In other words, the majority of the time required for the large buffer cases in <a href="ch13.xhtml#ch13table1">Table 13-1</a> is due to the disk reads.</p>
+<p class="indent">As we&#8217;ll see in <a href="ch13.xhtml#ch13lev1sec03">Section 13.3</a>, when we force output operations to block until data is transferred to the disk, the times for <em>write()</em> calls rise significantly.</p>
+<p class="indent">Finally, it is worth noting that the information in <a href="ch13.xhtml#ch13table2">Table 13-2</a> (and later, in <a href="ch13.xhtml#ch13table3">Table 13-3</a>) represents just one form of (naive) benchmark for a file system. Furthermore, the results will probably show some variation across file systems. File systems can be measured by various other criteria, such as performance under heavy multiuser load, speed of file creation and deletion, time required to search for a file in a large directory, space required to store small files, or maintenance of file integrity in the event of a system crash. Where the performance of I/O or other file-system operations is critical, there is no substitute for application-specific benchmarks on the target platform.</p>
+<h3 class="h3" id="ch13lev1sec02"><span epub:type="pagebreak" id="page_237"/><strong>13.2 Buffering in the <em>stdio</em> Library</strong></h3>
+<p class="noindenta">Buffering of data into large blocks to reduce system calls is exactly what is done by the C library I/O functions (e.g., <em>fprintf()</em>, <em>fscanf()</em>, <em>fgets()</em>, <em>fputs()</em>, <em>fputc()</em>, <em>fgetc()</em>) when operating on disk files. Thus, using the <em>stdio</em> library relieves us of the task of buffering data for output with <em>write()</em> or input via <em>read()</em>.</p>
+<h5 class="h5" id="ch13lev3sec02"><strong>Setting the buffering mode of a <em>stdio</em> stream</strong></h5>
+<p class="noindenta">The <em>setvbuf()</em> function controls the form of buffering employed by the <em>stdio</em> library.</p>
+<div class="box">
+<p class="programsa">#include &lt;stdio.h&gt;<br/><br/>int <span class="codestrong">setvbuf</span>(FILE *<span class="font1">stream</span>, char *<span class="font1">buf</span>, int <span class="font1">mode</span>, size_t <span class="font1">size</span>);</p>
+<p class="right">Returns 0 on success, or nonzero on error</p>
+</div>
+<p class="noindent">The <em>stream</em> argument identifies the file stream whose buffering is to be modified. After the stream has been opened, the <em>setvbuf()</em> call must be made before calling any other <em>stdio</em> function on the stream. The <em>setvbuf()</em> call affects the behavior of all subsequent <em>stdio</em> operations on the specified stream.</p>
+<div class="block">
+<p class="noindent">The streams used by the <em>stdio</em> library should not be confused with the STREAMS facility of System V. The System V STREAMS facility is not implemented in the mainline Linux kernel.</p>
+</div>
+<p class="noindentb">The <em>buf</em> and <em>size</em> arguments specify the buffer to be used for <em>stream</em>. These arguments may be specified in two ways:</p>
+<p class="bull">&#8226; If <em>buf</em> is non-<span class="literal">NULL</span>, then it points to a block of memory of <em>size</em> bytes that is to be used as the buffer for <em>stream</em>. Since the buffer pointed to by <em>buf</em> is then used by the <em>stdio</em> library, it should be either statically allocated or dynamically allocated on the heap (using <em>malloc()</em> or similar). It should not be allocated as a local function variable on the stack, since chaos will result when that function returns and its stack frame is deallocated.</p>
+<p class="bull">&#8226; If <em>buf</em> is <span class="literal">NULL</span>, then the <em>stdio</em> library automatically allocates a buffer for use with <em>stream</em> (unless we select unbuffered I/O, as described below). SUSv3 permits, but does not require, an implementation to use <em>size</em> to determine the size for this buffer. In the <em>glibc</em> implementation, <em>size</em> is ignored in this case.</p>
+<p class="noindentt">The <em>mode</em> argument specifies the type of buffering and has one of the following values:</p>
+<p class="term"><span class="literal">_IONBF</span></p>
+<p class="termlist">Don&#8217;t buffer I/O. Each <em>stdio</em> library call results in an immediate <em>write()</em> or <em>read()</em> system call. The <em>buf</em> and <em>size</em> arguments are ignored, and can be specified as <span class="literal">NULL</span> and 0, respectively. This is the default for <em>stderr</em>, so that error output is guaranteed to appear immediately.</p>
+<p class="term"><span epub:type="pagebreak" id="page_238"/><span class="literal">_IOLBF</span></p>
+<p class="termlist">Employ fully buffered I/O. Data is read or written (via calls to <em>read()</em> or <em>write()</em>) in units equal to the size of the buffer. This mode is the default for streams referring to disk files.</p>
+<p class="term"><span class="literal">_IOFBF</span></p>
+<p class="termlist">Employ line-buffered I/O. This flag is the default for streams referring to terminal devices. For output streams, data is buffered until a newline character is output (unless the buffer fills first). For input streams, data is read a line at a time.</p>
+<p class="noindentt">The following code demonstrates the use of <em>setvbuf()</em>:</p>
+<p class="programs">#define BUF_SIZE 1024<br/>static char buf[BUF_SIZE];<br/><br/>if (setvbuf(stdout, buf, _IOFBF, BUF_SIZE) != 0)<br/>&#160;&#160;&#160;&#160;errExit("setvbuf");</p>
+<p class="noindent">Note that <em>setvbuf()</em> returns a nonzero value (not necessarily &#8211;1) on error.</p>
+<p class="indent">The <em>setbuf()</em> function is layered on top of <em>setvbuf()</em>, and performs a similar task.</p>
+<div class="box">
+<p class="programsa">#include &lt;stdio.h&gt;<br/><br/>void <span class="codestrong">setbuf</span>(FILE *<span class="font1">stream</span>, char *<span class="font1">buf</span>);</p>
+</div>
+<p class="noindent">Other than the fact that it doesn&#8217;t return a function result, the call <em>setbuf(fp, buf)</em> is equivalent to:</p>
+<p class="programs">setvbuf(fp, buf, (buf != NULL) ? _IOFBF: _IONBF, BUFSIZ);</p>
+<p class="noindent">The <em>buf</em> argument is specified either as <span class="literal">NULL</span>, for no buffering, or as a pointer to a caller-allocated buffer of <span class="literal">BUFSIZ</span> bytes. (<span class="literal">BUFSIZ</span> is defined in <span class="literal">&lt;stdio.h&gt;</span>. In the <em>glibc</em> implementation, this constant has the value 8192, which is typical.)</p>
+<p class="indent">The <em>setbuffer()</em> function is similar to <em>setbuf()</em>, but allows the caller to specify the size of <em>buf</em>.</p>
+<div class="box">
+<p class="programsa">#define _BSD_SOURCE<br/>#include &lt;stdio.h&gt;<br/><br/>void <span class="codestrong">setbuffer</span>(FILE *<span class="font1">stream</span>, char *<span class="font1">buf</span>, size_t <span class="font1">size</span>);</p>
+</div>
+<p class="noindent">The call <em>setbuffer(fp, buf, size)</em> is equivalent to the following:</p>
+<p class="programs">setvbuf(fp, buf, (buf != NULL) ? _IOFBF : _IONBF, size);</p>
+<p class="noindent">The <em>setbuffer()</em> function is not specified in SUSv3, but is available on most UNIX implementations.</p>
+<h5 class="h5" id="ch13lev3sec03"><span epub:type="pagebreak" id="page_239"/><strong>Flushing a <em>stdio</em> buffer</strong></h5>
+<p class="noindenta">Regardless of the current buffering mode, at any time, we can force the data in a <em>stdio</em> output stream to be written (i.e., flushed to a kernel buffer via <em>write()</em>) using the <em>fflush()</em> library function. This function flushes the output buffer for the specified <em>stream</em>.</p>
+<div class="box">
+<p class="programsa">#include &lt;stdio.h&gt;<br/><br/>int <span class="codestrong">fflush</span>(FILE *<span class="font1">stream</span>);</p>
+<p class="right">Returns 0 on success, <span class="literal">EOF</span> on error</p>
+</div>
+<p class="noindent">If <em>stream</em> is <span class="literal">NULL</span>, <em>fflush()</em> flushes all <em>stdio</em> buffers that are associated with output streams.</p>
+<p class="indent">The <em>fflush()</em> function can also be applied to an input stream. This causes any buffered input to be discarded. (The buffer will be refilled when the program next tries to read from the stream.)</p>
+<p class="indent">A <em>stdio</em> buffer is automatically flushed when the corresponding stream is closed.</p>
+<p class="indent">In many C library implementations, including <em>glibc</em>, if <em>stdin</em> and <em>stdout</em> refer to a terminal, then an implicit <em>fflush(stdout)</em> is performed whenever input is read from <em>stdin</em>. This has the effect of flushing any prompts written to <em>stdout</em> that don&#8217;t include a terminating newline character (e.g., <em>printf(&#8220;Date:&#8221;)</em>). However, this behavior is not specified in SUSv3 or C99 and is not implemented in all C libraries. Portable programs should use explicit <em>fflush(stdout)</em> calls to ensure that such prompts are displayed.</p>
+<div class="block">
+<p class="noindent">The C99 standard makes two requirements if a stream is opened for both input and output. First, an output operation can&#8217;t be directly followed by an input operation without an intervening call to <em>fflush()</em> or one of the file-positioning functions (<em>fseek()</em>, <em>fsetpos()</em>, or <em>rewind()</em>). Second, an input operation can&#8217;t be directly followed by an output operation without an intervening call to one of the file-positioning functions, unless the input operation encountered end-of-file.</p>
+</div>
+<h3 class="h3" id="ch13lev1sec03"><strong>13.3 Controlling Kernel Buffering of File I/O</strong></h3>
+<p class="noindenta">It is possible to force flushing of kernel buffers for output files. Sometimes, this is necessary if an application (e.g., a database journaling process) must ensure that output really has been written to the disk (or at least to the disk&#8217;s hardware cache) before continuing.</p>
+<p class="indent">Before we describe the system calls used to control kernel buffering, it is useful to consider a few relevant definitions from SUSv3.</p>
+<h5 class="h5" id="ch13lev3sec04"><strong>Synchronized I/O data integrity and synchronized I/O file integrity</strong></h5>
+<p class="noindenta">SUSv3 defines the term <em>synchronized I/O completion</em> to mean &#8220;an I/O operation that has either been successfully transferred [to the disk] or diagnosed as unsuccessful.&#8221;</p>
+<p class="indent">SUSv3 defines two different types of synchronized I/O completion. The difference between the types involves the <em>metadata</em> (&#8220;data about data&#8221;) describing the file, which the kernel stores along with the data for a file. We consider file metadata in <span epub:type="pagebreak" id="page_240"/>detail when we look at file i-nodes in <a href="ch14.xhtml#ch14lev1sec04">Section 14.4</a>, but for now, it is sufficient to note that the file metadata includes information such as the file owner and group; file permissions; file size; number of (hard) links to the file; timestamps indicating the time of the last file access, last file modification, and last metadata change; and file data block pointers.</p>
+<p class="indentb">The first type of synchronized I/O completion defined by SUSv3 is <em>synchronized I/O data integrity completion</em>. This is concerned with ensuring that a file data update transfers sufficient information to allow a later retrieval of that data to proceed.</p>
+<p class="bull">&#8226; For a read operation, this means that the requested file data has been transferred (from the disk) to the process. If there were any pending write operations affecting the requested data, these are transferred to the disk before performing the read.</p>
+<p class="bull">&#8226; For a write operation, this means that the data specified in the write request has been transferred (to the disk) and all file metadata required to retrieve that data has also been transferred. The key point to note here is that not all modified file metadata attributes need to be transferred to allow the file data to be retrieved. An example of a modified file metadata attribute that would need to be transferred is the file size (if the write operation extended the file). By contrast, modified file timestamps would not need to be transferred to disk before a subsequent data retrieval could proceed.</p>
+<p class="noindentt">The other type of synchronized I/O completion defined by SUSv3 is <em>synchronized I/O file integrity completion</em>, which is a superset of synchronized I/O data integrity completion. The difference with this mode of I/O completion is that during a file update, <em>all</em> updated file metadata is transferred to disk, even if it is not necessary for the operation of a subsequent read of the file data.</p>
+<h5 class="h5" id="ch13lev3sec05"><strong>System calls for controlling kernel buffering of file I/O</strong></h5>
+<p class="noindenta">The <em>fsync()</em> system call causes the buffered data and all metadata associated with the open file descriptor <em>fd</em> to be flushed to disk. Calling <em>fsync()</em> forces the file to the synchronized I/O file integrity completion state.</p>
+<div class="box">
+<p class="programsa">#include &lt;unistd.h&gt;<br/><br/>int <span class="codestrong">fsync</span>(int <span class="font1">fd</span>);</p>
+<p class="right">Returns 0 on success, or &#8211;1 on error</p>
+</div>
+<p class="noindent">An <em>fsync()</em> call returns only after the transfer to the disk device (or at least its cache) has completed.</p>
+<p class="indent">The <em>fdatasync()</em> system call operates similarly to <em>fsync()</em>, but only forces the file to the synchronized I/O data integrity completion state.</p>
+<div class="box">
+<p class="programsa">#include &lt;unistd.h&gt;<br/><br/>int <span class="codestrong">fdatasync</span>(int <span class="font1">fd</span>);</p>
+<p class="right">Returns 0 on success, or &#8211;1 on error</p>
+</div>
+<p class="noindent"><span epub:type="pagebreak" id="page_241"/>Using <em>fdatasync()</em> potentially reduces the number of disk operations from the two required by <em>fsync()</em> to one. For example, if the file data has changed, but the file size has not, then calling <em>fdatasync()</em> only forces the data to be updated. (We noted above that changes to file metadata attributes such as the last modification timestamp don&#8217;t need to be transferred for synchronized I/O data integrity completion.) By contrast, calling <em>fsync()</em> would also force the metadata to be transferred to disk.</p>
+<p class="indent">Reducing the number of disk I/O operations in this manner is useful for certain applications in which performance is crucial and the accurate maintenance of certain metadata (such as timestamps) is not essential. This can make a considerable performance difference for applications that are making multiple file updates: because the file data and metadata normally reside on different parts of the disk, updating them both would require repeated seek operations backward and forward across the disk.</p>
+<p class="indent">In Linux 2.2 and earlier, <em>fdatasync()</em> is implemented as a call to <em>fsync()</em>, and thus carries no performance gain.</p>
+<div class="block">
+<p class="noindent">Starting with kernel 2.6.17, Linux provides the nonstandard <em>sync_file_range()</em> system call, which allows more precise control than <em>fdatasync()</em> when flushing file data. The caller can specify the file region to be flushed, and specify flags controlling whether the system call blocks on disk writes. See the <em>sync_file_range(2)</em> manual page for further details.</p>
+</div>
+<p class="noindent">The <em>sync()</em> system call causes all kernel buffers containing updated file information (i.e., data blocks, pointer blocks, metadata, and so on) to be flushed to disk.</p>
+<div class="box">
+<p class="programsa">#include &lt;unistd.h&gt;<br/><br/>void <span class="codestrong">sync</span>(void);</p>
+</div>
+<p class="noindent">In the Linux implementation, <em>sync()</em> returns only after all data has been transferred to the disk device (or at least to its cache). However, SUSv3 permits an implementation of <em>sync()</em> to simply schedule the I/O transfer and return before it has completed.</p>
+<div class="block">
+<p class="noindent">A permanently running kernel thread ensures that modified kernel buffers are flushed to disk if they are not explicitly synchronized within 30 seconds. This is done to ensure that buffers don&#8217;t remain unsynchronized with the corresponding disk file (and thus vulnerable to loss in the event of a system crash) for long periods. In Linux 2.6, this task is performed by the <em>pdflush</em> kernel thread. (In Linux 2.4, it is performed by the <em>kupdated</em> kernel thread.)</p>
+<p class="indent">The file <span class="literal">/proc/sys/vm/dirty_expire_centisecs</span> specifies the age (in hundredths of a second) that a dirty buffer must reach before it is flushed by <em>pdflush</em>. Additional files in the same directory control other aspects of the operation of <em>pdflush</em>.</p>
+</div>
+<h5 class="h5" id="ch13lev3sec06"><strong>Making all writes synchronous:</strong> <span class="literal"><span class="codestrong">O_SYNC</span></span></h5>
+<p class="noindenta">Specifying the <span class="literal">O_SYNC</span> flag when calling <em>open()</em> makes all subsequent output <em>synchronous</em>:</p>
+<p class="programs">fd = open(pathname, O_WRONLY | O_SYNC);</p>
+<p class="noindent"><span epub:type="pagebreak" id="page_242"/>After this <em>open()</em> call, every <em>write()</em> to the file automatically flushes the file data and metadata to the disk (i.e., writes are performed according to synchronized I/O file integrity completion).</p>
+<div class="block">
+<p class="noindent">Older BSD systems used the <span class="literal">O_FSYNC</span> flag to provide <span class="literal">O_SYNC</span> functionality. In <em>glibc</em>, <span class="literal">O_FSYNC</span> is defined as a synonym for <span class="literal">O_SYNC</span>.</p>
+</div>
+<h5 class="h5" id="ch13lev3sec07"><strong>Performance impact of</strong> <span class="literal"><span class="codestrong">O_SYNC</span></span></h5>
+<p class="noindenta">Using the <span class="literal">O_SYNC</span> flag (or making frequent calls to <em>fsync()</em>, <em>fdatasync()</em>, or <em>sync()</em>) can strongly affect performance. <a href="ch13.xhtml#ch13table3">Table 13-3</a> shows the time required to write 1 million bytes to a newly created file (on an <em>ext2</em> file system) for a range of buffer sizes with and without <span class="literal">O_SYNC</span>. The results were obtained (using the <span class="literal">filebuff/write_bytes.c</span> program provided in the source code distribution for this book) using a vanilla 2.6.30 kernel and an <em>ext2</em> file system with a block size of 4096 bytes. Each row shows the average of 20 runs for the given buffer size.</p>
+<p class="indent">As can be seen from the table, <span class="literal">O_SYNC</span> increases elapsed times enormously&#8212;in the 1-byte buffer case, by a factor of more than 1000. Note also the large differences between the elapsed and CPU times for writes with <span class="literal">O_SYNC</span>. This is a consequence of the program being blocked while each buffer is actually transferred to disk.</p>
+<p class="indent">The results shown in <a href="ch13.xhtml#ch13table3">Table 13-3</a> omit a further factor that affects performance when using <span class="literal">O_SYNC</span>. Modern disk drives have large internal caches, and by default, <span class="literal">O_SYNC</span> merely causes data to be transferred to the cache. If we disable caching on the disk (using the command <em>hdparm &#8211;W0</em>), then the performance impact of <span class="literal">O_SYNC</span> becomes even more extreme. In the 1-byte case, the elapsed time rises from 1030 seconds to around 16,000 seconds. In the 4096-byte case, the elapsed time rises from 0.34 seconds to 4 seconds.</p>
+<p class="indent">In summary, if we need to force flushing of kernel buffers, we should consider whether we can design our application to use large <em>write()</em> buffer sizes or make judicious use of occasional calls to <em>fsync()</em> or <em>fdatasync()</em>, instead of using the <span class="literal">O_SYNC</span> flag when opening the file.</p>
+<p class="tablecap"><a id="ch13table3"/><strong>Table 13-3:</strong> Impact of the <span class="literal">O_SYNC</span> flag on the speed of writing 1 million bytes</p>
+<table class="all">
+<thead>
+<tr>
+<td style="vertical-align: middle;" class="table_th" rowspan="3"><p class="tablec"><span class="literal"><span class="codestrong">BUF_SIZE</span></span></p></td>
+<td style="vertical-align: top;" class="table_th1" colspan="4"><p class="tablec"><strong>Time required (seconds)</strong></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_th" colspan="2"><p class="tablec"><strong>Without</strong> <span class="literal"><span class="codestrong">O_SYNC</span></span></p></td>
+<td style="vertical-align: top;" class="table_th1" colspan="2"><p class="tablec"><strong>With</strong> <span class="literal"><span class="codestrong">O_SYNC</span></span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_th"><p class="tablec"><strong>Elapsed</strong></p></td>
+<td style="vertical-align: top;" class="table_th"><p class="tablec"><strong>Total CPU</strong></p></td>
+<td style="vertical-align: top;" class="table_th"><p class="tablec"><strong>Elapsed</strong></p></td>
+<td style="vertical-align: top;" class="table_th1"><p class="tablec"><strong>Total CPU</strong></p></td>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tablec"><span class="literal">1</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tablec"><span class="literal">0.73</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tablec"><span class="literal">0.73</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tablec"><span class="literal">1030</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tablec"><span class="literal">98.8</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tablec"><span class="literal">16</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tablec"><span class="literal">0.05</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tablec"><span class="literal">0.05</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tablec"><span class="literal">65.0</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tablec"><span class="literal">0.40</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="tablec"><span class="literal">256</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tablec"><span class="literal">0.02</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tablec"><span class="literal">0.02</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tablec"><span class="literal">4.07</span></p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tablec"><span class="literal">0.03</span></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_3"><p class="tablec"><span class="literal">4096</span></p></td>
+<td style="vertical-align: top;" class="table_3"><p class="tablec"><span class="literal">0.01</span></p></td>
+<td style="vertical-align: top;" class="table_3"><p class="tablec"><span class="literal">0.01</span></p></td>
+<td style="vertical-align: top;" class="table_3"><p class="tablec"><span class="literal">0.34</span></p></td>
+<td style="vertical-align: top;" class="table_3a"><p class="tablec"><span class="literal">0.03</span></p></td>
+</tr>
+</tbody>
+</table>
+<h5 class="h5" id="ch13lev3sec08"><span epub:type="pagebreak" id="page_243"/><strong>The</strong> <span class="literal"><span class="codestrong">O_DSYNC</span></span> <strong>and</strong> <span class="literal"><span class="codestrong">O_RSYNC</span></span> <strong>flags</strong></h5>
+<p class="noindenta">SUSv3 specifies two further open file status flags related to synchronized I/O: <span class="literal">O_DSYNC</span> and <span class="literal">O_RSYNC</span>.</p>
+<p class="indent">The <span class="literal">O_DSYNC</span> flag causes writes to be performed according to the requirements of synchronized I/O data integrity completion (like <em>fdatasync()</em>). This contrasts with <span class="literal">O_SYNC</span>, which causes writes to be performed according to the requirements of synchronized I/O file integrity completion (like <em>fsync()</em>).</p>
+<p class="indent">The <span class="literal">O_RSYNC</span> flag is specified in conjunction with either <span class="literal">O_SYNC</span> or <span class="literal">O_DSYNC</span>, and extends the write behaviors of these flags to read operations. Specifying both <span class="literal">O_RSYNC</span> and <span class="literal">O_DSYNC</span> when opening a file means that all subsequent reads are completed according to the requirements of synchronized I/O data integrity completion (i.e., prior to performing the read, all pending file writes are completed as though carried out with <span class="literal">O_DSYNC</span>). Specifying both <span class="literal">O_RSYNC</span> and <span class="literal">O_SYNC</span> when opening a file means that all subsequent reads are completed according to the requirements of synchronized I/O file integrity completion (i.e., prior to performing the read, all pending file writes are completed as though carried out with <span class="literal">O_SYNC</span>).</p>
+<p class="indent">Before kernel 2.6.33, the <span class="literal">O_DSYNC</span> and <span class="literal">O_RSYNC</span> flags were not implemented on Linux, and the <em>glibc</em> headers defined these constants to be the same as <span class="literal">O_SYNC</span>. (This isn&#8217;t actually correct in the case of <span class="literal">O_RSYNC</span>, since <span class="literal">O_SYNC</span> doesn&#8217;t provide any functionality for read operations.)</p>
+<p class="indent">Starting with kernel 2.6.33, Linux implements <span class="literal">O_DSYNC</span>, and an implementation of <span class="literal">O_RSYNC</span> is likely to be added in a future kernel release.</p>
+<div class="block">
+<p class="noindent">Before kernel 2.6.33, Linux didn&#8217;t fully implement <span class="literal">O_SYNC</span> semantics. Instead, <span class="literal">O_SYNC</span> was implemented as <span class="literal">O_DSYNC</span>. To maintain consistent behavior for applications that were built for older kernels, applications that were linked against older versions of the GNU C library continue to provide <span class="literal">O_DSYNC</span> semantics for <span class="literal">O_SYNC</span>, even on Linux 2.6.33 and later.</p>
+</div>
+<h3 class="h3" id="ch13lev1sec04"><strong>13.4 Summary of I/O Buffering</strong></h3>
+<p class="noindenta"><a href="ch13.xhtml#ch13fig1">Figure 13-1</a> provides an overview of the buffering employed (for output files) by the <em>stdio</em> library and the kernel, along with the mechanisms for controlling each type of buffering. Traveling downward through the middle of this diagram, we see the transfer of user data by the <em>stdio</em> library functions to the <em>stdio</em> buffer, which is maintained in user memory space. When this buffer is filled, the <em>stdio</em> library invokes the <em>write()</em> system call, which transfers the data into the kernel buffer cache (maintained in kernel memory). Eventually, the kernel initiates a disk operation to transfer the data to the disk.</p>
+<p class="indent">The left side of <a href="ch13.xhtml#ch13fig1">Figure 13-1</a> shows the calls that can be used at any time to explicitly force a flush of either of the buffers. The right side shows the calls that can be used to make flushing automatic, either by disabling buffering in the <em>stdio</em> library or by making file output system calls synchronous, so that each <em>write()</em> is immediately flushed to the disk.</p>
+<div class="image"><span epub:type="pagebreak" id="page_244"/><img src="../images/f13-01.jpg" alt="image"/></div>
+<p class="figcap"><a id="ch13fig1"/><strong>Figure 13-1:</strong> Summary of I/O buffering</p>
+<h3 class="h3" id="ch13lev1sec05"><strong>13.5 Advising the Kernel About I/O Patterns</strong></h3>
+<p class="noindenta">The <em>posix_fadvise()</em> system call allows a process to inform the kernel about its likely pattern for accessing file data.</p>
+<div class="box">
+<p class="programsa">#include &lt;fcntl.h&gt;<br/><br/>int <span class="codestrong">posix_fadvise</span>(int <span class="font1">fd</span>, off_t <span class="font1">offset</span>, off_t <span class="font1">len</span>, int <span class="font1">advice</span>);</p>
+<p class="right">Returns 0 on success, or a positive error number on error</p>
+</div>
+<p class="noindent">The kernel may (but is not obliged to) use the information provided by <em>posix_fadvise()</em> to optimize its use of the buffer cache, thereby improving I/O performance for the process and for the system as a whole. Calling <em>posix_fadvise()</em> has no effect on the semantics of a program.</p>
+<p class="indent">The <em>fd</em> argument is a file descriptor identifying the file about whose access patterns we wish to inform the kernel. The <em>offset</em> and <em>len</em> arguments identify the region of the file about which advice is being given: <em>offset</em> specifies the starting offset of the region, and <em>len</em> specifies the size of the region in bytes. A <em>len</em> value of 0 means all <span epub:type="pagebreak" id="page_245"/>bytes from <em>offset</em> through to the end of the file. (In kernels before 2.6.6, a <em>len</em> of 0 was interpreted literally as zero bytes.)</p>
+<p class="indentb">The <em>advice</em> argument indicates the process&#8217;s expected pattern of access for the file. It is specified as one of the following:</p>
+<p class="term"><span class="literal">POSIX_FADV_NORMAL</span></p>
+<p class="termlist">The process has no special advice to give about access patterns. This is the default behavior if no advice is given for the file. On Linux, this operation sets the file read-ahead window to the default size (128 kB).</p>
+<p class="term"><span class="literal">POSIX_FADV_SEQUENTIAL</span></p>
+<p class="termlist">The process expects to read data sequentially from lower offsets to higher offsets. On Linux, this operation sets the file read-ahead window to twice the default size.</p>
+<p class="term"><span class="literal">POSIX_FADV_RANDOM</span></p>
+<p class="termlist">The process expects to access the data in random order. On Linux, this option disables file read-ahead.</p>
+<p class="term"><span class="literal">POSIX_FADV_WILLNEED</span></p>
+<p class="termlist">The process expects to access the specified file region in the near future. The kernel performs read-ahead to populate the buffer cache with file data in the range specified by <em>offset</em> and <em>len</em>. Subsequent <em>read()</em> calls on the file don&#8217;t block on disk I/O; instead, they simply fetch data from the buffer cache. The kernel provides no guarantees about how long the data fetched from the file will remain resident in the buffer cache. If other processes or kernel activities place a sufficiently strong demand on memory, then the pages will eventually be reused. In other words, if memory pressure is high, then we should ensure that the elapsed time between the <em>posix_fadvise()</em> call and the subsequent <em>read()</em> call(s) is short. (The Linux-specific <em>readahead()</em> system call provides functionality equivalent to the <span class="literal">POSIX_FADV_WILLNEED</span> operation.)</p>
+<p class="term"><span class="literal">POSIX_FADV_DONTNEED</span></p>
+<p class="termlist">The process expects not to access the specified file region in the near future. This advises the kernel that it can free the corresponding cache pages (if there are any). On Linux, this operation is performed in two steps. First, if the underlying device is not currently congested with a series of queued write operations, the kernel flushes any modified pages in the specified region. Second, the kernel attempts to free any cache pages for the region. For modified pages in the region, this second step will succeed only if the pages have been written to the underlying device in the first step&#8212;that is, if the device&#8217;s write queue was not congested. Since congestion on the device can&#8217;t be controlled by the application, an alternate way of ensuring that the cache pages can be freed is to precede the <span class="literal">POSIX_FADV_DONTNEED</span> operation with a <em>sync()</em> or <em>fdatasync()</em> call that specifies <em>fd</em>.</p>
+<p class="term"><span class="literal">POSIX_FADV_NOREUSE</span></p>
+<p class="termlist">The process expects to access data in the specified file region once, and then not to reuse it. This hint tells the kernel that it can free the pages after they have been accessed once. On Linux, this operation currently has no effect.</p>
+<p class="noindentt"><span epub:type="pagebreak" id="page_246"/>The specification of <em>posix_fadvise()</em> is new in SUSv3, and not all UNIX implementations support this interface. Linux provides <em>posix_fadvise()</em> since kernel 2.6.</p>
+<h3 class="h3" id="ch13lev1sec06"><strong>13.6 Bypassing the Buffer Cache: Direct I/O</strong></h3>
+<p class="noindenta">Starting with kernel 2.4, Linux allows an application to bypass the buffer cache when performing disk I/O, thus transferring data directly from user space to a file or disk device. This is sometimes termed <em>direct I/O</em> or <em>raw I/O</em>.</p>
+<div class="block">
+<p class="noindent">The details described here are Linux-specific and are not standardized by SUSv3. Nevertheless, most UNIX implementations provide some form of direct I/O access to devices and files.</p>
+</div>
+<p class="noindent">Direct I/O is sometimes misunderstood as being a means of obtaining fast I/O performance. However, for most applications, using direct I/O can considerably degrade performance. This is because the kernel applies a number of optimizations to improve the performance of I/O done via the buffer cache, including performing sequential read-ahead, performing I/O in clusters of disk blocks, and allowing processes accessing the same file to share buffers in the cache. All of these optimizations are lost when we use direct I/O. Direct I/O is intended only for applications with specialized I/O requirements. For example, database systems that perform their own caching and I/O optimizations don&#8217;t need the kernel to consume CPU time and memory performing the same tasks.</p>
+<p class="indent">We can perform direct I/O either on an individual file or on a block device (e.g., a disk). To do this, we specify the <span class="literal">O_DIRECT</span> flag when opening the file or device with <em>open()</em>.</p>
+<p class="indent">The <span class="literal">O_DIRECT</span> flag is effective since kernel 2.4.10. Not all Linux file systems and kernel versions support the use of this flag. Most native file systems support <span class="literal">O_DIRECT</span>, but many non-UNIX file systems (e.g., VFAT) do not. It may be necessary to test the file system concerned (if a file system doesn&#8217;t support <span class="literal">O_DIRECT</span>, then <em>open()</em> fails with the error <span class="literal">EINVAL</span>) or read the kernel source code to check for this support.</p>
+<div class="block">
+<p class="noindent">If a file is opened with <span class="literal">O_DIRECT</span> by one process, and opened normally (i.e., so that the buffer cache is used) by another process, then there is no coherency between the contents of the buffer cache and the data read or written via direct I/O. Such scenarios should be avoided.</p>
+<p class="indent">The <em>raw(8)</em> manual page describes an older (now deprecated) technique for obtaining raw access to a disk device.</p>
+</div>
+<h5 class="h5" id="ch13lev3sec09"><strong>Alignment restrictions for direct I/O</strong></h5>
+<p class="noindentab">Because direct I/O (on both disk devices and files) involves direct access to the disk, we must observe a number of restrictions when performing I/O:</p>
+<p class="bull">&#8226; The data buffer being transferred must be aligned on a memory boundary that is a multiple of the block size.</p>
+<p class="bull">&#8226; The file or device offset at which data transfer commences must be a multiple of the block size.</p>
+<p class="bull">&#8226; The length of the data to be transferred must be a multiple of the block size.</p>
+<p class="noindentt"><span epub:type="pagebreak" id="page_247"/>Failure to observe any of these restrictions results in the error <span class="literal">EINVAL</span>. In the above list, <em>block size</em> means the physical block size of the device (typically 512 bytes).</p>
+<div class="block">
+<p class="noindent">When performing direct I/O, Linux 2.4 is more restrictive than Linux 2.6: the alignment, length, and offset must be multiples of the <em>logical</em> block size of the underlying file system. (Typical file system logical block sizes are 1024, 2048, or 4096 bytes.)</p>
+</div>
+<h5 class="h5" id="ch13lev3sec10"><strong>Example program</strong></h5>
+<p class="noindenta"><a href="ch13.xhtml#ch13ex1">Listing 13-1</a> provides a simple example of the use of <span class="literal">O_DIRECT</span> while opening a file for reading. This program takes up to four command-line arguments specifying, in order, the file to be read, the number of bytes to be read from the file, the offset to which the program should seek before reading from the file, and the alignment of the data buffer passed to <em>read()</em>. The last two arguments are optional, and default to offset 0 and 4096 bytes, respectively. Here are some examples of what we see when we run this program:</p>
+<p class="programs">$ <span class="codestrong">./direct_read /test/x 512</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="font1">Read 512 bytes at offset 0</span><br/>Read 512 bytes&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="font1">Succeeds</span><br/>$ <span class="codestrong">./direct_read /test/x 256</span><br/>ERROR [EINVAL Invalid argument] read&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="font1">Length is not a multiple of 512</span><br/>$ <span class="codestrong">./direct_read /test/x 512 1</span><br/>ERROR [EINVAL Invalid argument] read&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="font1">Offset is not a multiple of 512</span><br/>$ <span class="codestrong">./direct_read /test/x 4096 8192 512</span><br/>Read 4096 bytes&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="font1">Succeeds</span><br/>$ <span class="codestrong">./direct_read /test/x 4096 512 256</span><br/>ERROR [EINVAL Invalid argument] read&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="font1">Alignment is not a multiple of 512</span></p>
+<div class="block">
+<p class="noindent">The program in <a href="ch13.xhtml#ch13ex1">Listing 13-1</a> uses the <em>memalign()</em> function to allocate a block of memory aligned on a multiple of its first argument. We describe <em>memalign()</em> in <a href="ch07.xhtml#ch07lev2sec04">Section 7.1.4</a>.</p>
+</div>
+<p class="examplet"><a id="ch13ex1"/><strong>Listing 13-1:</strong> Using <span class="literal">O_DIRECT</span> to bypass the buffer cache</p>
+<p class="programsli">____________________________________________________ <span class="codestrong">filebuff/direct_read.c</span><br/><br/>#define _GNU_SOURCE&#160;&#160;&#160;&#160;&#160;/* Obtain O_DIRECT definition from &lt;fcntl.h&gt; */<br/>#include &lt;fcntl.h&gt;<br/>#include &lt;malloc.h&gt;<br/>#include "tlpi_hdr.h"<br/><br/>int<br/>main(int argc, char *argv[])<br/>{<br/>&#160;&#160;&#160;&#160;int fd;<br/>&#160;&#160;&#160;&#160;ssize_t numRead;<br/>&#160;&#160;&#160;&#160;size_t length, alignment;<br/>&#160;&#160;&#160;&#160;off_t offset;<br/>&#160;&#160;&#160;&#160;char *buf;<br/><br/>&#160;&#160;&#160;&#160;if (argc &lt; 3 || strcmp(argv[1], "--help") == 0)<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;usageErr("%s file length [offset [alignment]]\n", argv[0]);<br/>&#160;&#160;&#160;&#160;length = getLong(argv[2], GN_ANY_BASE, "length");<br/>&#160;&#160;&#160;&#160;offset = (argc &gt; 3) ? getLong(argv[3], GN_ANY_BASE, "offset") : 0;<br/>&#160;&#160;&#160;&#160;alignment = (argc &gt; 4) ? getLong(argv[4], GN_ANY_BASE, "alignment") : 4096;<br/><br/>&#160;&#160;&#160;&#160;fd = open(argv[1], O_RDONLY | O_DIRECT);<br/>&#160;&#160;&#160;&#160;if (fd == -1)<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;errExit("open");<br/><br/>&#160;&#160;&#160;&#160;/* memalign() allocates a block of memory aligned on an address that<br/>&#160;&#160;&#160;&#160;&#160;&#160;is a multiple of its first argument. By specifying this argument as<br/>&#160;&#160;&#160;&#160;&#160;&#160;2 * 'alignment' and then adding 'alignment' to the returned pointer,<br/>&#160;&#160;&#160;&#160;&#160;&#160;we ensure that 'buf' is aligned on a non-power-of-two multiple of<br/>&#160;&#160;&#160;&#160;&#160;&#160;'alignment'. We do this to ensure that if, for example, we ask<br/>&#160;&#160;&#160;&#160;&#160;&#160;for a 256-byte aligned buffer, we don't accidentally get a<br/>&#160;&#160;&#160;&#160;&#160;&#160;buffer that is also aligned on a 512-byte boundary. */<br/><br/>&#160;&#160;&#160;&#160;buf = memalign(alignment * 2, length + alignment);<br/>&#160;&#160;&#160;&#160;if (buf == NULL)<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;errExit("memalign");<br/><br/>&#160;&#160;&#160;&#160;buf += alignment;<br/><br/>&#160;&#160;&#160;&#160;if (lseek(fd, offset, SEEK_SET) == -1)<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;errExit("lseek");<br/><br/>&#160;&#160;&#160;&#160;numRead = read(fd, buf, length);<br/>&#160;&#160;&#160;&#160;if (numRead == -1)<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;errExit("read");<br/>&#160;&#160;&#160;&#160;printf("Read %ld bytes\n", (long) numRead);<br/><br/>&#160;&#160;&#160;&#160;exit(EXIT_SUCCESS);<br/>}<br/>____________________________________________________ <span class="codestrong">filebuff/direct_read.c</span></p>
+<h3 class="h3" id="ch13lev1sec07"><span epub:type="pagebreak" id="page_248"/><strong>13.7 Mixing Library Functions and System Calls for File I/O</strong></h3>
+<p class="noindenta">It is possible to mix the use of system calls and the standard C library functions to perform I/O on the same file. The <em>fileno()</em> and <em>fdopen()</em> functions assist us with this task.</p>
+<div class="box">
+<p class="programsa">#include &lt;stdio.h&gt;<br/><br/>int <span class="codestrong">fileno</span>(FILE *<span class="font1">stream</span>);</p>
+<p class="right">Returns file descriptor on success, or &#8211;1 on error</p>
+<p class="programsat">FILE *<span class="codestrong">fdopen</span>(int <span class="font1">fd</span>, const char *<span class="font1">mode</span>);</p>
+<p class="right">Returns (new) file pointer on success, or <span class="literal">NULL</span> on error</p>
+</div>
+<p class="noindent">Given a stream, <em>fileno()</em> returns the corresponding file descriptor (i.e., the one that the <em>stdio</em> library has opened for this stream). This file descriptor can then be used in the usual way with I/O system calls such as <em>read()</em>, <em>write()</em>, <em>dup()</em>, and <em>fcntl()</em>.</p>
+<p class="indent"><span epub:type="pagebreak" id="page_249"/>The <em>fdopen()</em> function is the converse of <em>fileno()</em>. Given a file descriptor, it creates a corresponding stream that uses this descriptor for its I/O. The <em>mode</em> argument is the same as for <em>fopen()</em>; for example, <em>r</em> for read, <em>w</em> for write, or <em>a</em> for append. If this argument is not consistent with the access mode of the file descriptor <em>fd</em>, then <em>fdopen()</em> fails.</p>
+<p class="indent">The <em>fdopen()</em> function is especially useful for descriptors referring to files other than regular files. As we&#8217;ll see in later chapters, the system calls for creating sockets and pipes always return file descriptors. To use the <em>stdio</em> library with these file types, we must use <em>fdopen()</em> to create a corresponding file stream.</p>
+<p class="indent">When using the <em>stdio</em> library functions in conjunction with I/O system calls to perform I/O on disk files, we must keep buffering issues in mind. I/O system calls transfer data directly to the kernel buffer cache, while the <em>stdio</em> library waits until the stream&#8217;s user-space buffer is full before calling <em>write()</em> to transfer that buffer to the kernel buffer cache. Consider the following code used to write to standard output:</p>
+<p class="programs">printf("To man the world is twofold, ");<br/>write(STDOUT_FILENO, "in accordance with his twofold attitude.\n", 41);</p>
+<p class="noindent">In the usual case, the output of the <em>printf()</em> will typically appear <em>after</em> the output of the <em>write()</em>, so that this code yields the following output:</p>
+<p class="programs">in accordance with his twofold attitude.<br/>To man the world is twofold,</p>
+<p class="noindent">When intermingling I/O system calls and <em>stdio</em> functions, judicious use of <em>fflush()</em> may be required to avoid this problem. We could also use <em>setvbuf()</em> or <em>setbuf()</em> to disable buffering, but doing so might impact I/O performance for the application, since each output operation would then result in the execution of a <em>write()</em> system call.</p>
+<div class="block">
+<p class="noindent">SUSv3 goes to some length specifying the requirements for an application to be able to mix the use of I/O system calls and <em>stdio</em> functions. See the section headed <em>Interaction of File Descriptors and Standard I/O Streams</em> under the chapter <em>General Information</em> in the <em>System Interfaces</em> (XSH) volume for details.</p>
+</div>
+<h3 class="h3" id="ch13lev1sec08"><strong>13.8 Summary</strong></h3>
+<p class="noindenta">Buffering of input and output data is performed by the kernel, and also by the <em>stdio</em> library. In some cases, we may wish to prevent buffering, but we need to be aware of the impact this has on application performance. Various system calls and library functions can be used to control kernel and <em>stdio</em> buffering and to perform one-off buffer flushes.</p>
+<p class="indent">A process can use <em>posix_fadvise()</em> to advise the kernel of its likely pattern for accessing data from a specified file. The kernel may use this information to optimize the use of the buffer cache, thus improving I/O performance.</p>
+<p class="indent">The Linux-specific <em>open()</em> <span class="literal">O_DIRECT</span> flag allows specialized applications to bypass the buffer cache.</p>
+<p class="indent">The <em>fileno()</em> and <em>fdopen()</em> functions assist us with the task of mixing system calls and standard C library functions to perform I/O on the same file. Given a stream, <em>fileno()</em> returns the corresponding file descriptor; <em>fdopen()</em> performs the converse operation, creating a new stream that employs a specified open file descriptor.</p>
+<h5 class="h5" id="ch13lev3sec11"><span epub:type="pagebreak" id="page_250"/><strong>Further information</strong></h5>
+<p class="noindenta">[<a href="bib.xhtml#bib04">Bach, 1986</a>] describes the implementation and advantages of the buffer cache on System V. [<a href="bib.xhtml#bib35">Goodheart &#38; Cox, 1994</a>] and [<a href="bib.xhtml#bib104">Vahalia, 1996</a>] also describe the rationale and implementation of the System V buffer cache. Further relevant information specific to Linux can be found in [<a href="bib.xhtml#bib09">Bovet &#38; Cesati, 2005</a>] and [<a href="bib.xhtml#bib59">Love, 2010</a>].</p>
+<h3 class="h3" id="ch13lev1sec09"><strong>13.9 Exercises</strong></h3>
+<p class="exer"><a id="ch13exe1"/><strong>13-1.</strong>&#160;&#160;&#160;Using the <em>time</em> built-in command of the shell, try timing the operation of the program in <a href="ch04.xhtml#ch4ex1">Listing 4-1</a> (<span class="literal">copy.c</span>) on your system.</p>
+<p class="olista1">a) Experiment with different file and buffer sizes. You can set the buffer size using the <em>&#8211;DBUF_SIZE=nbytes</em> option when compiling the program.</p>
+<p class="olista1">b) Modify the <em>open()</em> system call to include the <span class="literal">O_SYNC</span> flag. How much difference does this make to the speed for various buffer sizes?</p>
+<p class="olista1">c) Try performing these timing tests on a range of file systems (e.g., <em>ext3</em>, <em>XFS</em>, <em>Btrfs</em>, and <em>JFS</em>). Are the results similar? Are the trends the same when going from small to large buffer sizes?</p>
+<p class="exer"><a id="ch13exe2"/><strong>13-2.</strong>&#160;&#160;&#160;Time the operation of the <span class="literal">filebuff/write_bytes.c</span> program (provided in the source code distribution for this book) for various buffer sizes and file systems.</p>
+<p class="exer"><a id="ch13exe3"/><strong>13-3.</strong>&#160;&#160;&#160;What is the effect of the following statements?</p>
+<p class="programs1">fflush(fp);<br/>fsync(fileno(fp));</p>
+<p class="exer"><a id="ch13exe4"/><strong>13-4.</strong>&#160;&#160;&#160;Explain why the output of the following code differs depending on whether standard output is redirected to a terminal or to a disk file.</p>
+<p class="programs1">printf("If I had more time, \n");<br/>write(STDOUT_FILENO, "I would have written you a shorter letter.\n", 43);</p>
+<p class="exer"><a id="ch13exe5"/><strong>13-5.</strong>&#160;&#160;&#160;The command <em>tail [ &#8211;n num ] file</em> prints the last <em>num</em> lines (ten by default) of the named file. Implement this command using I/O system calls (<em>lseek()</em>, <em>read()</em>, <em>write()</em>, and so on). Keep in mind the buffering issues described in this chapter, in order to make the implementation efficient.</p>
+</body>
+</html>

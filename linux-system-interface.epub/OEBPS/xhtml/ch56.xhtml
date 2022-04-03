@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xml:lang="en-us" lang="en-us" xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xmlns:ns="http://www.w3.org/2001/10/synthesis">
+<head>
+<title>The Linux Programming Interface</title>
+<link rel="stylesheet" type="text/css" href="../styles/9781593272203.css"/>
+</head>
+<body>
+<h2 class="h2" id="ch56"><span epub:type="pagebreak" id="page_1149"/><strong><span class="big">56</span></strong><br/><strong>SOCKETS: INTRODUCTION</strong></h2>
+<p class="noindenta">Sockets are a method of IPC that allow data to be exchanged between applications, either on the same host (computer) or on different hosts connected by a network. The first widespread implementation of the sockets API appeared with 4.2BSD in 1983, and this API has been ported to virtually every UNIX implementation, as well as most other operating systems.</p>
+<div class="block">
+<p class="noindent">The sockets API is formally specified in POSIX.1g, which was ratified in 2000 after spending about a decade as a draft standard. This standard has been superseded by SUSv3.</p>
+</div>
+<p class="noindentb">This chapter and the following chapters describe the use of sockets, as follows:</p>
+<p class="bull">&#8226; This chapter provides a general introduction to the sockets API. The following chapters assume an understanding of the general concepts presented here. We don&#8217;t present any example code in this chapter. Code examples in the UNIX and Internet domains are presented in the following chapters.</p>
+<p class="bull">&#8226; <a href="ch57.xhtml#ch57">Chapter 57</a> describes UNIX domain sockets, which allow communication between applications on the same host system.</p>
+<p class="bull">&#8226; <a href="ch58.xhtml#ch58">Chapter 58</a> introduces various computer networking concepts and describes key features of the TCP/IP networking protocols. It provides background needed for the next chapters.</p>
+<p class="bull">&#8226; <a href="ch59.xhtml#ch59">Chapter 59</a> describes Internet domain sockets, which allow applications on different hosts to communicate via a TCP/IP network.</p>
+<p class="bull"><span epub:type="pagebreak" id="page_1150"/>&#8226; <a href="ch60.xhtml#ch60">Chapter 60</a> discusses the design of servers that use sockets.</p>
+<p class="bull">&#8226; <a href="ch61.xhtml#ch61">Chapter 61</a> covers a range of advanced topics, including additional features for socket I/O, a more detailed look at the TCP protocol, and the use of socket options to retrieve and modify various attributes of sockets.</p>
+<p class="noindentt">These chapters merely aim to give the reader a good grounding in the use of sockets. Sockets programming, especially for network communication, is an enormous topic in its own right, and forms the subject of entire books. Sources of further information are listed in <a href="ch59.xhtml#ch59lev1sec15">Section 59.15</a>.</p>
+<h3 class="h3" id="ch56lev1sec01"><strong>56.1 Overview</strong></h3>
+<p class="noindentab">In a typical client-server scenario, applications communicate using sockets as follows:</p>
+<p class="bull">&#8226; Each application creates a socket. A socket is the &#8220;apparatus&#8221; that allows communication, and both applications require one.</p>
+<p class="bull">&#8226; The server binds its socket to a well-known address (name) so that clients can locate it.</p>
+<p class="noindentt">A socket is created using the <em>socket()</em> system call, which returns a file descriptor used to refer to the socket in subsequent system calls:</p>
+<p class="programs">fd = socket(domain, type, protocol);</p>
+<p class="noindent">We describe socket domains and types in the following paragraphs. For all applications described in this book, <em>protocol</em> is always specified as 0.</p>
+<h5 class="h5" id="ch56lev3sec01"><strong>Communication domains</strong></h5>
+<p class="noindentab">Sockets exist in a <em>communication domain</em>, which determines:</p>
+<p class="bull">&#8226; the method of identifying a socket (i.e., the format of a socket &#8220;address&#8221;); and</p>
+<p class="bull">&#8226; the range of communication (i.e., either between applications on the same host or between applications on different hosts connected via a network).</p>
+<p class="noindenttb">Modern operating systems support at least the following domains:</p>
+<p class="bull">&#8226; The <em>UNIX</em> (<span class="literal">AF_UNIX</span>) domain allows communication between applications on the same host. (POSIX.1g used the name <span class="literal">AF_LOCAL</span> as a synonym for <span class="literal">AF_UNIX</span>, but this name is not used in SUSv3.)</p>
+<p class="bull">&#8226; The <em>IPv4</em> (<span class="literal">AF_INET</span>) domain allows communication between applications running on hosts connected via an Internet Protocol version 4 (IPv4) network.</p>
+<p class="bull">&#8226; The <em>IPv6</em> (<span class="literal">AF_INET6</span>) domain allows communication between applications running on hosts connected via an Internet Protocol version 6 (IPv6) network. Although IPv6 is designed as the successor to IPv4, the latter protocol is currently still the most widely used.</p>
+<p class="noindentt"><a href="ch56.xhtml#ch56table1">Table 56-1</a> summarizes the characteristics of these socket domains.</p>
+<div class="block">
+<p class="noindent"><span epub:type="pagebreak" id="page_1151"/>In some code, we may see constants with names such as <span class="literal">PF_UNIX</span> instead of <span class="literal">AF_UNIX</span>. In this context, <span class="literal">AF</span> stands for &#8220;address family&#8221; and <span class="literal">PF</span> stands for &#8220;protocol family.&#8221; Initially, it was conceived that a single protocol family might support multiple address families. In practice, no protocol family supporting multiple address families has ever been defined, and all existing implementations define the <span class="literal">PF_</span> constants to be synonymous with the corresponding <span class="literal">AF_</span> constants. (SUSv3 specifies the <span class="literal">AF_</span> constants, but not the <span class="literal">PF_</span> constants.) In this book, we always use the <span class="literal">AF_</span> constants. Further information about the history of these constants can be found in <a href="ch04.xhtml#ch04lev1sec02">Section 4.2</a> of [<a href="bib.xhtml#bib93">Stevens et al., 2004</a>].</p>
+</div>
+<p class="tablecap"><a id="ch56table1"/><strong>Table 56-1:</strong> Socket domains</p>
+<table class="all">
+<thead>
+<tr>
+<td style="vertical-align: top;" class="table_th"><p class="table"><strong>Domain</strong></p></td>
+<td style="vertical-align: top;" class="table_th"><p class="table"><strong>Communication performed</strong></p></td>
+<td style="vertical-align: top;" class="table_th"><p class="table"><strong>Communication between applications</strong></p></td>
+<td style="vertical-align: top;" class="table_th"><p class="table"><strong>Address format</strong></p></td>
+<td style="vertical-align: top;" class="table_th1"><p class="table"><strong>Address structure</strong></p></td>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table"><span class="literal">AF_UNIX</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table">within kernel</p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table">on same host</p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table">pathname</p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table"><em>sockaddr_un</em></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table"><span class="literal">AF_INET</span></p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table">via IPv4</p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table">on hosts connected via an IPv4 network</p></td>
+<td style="vertical-align: top;" class="table_1"><p class="table">32-bit IPv4 address + 16-bit port number</p></td>
+<td style="vertical-align: top;" class="table_2"><p class="table"><em>sockaddr_in</em></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_3"><p class="table"><span class="literal">AF_INET6</span></p></td>
+<td style="vertical-align: top;" class="table_3"><p class="table">via IPv6</p></td>
+<td style="vertical-align: top;" class="table_3"><p class="table">on hosts connected via an IPv6 network</p></td>
+<td style="vertical-align: top;" class="table_3"><p class="table">128-bit IPv6 address + 16-bit port number</p></td>
+<td style="vertical-align: top;" class="table_3a"><p class="table"><em>sockaddr_in6</em></p></td>
+</tr>
+</tbody>
+</table>
+<h5 class="h5" id="ch56lev3sec02"><strong>Socket types</strong></h5>
+<p class="noindenta">Every sockets implementation provides at least two types of sockets: stream and datagram. These socket types are supported in both the UNIX and the Internet domains. <a href="ch56.xhtml#ch56table2">Table 56-2</a> summarizes the properties of these socket types.</p>
+<p class="tablecap"><a id="ch56table2"/><strong>Table 56-2:</strong> Socket types and their properties</p>
+<table class="all">
+<thead>
+<tr>
+<td style="vertical-align: middle;" class="table_th" rowspan="2"><p class="table"><strong>Property</strong></p></td>
+<td style="vertical-align: top;" class="table_th1" colspan="2"><p class="tablec"><strong>Socket type</strong></p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_th"><p class="tablec"><strong>Stream</strong></p></td>
+<td style="vertical-align: top;" class="table_th1"><p class="tablec"><strong>Datagram</strong></p></td>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table">Reliable delivery?</p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tablec">Y</p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tablec">N</p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_1"><p class="table">Message boundaries preserved?</p></td>
+<td style="vertical-align: top;" class="table_1"><p class="tablec">N</p></td>
+<td style="vertical-align: top;" class="table_2"><p class="tablec">Y</p></td>
+</tr>
+<tr>
+<td style="vertical-align: top;" class="table_3"><p class="table">Connection-oriented?</p></td>
+<td style="vertical-align: top;" class="table_3"><p class="tablec">Y</p></td>
+<td style="vertical-align: top;" class="table_3a"><p class="tablec">N</p></td>
+</tr>
+</tbody>
+</table>
+<p class="noindentb"><em>Stream sockets</em> (<span class="literal">SOCK_STREAM</span>) provide a reliable, bidirectional, byte-stream communication channel. By the terms in this description, we mean the following:</p>
+<p class="bull">&#8226; <em>Reliable</em> means that we are guaranteed that either the transmitted data will arrive intact at the receiving application, exactly as it was transmitted by the sender (assuming that neither the network link nor the receiver crashes), or that we&#8217;ll receive notification of a probable failure in transmission.</p>
+<p class="bull">&#8226; <em>Bidirectional</em> means that data may be transmitted in either direction between two sockets.</p>
+<p class="bull">&#8226; <em>Byte-stream</em> means that, as with pipes, there is no concept of message boundaries (refer to <a href="ch44.xhtml#ch44lev1sec01">Section 44.1</a>).</p>
+<p class="noindentt"><span epub:type="pagebreak" id="page_1152"/>A stream socket is similar to using a pair of pipes to allow bidirectional communication between two applications, with the difference that (Internet domain) sockets permit communication over a network.</p>
+<p class="indent">Stream sockets operate in connected pairs. For this reason, stream sockets are described as <em>connection-oriented</em>. The term <em>peer socket</em> refers to the socket at the other end of a connection; <em>peer address</em> denotes the address of that socket; and <em>peer application</em> denotes the application utilizing the peer socket. Sometimes, the term <em>remote</em> (or <em>foreign</em>) is used synonymously with <em>peer</em>. Analogously, sometimes the term <em>local</em> is used to refer to the application, socket, or address for this end of the connection. A stream socket can be connected to only one peer.</p>
+<p class="indent"><em>Datagram sockets</em> (<span class="literal">SOCK_DGRAM</span>) allow data to be exchanged in the form of messages called <em>datagrams</em>. With datagram sockets, message boundaries are preserved, but data transmission is not reliable. Messages may arrive out of order, be duplicated, or not arrive at all.</p>
+<p class="indent">Datagram sockets are an example of the more generic concept of a <em>connectionless</em> socket. Unlike a stream socket, a datagram socket doesn&#8217;t need to be connected to another socket in order to be used. (In <a href="ch56.xhtml#ch56lev2sec07">Section 56.6.2</a>, we&#8217;ll see that datagram sockets may be connected with one another, but this has somewhat different semantics from connected stream sockets.)</p>
+<p class="indent">In the Internet domain, datagram sockets employ the User Datagram Protocol (UDP), and stream sockets (usually) employ the Transmission Control Protocol (TCP). Instead of using the terms <em>Internet domain datagram socket</em> and <em>Internet domain stream socket</em>, we&#8217;ll often just use the terms <em>UDP socket</em> and <em>TCP socket</em>, respectively.</p>
+<h5 class="h5" id="ch56lev3sec03"><strong>Socket system calls</strong></h5>
+<p class="noindentab">The key socket system calls are the following:</p>
+<p class="bull">&#8226; The <em>socket()</em> system call creates a new socket.</p>
+<p class="bull">&#8226; The <em>bind()</em> system call binds a socket to an address. Usually, a server employs this call to bind its socket to a well-known address so that clients can locate the socket.</p>
+<p class="bull">&#8226; The <em>listen()</em> system call allows a stream socket to accept incoming connections from other sockets.</p>
+<p class="bull">&#8226; The <em>accept()</em> system call accepts a connection from a peer application on a listening stream socket, and optionally returns the address of the peer socket.</p>
+<p class="bull">&#8226; The <em>connect()</em> system call establishes a connection with another socket.</p>
+<div class="block">
+<p class="noindent">On most Linux architectures (the exceptions include Alpha and IA-64), all of the sockets system calls are actually implemented as library functions multiplexed through a single system call, <em>socketcall()</em>. (This is an artifact of the original development of the Linux sockets implementation as a separate project.) Nevertheless, we refer to all of these functions as system calls in this book, since this is what they were in the original BSD implementation, as well as in many other contemporary UNIX implementations.</p>
+</div>
+<p class="noindent"><span epub:type="pagebreak" id="page_1153"/>Socket I/O can be performed using the conventional <em>read()</em> and <em>write()</em> system calls, or using a range of socket-specific system calls (e.g., <em>send()</em>, <em>recv()</em>, <em>sendto()</em>, and <em>recvfrom()</em>). By default, these system calls block if the I/O operation can&#8217;t be completed immediately. Nonblocking I/O is also possible, by using the <em>fcntl()</em> <span class="literal">F_SETFL</span> operation (<a href="ch05.xhtml#ch05lev1sec03">Section 5.3</a>) to enable the <span class="literal">O_NONBLOCK</span> open file status flag.</p>
+<div class="block">
+<p class="noindent">On Linux, we can call <em>ioctl(fd, FIONREAD, &#38;cnt)</em> to obtain the number of unread bytes available on the stream socket referred to by the file descriptor <em>fd</em>. For a datagram socket, this operation returns the number of bytes in the next unread datagram (which may be zero if the next datagram is of zero length), or zero if there are no pending datagrams. This feature is not specified in SUSv3.</p>
+</div>
+<h3 class="h3" id="ch56lev1sec02"><strong>56.2 Creating a Socket: <em>socket()</em></strong></h3>
+<p class="noindenta">The <em>socket()</em> system call creates a new socket.</p>
+<div class="box">
+<p class="programsa">#include &lt;sys/socket.h&gt;<br/><br/>int <span class="codestrong">socket</span>(int <span class="font1">domain</span>, int <span class="font1">type</span>, int <span class="font1">protocol</span>);</p>
+<p class="right">Returns file descriptor on success, or &#8211;1 on error</p>
+</div>
+<p class="noindent">The <em>domain</em> argument specifies the communication domain for the socket. The <em>type</em> argument specifies the socket type. This argument is usually specified as either <span class="literal">SOCK_STREAM</span>, to create a stream socket, or <span class="literal">SOCK_DGRAM</span>, to create a datagram socket.</p>
+<p class="indent">The <em>protocol</em> argument is always specified as 0 for the socket types we describe in this book. Nonzero <em>protocol</em> values are used with some socket types that we don&#8217;t describe. For example, <em>protocol</em> is specified as <span class="literal">IPPROTO_RAW</span> for raw sockets (<span class="literal">SOCK_RAW</span>).</p>
+<p class="indent">On success, <em>socket()</em> returns a file descriptor used to refer to the newly created socket in later system calls.</p>
+<div class="block">
+<p class="noindent">Starting with kernel 2.6.27, Linux provides a second use for the <em>type</em> argument, by allowing two nonstandard flags to be ORed with the socket type. The <span class="literal">SOCK_CLOEXEC</span> flag causes the kernel to enable the close-on-exec flag (<span class="literal">FD_CLOEXEC</span>) for the new file descriptor. This flag is useful for the same reasons as the <em>open()</em> <span class="literal">O_CLOEXEC</span> flag described in <a href="ch04.xhtml#ch04lev2sec01">Section 4.3.1</a>. The <span class="literal">SOCK_NONBLOCK</span> flag causes the kernel to set the <span class="literal">O_NONBLOCK</span> flag on the underlying open file description, so that future I/O operations on the socket will be nonblocking. This saves additional calls to <em>fcntl()</em> to achieve the same result.</p>
+</div>
+<h3 class="h3" id="ch56lev1sec03"><strong>56.3 Binding a Socket to an Address: <em>bind()</em></strong></h3>
+<p class="noindenta">The <em>bind()</em> system call binds a socket to an address.</p>
+<div class="box">
+<p class="programsa">#include &lt;sys/socket.h&gt;<br/><br/>int <span class="codestrong">bind</span>(int <span class="font1">sockfd</span>, const struct sockaddr *<span class="font1">addr</span>, socklen_t <span class="font1">addrlen</span>);</p>
+<p class="right">Returns 0 on success, or &#8211;1 on error</p>
+</div>
+<p class="noindent"><span epub:type="pagebreak" id="page_1154"/>The <em>sockfd</em> argument is a file descriptor obtained from a previous call to <em>socket()</em>. The <em>addr</em> argument is a pointer to a structure specifying the address to which this socket is to be bound. The type of structure passed in this argument depends on the socket domain. The <em>addrlen</em> argument specifies the size of the address structure. The <em>socklen_t</em> data type used for the <em>addrlen</em> argument is an integer type specified by SUSv3.</p>
+<p class="indent">Typically, we bind a server&#8217;s socket to a well-known address&#8212;that is, a fixed address that is known in advance to client applications that need to communicate with that server.</p>
+<div class="block">
+<p class="noindent">There are other possibilities than binding a server&#8217;s socket to a well-known address. For example, for an Internet domain socket, the server could omit the call to <em>bind()</em> and simply call <em>listen()</em>, which causes the kernel to choose an ephemeral port for that socket. (We describe ephemeral ports in <a href="ch58.xhtml#ch58lev2sec01">Section 58.6.1</a>.) Afterward, the server can use <em>getsockname()</em> (<a href="ch61.xhtml#ch61lev1sec05">Section 61.5</a>) to retrieve the address of its socket. In this scenario, the server must then publish that address so that clients know how to locate the server&#8217;s socket. Such publication could be done by registering the server&#8217;s address with a centralized directory service application that clients then contact in order to obtain the address. (For example, Sun RPC solves this problem using its <em>portmapper</em> server.) Of course, the directory service application&#8217;s socket must reside at a well-known address.</p>
+</div>
+<h3 class="h3" id="ch56lev1sec04"><strong>56.4 Generic Socket Address Structures: <em>struct sockaddr</em></strong></h3>
+<p class="noindenta">The <em>addr</em> and <em>addrlen</em> arguments to <em>bind()</em> require some further explanation. Looking at <a href="ch56.xhtml#ch56table1">Table 56-1</a>, we see that each socket domain uses a different address format. For example, UNIX domain sockets use pathnames, while Internet domain sockets use the combination of an IP address plus a port number. For each socket domain, a different structure type is defined to store a socket address. However, because system calls such as <em>bind()</em> are generic to all socket domains, they must be able to accept address structures of any type. In order to permit this, the sockets API defines a generic address structure, <em>struct sockaddr</em>. The only purpose for this type is to cast the various domain-specific address structures to a single type for use as arguments in the socket system calls. The <em>sockaddr</em> structure is typically defined as follows:</p>
+<p class="programs">struct sockaddr {<br/>&#160;&#160;&#160;&#160;sa_family_t sa_family;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;/* Address family (AF_* constant) */<br/>&#160;&#160;&#160;&#160;char&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;sa_data[14];&#160;&#160;&#160;&#160;&#160;&#160;&#160;/* Socket address (size varies<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;according to socket domain) */<br/>};</p>
+<p class="noindent">This structure serves as a template for all of the domain-specific address structures. Each of these address structures begins with a <em>family</em> field corresponding to the <em>sa_family</em> field of the <em>sockaddr</em> structure. (The <em>sa_family_t</em> data type is an integer type specified in SUSv3.) The value in the <em>family</em> field is sufficient to determine the size and format of the address stored in the remainder of the structure.</p>
+<div class="block">
+<p class="noindent">Some UNIX implementations also define an additional field in the <em>sockaddr</em> structure, <em>sa_len</em>, that specifies the total size of the structure. SUSv3 doesn&#8217;t require this field, and it is not present in the Linux implementation of the sockets API.</p>
+<p class="indent"><span epub:type="pagebreak" id="page_1155"/>If we define the <span class="literal">_GNU_SOURCE</span> feature test macro, then <em>glibc</em> prototypes the various socket system calls in <span class="literal">&lt;sys/socket.h&gt;</span> using a <em>gcc</em> extension that eliminates the need for the <em>(struct sockaddr *)</em> cast. However, reliance on this feature is nonportable (it will result in compilation warnings on other systems).</p>
+</div>
+<h3 class="h3" id="ch56lev1sec05"><strong>56.5 Stream Sockets</strong></h3>
+<p class="noindenta">The operation of stream sockets can be explained by analogy with the telephone system:</p>
+<ol>
+<li class="order"><p class="orderp">The <em>socket()</em> system call, which creates a socket, is the equivalent of installing a telephone. In order for two applications to communicate, each of them must create a socket.</p></li>
+<li class="order"><p class="orderp">Communication via a stream socket is analogous to a telephone call. One application must connect its socket to another application&#8217;s socket before communication can take place. Two sockets are connected as follows:</p>
+<p class="olista">a) One application calls <em>bind()</em> in order to bind the socket to a well-known address, and then calls <em>listen()</em> to notify the kernel of its willingness to accept incoming connections. This step is analogous to having a known telephone number and ensuring that our telephone is turned on so that people can call us.</p>
+<p class="olista">b) The other application establishes the connection by calling <em>connect()</em>, specifying the address of the socket to which the connection is to be made. This is analogous to dialing someone&#8217;s telephone number.</p>
+<p class="olista">c) The application that called <em>listen()</em> then accepts the connection using <em>accept()</em>. This is analogous to picking up the telephone when it rings. If the <em>accept()</em> is performed before the peer application calls <em>connect()</em>, then the <em>accept()</em> blocks (&#8220;waiting by the telephone&#8221;).</p></li>
+<li class="order"><p class="orderp">Once a connection has been established, data can be transmitted in both directions between the applications (analogous to a two-way telephone conversation) until one of them closes the connection using <em>close()</em>. Communication is performed using the conventional <em>read()</em> and <em>write()</em> system calls or via a number of socket-specific system calls (such as <em>send()</em> and <em>recv()</em>) that provide additional functionality.</p></li>
+</ol>
+<p class="noindent"><a href="ch56.xhtml#ch56fig1">Figure 56-1</a> illustrates the use of the system calls used with stream sockets.</p>
+<h5 class="h5" id="ch56lev3sec04"><strong>Active and passive sockets</strong></h5>
+<p class="noindentab">Stream sockets are often distinguished as being either active or passive:</p>
+<p class="bull">&#8226; By default, a socket that has been created using <em>socket()</em> is <em>active</em>. An active socket can be used in a <em>connect()</em> call to establish a connection to a passive socket. This is referred to as performing an <em>active open</em>.</p>
+<p class="bull">&#8226; A <em>passive</em> socket (also called a <em>listening</em> socket) is one that has been marked to allow incoming connections by calling <em>listen()</em>. Accepting an incoming connection is referred to as performing a <em>passive open</em>.</p>
+<p class="noindentt"><span epub:type="pagebreak" id="page_1156"/>In most applications that employ stream sockets, the server performs the passive open, and the client performs the active open. We presume this scenario in subsequent sections, so that instead of saying &#8220;the application that performs the active socket open,&#8221; we&#8217;ll often just say &#8220;the client.&#8221; Similarly, we&#8217;ll equate &#8220;the server&#8221; with &#8220;the application that performs the passive socket open.&#8221;</p>
+<div class="image"><img src="../images/f56-01.jpg" alt="image"/></div>
+<p class="figcap"><a id="ch56fig1"/><strong>Figure 56-1:</strong> Overview of system calls used with stream sockets</p>
+<h4 class="h4" id="ch56lev2sec01"><strong>56.5.1 Listening for Incoming Connections: <em>listen()</em></strong></h4>
+<p class="noindenta">The <em>listen()</em> system call marks the stream socket referred to by the file descriptor <em>sockfd</em> as <em>passive</em>. The socket will subsequently be used to accept connections from other (active) sockets.</p>
+<div class="box">
+<p class="programsa">#include &lt;sys/socket.h&gt;<br/><br/>int <span class="codestrong">listen</span>(int <span class="font1">sockfd</span>, int <span class="font1">backlog</span>);</p>
+<p class="right">Returns 0 on success, or &#8211;1 on error</p>
+</div>
+<p class="noindent">We can&#8217;t apply <em>listen()</em> to a connected socket&#8212;that is, a socket on which a <em>connect()</em> has been successfully performed or a socket returned by a call to <em>accept()</em>.</p>
+<p class="indent">To understand the purpose of the <em>backlog</em> argument, we first observe that the client may call <em>connect()</em> before the server calls <em>accept()</em>. This could happen, for example, because the server is busy handling some other client(s). This results in a <em>pending connection</em>, as illustrated in <a href="ch56.xhtml#ch56fig2">Figure 56-2</a>.</p>
+<div class="image"><span epub:type="pagebreak" id="page_1157"/><img src="../images/f56-02.jpg" alt="image"/></div>
+<p class="figcap"><a id="ch56fig2"/><strong>Figure 56-2:</strong> A pending socket connection</p>
+<p class="noindent">The kernel must record some information about each pending connection request so that a subsequent <em>accept()</em> can be processed. The <em>backlog</em> argument allows us to limit the number of such pending connections. Connection requests up to this limit succeed immediately. (For TCP sockets, the story is a little more complicated, as we&#8217;ll see in <a href="ch61.xhtml#ch61lev2sec04">Section 61.6.4</a>.) Further connection requests block until a pending connection is accepted (via <em>accept()</em>), and thus removed from the queue of pending connections.</p>
+<p class="indent">SUSv3 allows an implementation to place an upper limit on the value that can be specified for <em>backlog</em>, and permits an implementation to silently round <em>backlog</em> values down to this limit. SUSv3 specifies that the implementation should advertise this limit by defining the constant <span class="literal">SOMAXCONN</span> in <span class="literal">&lt;sys/socket.h&gt;</span>. On Linux, this constant is defined with the value 128. However, since kernel 2.4.25, Linux allows this limit to be adjusted at run time via the Linux-specific <span class="literal">/proc/sys/net/core/somaxconn</span> file. (In earlier kernel versions, the <span class="literal">SOMAXCONN</span> limit is immutable.)</p>
+<div class="block">
+<p class="noindent">In the original BSD sockets implementation, the upper limit for <em>backlog</em> was 5, and we may see this number specified in older code. All modern implementations allow higher values of <em>backlog</em>, which are necessary for network servers employing TCP sockets to serve large numbers of clients.</p>
+</div>
+<h4 class="h4" id="ch56lev2sec02"><strong>56.5.2 Accepting a Connection: <em>accept()</em></strong></h4>
+<p class="noindenta">The <em>accept()</em> system call accepts an incoming connection on the listening stream socket referred to by the file descriptor <em>sockfd</em>. If there are no pending connections when <em>accept()</em> is called, the call blocks until a connection request arrives.</p>
+<div class="box">
+<p class="programsa">#include &lt;sys/socket.h&gt;<br/><br/>int <span class="codestrong">accept</span>(int <span class="font1">sockfd</span>, struct sockaddr *<span class="font1">addr</span>, socklen_t *<span class="font1">addrlen</span>);</p>
+<p class="right">Returns file descriptor on success, or &#8211;1 on error</p>
+</div>
+<p class="noindent"><span epub:type="pagebreak" id="page_1158"/>The key point to understand about <em>accept()</em> is that it creates a <em>new</em> socket, and it is this new socket that is connected to the peer socket that performed the <em>connect()</em>. A file descriptor for the connected socket is returned as the function result of the <em>accept()</em> call. The listening socket (<em>sockfd</em>) remains open, and can be used to accept further connections. A typical server application creates one listening socket, binds it to a well-known address, and then handles all client requests by accepting connections via that socket.</p>
+<p class="indent">The remaining arguments to <em>accept()</em> return the address of the peer socket. The <em>addr</em> argument points to a structure that is used to return the socket address. The type of this argument depends on the socket domain (as for <em>bind()</em>).</p>
+<p class="indent">The <em>addrlen</em> argument is a value-result argument. It points to an integer that, prior to the call, must be initialized to the size of the buffer pointed to by <em>addr</em>, so that the kernel knows how much space is available to return the socket address. Upon return from <em>accept()</em>, this integer is set to indicate the number of bytes of data actually copied into the buffer.</p>
+<p class="indent">If we are not interested in the address of the peer socket, then <em>addr</em> and <em>addrlen</em> should both be specified as <span class="literal">NULL</span>. (If desired, we can retrieve the peer&#8217;s address later using the <em>getpeername()</em> system call, as described in <a href="ch61.xhtml#ch61lev1sec05">Section 61.5</a>.)</p>
+<div class="block">
+<p class="noindent">Starting with kernel 2.6.28, Linux supports a new, nonstandard system call, <em>accept4()</em>. This system call performs the same task as <em>accept()</em>, but supports an additional argument, <em>flags</em>, that can be used to modify the behavior of the system call. Two flags are supported: <span class="literal">SOCK_CLOEXEC</span> and <span class="literal">SOCK_NONBLOCK</span>. The <span class="literal">SOCK_CLOEXEC</span> flag causes the kernel to enable the close-on-exec flag (<span class="literal">FD_CLOEXEC</span>) for the new file descriptor returned by the call. This flag is useful for the same reasons as the <em>open()</em> <span class="literal">O_CLOEXEC</span> flag described in <a href="ch04.xhtml#ch04lev2sec01">Section 4.3.1</a>. The <span class="literal">SOCK_NONBLOCK</span> flag causes the kernel to enable the <span class="literal">O_NONBLOCK</span> flag on the underlying open file description, so that future I/O operations on the socket will be nonblocking. This saves additional calls to <em>fcntl()</em> to achieve the same result.</p>
+</div>
+<h4 class="h4" id="ch56lev2sec03"><strong>56.5.3 Connecting to a Peer Socket: <em>connect()</em></strong></h4>
+<p class="noindenta">The <em>connect()</em> system call connects the active socket referred to by the file descriptor <em>sockfd</em> to the listening socket whose address is specified by <em>addr</em> and <em>addrlen</em>.</p>
+<div class="box">
+<p class="programsa">#include &lt;sys/socket.h&gt;<br/><br/>int <span class="codestrong">connect</span>(int <span class="font1">sockfd</span>, const struct sockaddr *<span class="font1">addr</span>, socklen_t <span class="font1">addrlen</span>);</p>
+<p class="right">Returns 0 on success, or &#8211;1 on error</p>
+</div>
+<p class="noindent">The <em>addr</em> and <em>addrlen</em> arguments are specified in the same way as the corresponding arguments to <em>bind()</em>.</p>
+<p class="indent">If <em>connect()</em> fails and we wish to reattempt the connection, then SUSv3 specifies that the portable method of doing so is to close the socket, create a new socket, and reattempt the connection with the new socket.</p>
+<h4 class="h4" id="ch56lev2sec04"><span epub:type="pagebreak" id="page_1159"/><strong>56.5.4 I/O on Stream Sockets</strong></h4>
+<p class="noindenta">A pair of connected stream sockets provides a bidirectional communication channel between the two endpoints. <a href="ch56.xhtml#ch56fig3">Figure 56-3</a> shows what this looks like in the UNIX domain.</p>
+<div class="image"><img src="../images/f56-03.jpg" alt="image"/></div>
+<p class="figcap"><a id="ch56fig3"/><strong>Figure 56-3:</strong> UNIX domain stream sockets provide a bidirectional communication channel</p>
+<p class="noindentb">The semantics of I/O on connected stream sockets are similar to those for pipes:</p>
+<p class="bull">&#8226; To perform I/O, we use the <em>read()</em> and <em>write()</em> system calls (or the socket-specific <em>send()</em> and <em>recv()</em>, which we describe in <a href="ch61.xhtml#ch61lev1sec03">Section 61.3</a>). Since sockets are bidirectional, both calls may be used on each end of the connection.</p>
+<p class="bull">&#8226; A socket may be closed using the <em>close()</em> system call or as a consequence of the application terminating. Afterward, when the peer application attempts to read from the other end of the connection, it receives end-of-file (once all buffered data has been read). If the peer application attempts to write to its socket, it receives a <span class="literal">SIGPIPE</span> signal, and the system call fails with the error <span class="literal">EPIPE</span>. As we noted in <a href="ch44.xhtml#ch44lev1sec02">Section 44.2</a>, the usual way of dealing with this possibility is to ignore the <span class="literal">SIGPIPE</span> signal and find out about the closed connection via the <span class="literal">EPIPE</span> error.</p>
+<h4 class="h4" id="ch56lev2sec05"><strong>56.5.5 Connection Termination: <em>close()</em></strong></h4>
+<p class="noindenta">The usual way of terminating a stream socket connection is to call <em>close()</em>. If multiple file descriptors refer to the same socket, then the connection is terminated when all of the descriptors are closed.</p>
+<p class="indent">Suppose that, after we close a connection, the peer application crashes or otherwise fails to read or correctly process the data that we previously sent to it. In this case, we have no way of knowing that an error occurred. If we need to ensure that the data was successfully read and processed, then we must build some type of acknowledgement protocol into our application. This normally consists of an explicit acknowledgement message passed back to us from the peer.</p>
+<p class="indent">In <a href="ch61.xhtml#ch61lev1sec02">Section 61.2</a>, we describe the <em>shutdown()</em> system call, which provides finer control of how a stream socket connection is closed.</p>
+<h3 class="h3" id="ch56lev1sec06"><strong>56.6 Datagram Sockets</strong></h3>
+<p class="noindenta">The operation of datagram sockets can be explained by analogy with the postal system:</p>
+<ol>
+<li class="order"><p class="orderp">The <em>socket()</em> system call is the equivalent of setting up a mailbox. (Here, we assume a system like the rural postal service in some countries, which both picks up letters from and delivers letters to the mailbox.) Each application that wants to send or receive datagrams creates a datagram socket using <em>socket()</em>.</p></li>
+<li class="order"><p class="orderp"><span epub:type="pagebreak" id="page_1160"/>In order to allow another application to send it datagrams (letters), an application uses <em>bind()</em> to bind its socket to a well-known address. Typically, a server binds its socket to a well-known address, and a client initiates communication by sending a datagram to that address. (In some domains&#8212;notably the UNIX domain&#8212;the client may also need to use <em>bind()</em> to assign an address to its socket if it wants to receive datagrams sent by the server.)</p></li>
+<li class="order"><p class="orderp">To send a datagram, an application calls <em>sendto()</em>, which takes as one of its arguments the address of the socket to which the datagram is to be sent. This is analogous to putting the recipient&#8217;s address on a letter and posting it.</p></li>
+<li class="order"><p class="orderp">In order to receive a datagram, an application calls <em>recvfrom()</em>, which may block if no datagram has yet arrived. Because <em>recvfrom()</em> allows us to obtain the address of the sender, we can send a reply if desired. (This is useful if the sender&#8217;s socket is bound to an address that is not well known, which is typical of a client.) Here, we stretch the analogy a little, since there is no requirement that a posted letter is marked with the sender&#8217;s address.</p></li>
+<li class="order"><p class="orderp">When the socket is no longer needed, the application closes it using <em>close()</em>.</p></li>
+</ol>
+<p class="noindent">Just as with the postal system, when multiple datagrams (letters) are sent from one address to another, there is no guarantee that they will arrive in the order they were sent, or even arrive at all. Datagrams add one further possibility not present in the postal system: since the underlying networking protocols may sometimes retransmit a data packet, the same datagram could arrive more than once.</p>
+<p class="indent"><a href="ch56.xhtml#ch56fig4">Figure 56-4</a> illustrates the use of the system calls employed with datagram sockets.</p>
+<div class="image"><img src="../images/f56-04.jpg" alt="image"/></div>
+<p class="figcap"><a id="ch56fig4"/><strong>Figure 56-4:</strong> Overview of system calls used with datagram sockets</p>
+<h4 class="h4" id="ch56lev2sec06"><strong>56.6.1 Exchanging Datagrams: <em>recvfrom()</em> and <em>sendto()</em></strong></h4>
+<p class="noindenta">The <em>recvfrom()</em> and <em>sendto()</em> system calls receive and send datagrams on a datagram socket.</p>
+<div class="box">
+<p class="programsa"><span epub:type="pagebreak" id="page_1161"/>#include &lt;sys/socket.h&gt;<br/><br/>ssize_t <span class="codestrong">recvfrom</span>(int <span class="font1">sockfd</span>, void *<span class="font1">buffer</span>, size_t <span class="font1">length</span>, int <span class="font1">flags</span>,<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;struct sockaddr *<span class="font1">src_addr</span>, socklen_t *<span class="font1">addrlen</span>);</p>
+<p class="right">Returns number of bytes received, 0 on EOF, or &#8211;1 on error</p>
+<p class="programsat">ssize_t <span class="codestrong">sendto</span>(int <span class="font1">sockfd</span>, const void *<span class="font1">buffer</span>, size_t <span class="font1">length</span>, int <span class="font1">flags</span>,<br/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;const struct sockaddr *<span class="font1">dest_addr</span>, socklen_t <span class="font1">addrlen</span>);</p>
+<p class="right">Returns number of bytes sent, or &#8211;1 on error</p>
+</div>
+<p class="noindent">The return value and the first three arguments to these system calls are the same as for <em>read()</em> and <em>write()</em>.</p>
+<p class="indent">The fourth argument, <em>flags</em>, is a bit mask controlling socket-specific I/O features. We cover these features when we describe the <em>recv()</em> and <em>send()</em> system calls in <a href="ch61.xhtml#ch61lev1sec03">Section 61.3</a>. If we don&#8217;t require any of these features, we can specify <em>flags</em> as 0.</p>
+<p class="indent">The remaining arguments are used to obtain or specify the address of the peer socket with which we are communicating.</p>
+<p class="indent">For <em>recvfrom()</em>, the <em>src_addr</em> and <em>addrlen</em> arguments return the address of the remote socket used to send the datagram. (These arguments are analogous to the <em>addr</em> and <em>addrlen</em> arguments of <em>accept()</em>, which return the address of a connecting peer socket.) The <em>src_addr</em> argument is a pointer to an address structure appropriate to the communication domain. As with <em>accept()</em>, <em>addrlen</em> is a value-result argument. Prior to the call, <em>addrlen</em> should be initialized to the size of the structure pointed to by <em>src_addr</em>; upon return, it contains the number of bytes actually written to this structure.</p>
+<p class="indent">If we are not interested in the address of the sender, then we specify both <em>src_addr</em> and <em>addrlen</em> as <span class="literal">NULL</span>. In this case, <em>recvfrom()</em> is equivalent to using <em>recv()</em> to receive a datagram. We can also use <em>read()</em> to read a datagram, which is equivalent to using <em>recv()</em> with a <em>flags</em> argument of 0.</p>
+<p class="indent">Regardless of the value specified for <em>length</em>, <em>recvfrom()</em> retrieves exactly one message from a datagram socket. If the size of that message exceeds <em>length</em> bytes, the message is silently truncated to <em>length</em> bytes.</p>
+<div class="block">
+<p class="noindent">If we employ the <em>recvmsg()</em> system call (<a href="ch61.xhtml#ch61lev2sec09">Section 61.13.2</a>), then it is possible to find out about a truncated datagram via the <span class="literal">MSG_TRUNC</span> flag returned in the <em>msg_flags</em> field of the returned <em>msghdr</em> structure. See the <em>recvmsg(2)</em> manual page for details.</p>
+</div>
+<p class="noindent">For <em>sendto()</em>, the <em>dest_addr</em> and <em>addrlen</em> arguments specify the socket to which the datagram is to be sent. These arguments are employed in the same manner as the corresponding arguments to <em>connect()</em>. The <em>dest_addr</em> argument is an address structure suitable for this communication domain. It is initialized with the address of the destination socket. The <em>addrlen</em> argument specifies the size of <em>dest_addr</em>.</p>
+<div class="block">
+<p class="noindent">On Linux, it is possible to use <em>sendto()</em> to send datagrams of length 0. However, not all UNIX implementations permit this.</p>
+</div>
+<h4 class="h4" id="ch56lev2sec07"><span epub:type="pagebreak" id="page_1162"/><strong>56.6.2 Using <em>connect()</em> with Datagram Sockets</strong></h4>
+<p class="noindenta">Even though datagram sockets are connectionless, the <em>connect()</em> system call serves a purpose when applied to datagram sockets. Calling <em>connect()</em> on a datagram socket causes the kernel to record a particular address as this socket&#8217;s peer. The term <em>connected datagram socket</em> is applied to such a socket. The term <em>unconnected datagram socket</em> is applied to a datagram socket on which <em>connect()</em> has not been called (i.e., the default for a new datagram socket).</p>
+<p class="indentb">After a datagram socket has been connected:</p>
+<p class="bull">&#8226; Datagrams can be sent through the socket using <em>write()</em> (or <em>send()</em>) and are automatically sent to the same peer socket. As with <em>sendto()</em>, each <em>write()</em> call results in a separate datagram.</p>
+<p class="bull">&#8226; Only datagrams sent by the peer socket may be read on the socket.</p>
+<p class="noindentt">Note that the effect of <em>connect()</em> is asymmetric for datagram sockets. The above statements apply only to the socket on which <em>connect()</em> has been called, not to the remote socket to which it is connected (unless the peer application also calls <em>connect()</em> on its socket).</p>
+<p class="indent">We can change the peer of a connected datagram socket by issuing a further <em>connect()</em> call. It is also possible to dissolve the peer association altogether by specifying an address structure in which the address family (e.g., the <em>sun_family</em> field in the UNIX domain) is specified as <span class="literal">AF_UNSPEC</span>. Note, however, that many other UNIX implementations don&#8217;t support the use of <span class="literal">AF_UNSPEC</span> for this purpose.</p>
+<div class="block">
+<p class="noindent">SUSv3 was somewhat vague about dissolving peer associations, stating that a connection can be reset by making a <em>connect()</em> call that specifies a &#8220;null address,&#8221; without defining that term. SUSv4 explicitly specifies the use of <span class="literal">AF_UNSPEC</span>.</p>
+</div>
+<p class="noindent">The obvious advantage of setting the peer for a datagram socket is that we can use simpler I/O system calls when transmitting data on the socket. We no longer need to use <em>sendto()</em> with <em>dest_addr</em> and <em>addrlen</em> arguments, but can instead use <em>write()</em>. Setting the peer is useful primarily in an application that needs to send multiple datagrams to a single peer (which is typical of some datagram clients).</p>
+<div class="block">
+<p class="noindent">On some TCP/IP implementations, connecting a datagram socket to a peer yields a performance improvement ([<a href="bib.xhtml#bib93">Stevens et al., 2004</a>]). On Linux, connecting a datagram socket makes little difference to performance.</p>
+</div>
+<h3 class="h3" id="ch56lev1sec07"><strong>56.7 Summary</strong></h3>
+<p class="noindenta">Sockets allow communication between applications on the same host or on different hosts connected via a network.</p>
+<p class="indent">A socket exists within a communication domain, which determines the range of communication and the address format used to identify the socket. SUSv3 specifies the UNIX (<span class="literal">AF_UNIX</span>), IPv4 (<span class="literal">AF_INET</span>), and IPv6 (<span class="literal">AF_INET6</span>) communication domains.</p>
+<p class="indent">Most applications use one of two socket types: stream or datagram. Stream sockets (<span class="literal">SOCK_STREAM</span>) provide a reliable, bidirectional, byte-stream communication channel between two endpoints. Datagram sockets (<span class="literal">SOCK_DGRAM</span>) provide unreliable, connectionless, message-oriented communication.</p>
+<p class="indent"><span epub:type="pagebreak" id="page_1163"/>A typical stream socket server creates its socket using <em>socket()</em>, and then binds the socket to a well-known address using <em>bind()</em>. The server then calls <em>listen()</em> to allow connections to be received on the socket. Each client connection is then accepted on the listening socket using <em>accept()</em>, which returns a file descriptor for a new socket that is connected to the client&#8217;s socket. A typical stream socket client creates a socket using <em>socket()</em>, and then establishes a connection by calling <em>connect()</em>, specifying the server&#8217;s well-known address. After two stream sockets are connected, data can be transferred in either direction using <em>read()</em> and <em>write()</em>. Once all processes with a file descriptor referring to a stream socket endpoint have performed an implicit or explicit <em>close()</em>, the connection is terminated.</p>
+<p class="indent">A typical datagram socket server creates a socket using <em>socket()</em>, and then binds it to a well-known address using <em>bind()</em>. Because datagram sockets are connectionless, the server&#8217;s socket can be used to receive datagrams from any client. Datagrams can be received using <em>read()</em> or using the socket-specific <em>recvfrom()</em> system call, which returns the address of the sending socket. A datagram socket client creates a socket using <em>socket()</em>, and then uses <em>sendto()</em> to send a datagram to a specified (i.e., the server&#8217;s) address. The <em>connect()</em> system call can be used with a datagram socket to set a peer address for the socket. After doing this, it is no longer necessary to specify the destination address for outgoing datagrams; a <em>write()</em> call can be used to send a datagram.</p>
+<h5 class="h5" id="ch56lev3sec05"><strong>Further information</strong></h5>
+<p class="noindenta">Refer to the sources of further information listed in <a href="ch59.xhtml#ch59lev1sec15">Section 59.15</a>.<span epub:type="pagebreak" id="page_1164"/></p>
+</body>
+</html>

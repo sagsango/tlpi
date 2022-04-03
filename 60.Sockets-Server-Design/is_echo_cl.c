@@ -42,7 +42,7 @@ main(int argc, char *argv[])
     if (argc != 2 || strcmp(argv[1], "--help") == 0)
         usageErr("%s host\n", argv[0]);
 
-    sfd = inetConnect(argv[1], "echo", SOCK_STREAM);
+    sfd = inetConnect(argv[1], "echo", SOCK_STREAM); // sfd : server's socket file discriper.
     if (sfd == -1)
         errExit("inetConnect");
 
@@ -69,8 +69,8 @@ main(int argc, char *argv[])
         }
 
         /* Close writing channel, so server sees EOF */
-
-        if (shutdown(sfd, SHUT_WR) == -1)
+      
+        if (shutdown(sfd, SHUT_WR) == -1) // TODO: shutdown(2) man.
             errExit("shutdown");
         exit(EXIT_SUCCESS);
     }

@@ -26,6 +26,8 @@ main(int argc, char *argv[])
 
     /* Send remaining command-line arguments to server as separate datagrams */
 
+    // TODO: UDP, how bind() results read(), write() calls.
+    // 	     How to use read() & write() in socket_fd.
     for (j = 2; j < argc; j++) {
         len = strlen(argv[j]);
         if (write(sfd, argv[j], len) != len)

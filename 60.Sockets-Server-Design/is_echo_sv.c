@@ -36,6 +36,7 @@ handleRequest(int cfd)
     char buf[BUF_SIZE];
     ssize_t numRead;
 
+    // TODO: read(), write() with socket fd.
     while ((numRead = read(cfd, buf, BUF_SIZE)) > 0) {
         if (write(cfd, buf, numRead) != numRead) {
             syslog(LOG_ERR, "write() failed: %s", strerror(errno));

@@ -6,10 +6,22 @@
 
    Note: some UNIX implementations do not provide clearenv(), setenv(),
    and unsetenv().
+
+
+
+   $ ./modify_env "GREET=Guten Tag" SHELL=/bin/bash BYE=Ciao
+   GREET=Guten Tag
+   SHELL=/bin/bash
+   $ ./modify_env SHELL=/bin/sh BYE=byebye
+   SHELL=/bin/shGREET=Hello world”
+
 */
 #define _GNU_SOURCE     /* Get various declarations from <stdlib.h> */
 #include <stdlib.h>
 #include "tlpi_hdr.h"
+
+#define NO_OVERRIDE 0
+#define DO_OVERRIDE 1
 
 extern char **environ;
 int
@@ -30,7 +42,7 @@ main(int argc, char *argv[])
 
     /* Add a definition for GREET if one does not already exist */
 
-    if (setenv("GREET", "Hello world", 0) == -1)
+    if (setenv("GREET", "Hello world", NO_OVERRIDE) == -1)
         errExit("setenv");
 
     /* Remove any existing definition of BYE */

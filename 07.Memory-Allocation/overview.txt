@@ -1,0 +1,12 @@
+1. How to allocate memory on heap.
+2. How to allocate memory on stack
+3. How extra pages are allocated 
+    when allocating memory on heap.
+   How coaliasing works, in case of heap.
+   How brk(), sbrk() does.
+6. how free(), gets size of memory allocated,
+   which has to be freed.
+7. memory leak, how to avoid, how to detect.
+8. When process ends, then all alocated memory 
+   get deallocated, even leak too.
+  

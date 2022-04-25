@@ -1,3 +1,21 @@
+/*
+ *
+ *
+ The getservbyname() function returns a servent structure for the entry from the database 
+ that matches the service name  using  protocol  proto.
+ If proto is NULL, any protocol will be matched.  A connection is opened to the database 
+ if necessary.
+
+ The  getservbyport()  function  returns  a  servent structure for the entry from the 
+ database that matches the port port (given in network byte)
+ using protocol proto.  If proto is NULL, any protocol will be matched.  A connection 
+ is opened to the database if necessary.
+
+ databse = /etc/services 
+ */
+
+
+
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <stdio.h>

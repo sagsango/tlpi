@@ -4,6 +4,8 @@
    the server, and then display the contents of the server's response datagram.
 TODO:
    Here we havent bind() the client UDP socket.
+   Beause we are useing sendto() so kernal, will bind the address and delever
+   to server, which already have bind() the address to its socket.
 */
 #include "i6d_ucase.h"
 int

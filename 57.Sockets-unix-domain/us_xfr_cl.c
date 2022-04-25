@@ -4,6 +4,8 @@
    of stdin to a server socket.
 
    See also us_xfr_sv.c.
+TODO: Only Server have socket which have file system based name.
+      No name for client socket in file system.
 */
 #include "us_xfr.h"
 int

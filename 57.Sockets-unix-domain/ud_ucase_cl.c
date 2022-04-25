@@ -7,6 +7,9 @@
 
 TODO: Pay attension UDP client socket calles bind().
       Although it is not required see the UDP server-client program in gfg
+      Yes, because client is the one who is using sendto(), with will cause
+      kernal to bind address, but server is already bind because that is 
+      using recvfrom(), so that should be open for connections.
 */
 #include "ud_ucase.h"
 int

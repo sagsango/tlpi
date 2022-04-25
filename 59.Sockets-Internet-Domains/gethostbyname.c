@@ -9,6 +9,10 @@
 /*
 struct hostent *gethostbyname(const char *name);
 struct hostent *gethostbyaddr(const char *addr, int len, int type);
+
+TODO:
+   The gethostbyname*() and gethostbyaddr*() functions are obsolete.
+   Applications should use getaddrinfo(3) and getnameinfo(3) instead.
 */
 
 

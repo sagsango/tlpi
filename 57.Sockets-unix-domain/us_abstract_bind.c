@@ -8,6 +8,22 @@
    The first printing of the book used slightly different code. The code was
    correct, but could have been better (to understand why, see the errata
    for page 1176 of the book).  The old code is shown in comments below.
+
+
+
+
+   The so-called abstract namespace is a Linux-specific feature that allows us
+   to bind a UNIX domain socket to a name without that name being created in 
+   the file system. This provides a few potential advantages:
+   • We don’t need to worry about possible collisions with existing names in
+   the file system.
+   • It is not necessary to unlink the socket pathname when we have finished 
+   using the socket. The abstract name is automatically removed when the socket
+   is closed.
+   • We don’t need to create a file-system pathname for the socket. This may 
+   be useful in a chroot environment, or if we don’t have write access to a 
+   file system.
+
 */
 #include <sys/un.h>
 #include <sys/socket.h>

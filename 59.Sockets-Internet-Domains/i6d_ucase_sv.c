@@ -5,8 +5,13 @@
 
    See also i6d_ucase_cl.c.
 TODO:
-  “From the above output, we see that the server’s recvfrom() call was able to obtain the address of the client’s socket, includ   ing the ephemeral port number, despite the fact that the client did not do a bind().”
+  “From the above output, we see that the server’s recvfrom() call was able to 
+  obtain the address of the client’s socket, including the ephemeral port number,
+  despite the fact that the client did not do a bind().”
 
+  But Kernal did...
+  We can say, If one of the client/server used sendto() then other peer should
+  have bind() its address already. [Beacuse untill now kernal call have not mede]
 */
 #include "i6d_ucase.h"
 int

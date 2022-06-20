@@ -1,0 +1,15 @@
+dlopen():
+       The function dlopen() loads the dynamic shared object (shared
+       library) file named by the null-terminated string filename and
+       returns an opaque "handle" for the loaded object.  This handle is
+       employed with other functions in the dlopen API, such as
+       dlsym(3), dladdr(3), dlinfo(3), and dlclose().
+
+code:
+       https://gist.github.com/tailriver/30bf0c943325330b7b6a
+       
+man :
+       https://man7.org/linux/man-pages/man3/dlopen.3.html
+       https://man7.org/linux/man-pages/man3/dlsym.3.html
+       https://man7.org/linux/man-pages/man3/dladdr.3.html
+       https://man7.org/linux/man-pages/man3/dlinfo.3.html

@@ -47,6 +47,8 @@ main(int argc, char *argv[])
     value = (argc <= optind + 2) ? 0 : getInt(argv[optind + 2], 0, "value");
 
 	printf("sem value:%d\n",value);
+
+    /* XXX: Named sem like file*/
     sem = sem_open(argv[optind], flags, perms, value);
     if (sem == SEM_FAILED)
         errExit("sem_open");

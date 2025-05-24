@@ -75,6 +75,7 @@ main(int argc, char *argv[])
     perms = (argc <= optind + 1) ? (S_IRUSR | S_IWUSR) :
                 getInt(argv[optind + 1], GN_BASE_8, "octal-perms");
 
+    /* XXX: Named mq like file: but can be accessed through mmap */
     mqd = mq_open(argv[optind], flags, perms, attrp);
     if (mqd == (mqd_t) -1)
         errExit("mq_open");

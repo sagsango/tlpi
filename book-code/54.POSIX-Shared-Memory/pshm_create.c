@@ -42,6 +42,7 @@ main(int argc, char *argv[])
 
     /* Create shared memory object and set its size */
 
+    /* XXX: Named shm like file: but can be accessed through mmap */
     fd = shm_open(argv[optind], flags, perms);
     if (fd == -1)
         errExit("shm_open");

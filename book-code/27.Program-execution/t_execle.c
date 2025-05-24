@@ -3,6 +3,15 @@
    Demonstrate the use of execle() to execute a program.
 */
 #include "tlpi_hdr.h"
+
+/*
+27.Program-execution ❱❱❱ ./t_execle /usr/bin/ls
+ls: cannot access 'hello world': No such file or directory
+ls: cannot access 'goodbye': No such file or directory
+27.Program-execution ❱❱❱ ./t_execle /usr/bin/echo
+hello world goodbye
+27.Program-execution ❱❱❱
+*/
 int
 main(int argc, char *argv[])
 {

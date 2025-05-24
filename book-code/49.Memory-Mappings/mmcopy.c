@@ -49,6 +49,11 @@ main(int argc, char *argv[])
 
     memcpy(dst, src, sb.st_size);       /* Copy bytes between mappings */
 
+    /* XXX: (Now we know the meaning of MAP_SHARED & MAP_PRIVATE)
+     * msync only works if mmaped region is in MAP_SHARED mode
+     * MAP_SHARED = mean that mmaped memory is shared between underlying file
+     * MAP_PRIVATE = mean that mmaped memory is not shared with the underlying file
+     */
     if (msync(dst, sb.st_size, MS_SYNC) == -1)
         errExit("msync");
 

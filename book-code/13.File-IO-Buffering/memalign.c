@@ -40,6 +40,14 @@ int main(int argc, char *argv[]){
     printf("addres %% %llu  = %llu\n", p, ((long long)ptr) % p);
   }
 
+  /*
+   * aligned_alloc(0x100, 0x100);
+   * 	alignment must be a power of two.
+   * 	size must be a multiple of alignment.
+   *
+   * memalign is removed from posix now, so use aligned_alloc
+   */
+
   printf("Address: %lld, alignment:%ld, Address%%alignment:%lld\n", (long long) ptr, alignment, ( (long long) ptr ) % alignment);
 
 	return 0;

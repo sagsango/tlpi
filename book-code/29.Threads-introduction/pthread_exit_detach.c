@@ -39,6 +39,7 @@ int main(int argc, char * argv[] ){
     pthread_detach(th[i]);
   }
 
+  /* This is unsusual to detach the thread group leader */
   pthread_detach(pthread_self());
 
   int sleep_time = atol(argv[1]);

@@ -12,6 +12,106 @@
    write end of the pipe; the parent can see that all children have finished
    their work when it sees end-of-file on the read end of the pipe.
 */
+
+
+/*
+44.Pipes-and-FIFOs ❱❱❱ ./pipe_sync  1 1 1 1
+05:45:07  Parent started
+Parent Reads:C
+Parent Reads:h
+Parent Reads:i
+Parent Reads:l
+Parent Reads:d
+Parent Reads:
+Parent Reads:1
+Parent Reads:
+Parent Reads:(
+Parent Reads:P
+Parent Reads:I
+Parent Reads:D
+Parent Reads:=
+Parent Reads:1
+Parent Reads:0
+Parent Reads:5
+Parent Reads:8
+Parent Reads:0
+Parent Reads:6
+Parent Reads:0
+Parent Reads:)
+Parent Reads:
+
+Parent Reads:C
+Parent Reads:h
+Parent Reads:i
+Parent Reads:l
+Parent Reads:d
+Parent Reads:
+Parent Reads:2
+Parent Reads:
+Parent Reads:(
+Parent Reads:P
+Parent Reads:I
+Parent Reads:D
+Parent Reads:=
+Parent Reads:1
+Parent Reads:0
+Parent Reads:5
+Parent Reads:8
+Parent Reads:0
+Parent Reads:6
+Parent Reads:1
+Parent Reads:)
+Parent Reads:
+
+Parent Reads:C
+Parent Reads:h
+Parent Reads:i
+Parent Reads:l
+Parent Reads:d
+Parent Reads:
+Parent Reads:3
+Parent Reads:
+Parent Reads:(
+Parent Reads:P
+Parent Reads:I
+Parent Reads:D
+Parent Reads:=
+Parent Reads:1
+Parent Reads:0
+Parent Reads:5
+Parent Reads:8
+Parent Reads:0
+Parent Reads:6
+Parent Reads:2
+Parent Reads:)
+Parent Reads:
+
+Parent Reads:C
+Parent Reads:h
+Parent Reads:i
+Parent Reads:l
+Parent Reads:d
+Parent Reads:
+Parent Reads:4
+Parent Reads:
+Parent Reads:(
+Parent Reads:P
+Parent Reads:I
+Parent Reads:D
+Parent Reads:=
+Parent Reads:1
+Parent Reads:0
+Parent Reads:5
+Parent Reads:8
+Parent Reads:0
+Parent Reads:6
+Parent Reads:3
+Parent Reads:)
+Parent Reads:
+
+05:45:08  Parent ready to go
+*/
+
 #include "curr_time.h"                      /* Declaration of currTime() */
 #include "tlpi_hdr.h"
 
@@ -56,7 +156,11 @@ main(int argc, char *argv[])
 							errExit("Write: %d\n",j);
 						}
 
-						// TODO: See evey child can close their discripter
+/*
+TODO: See evey child can close their discripter.
+    Here (write end of the pipe) Fd is beining shared by multiple processes.
+*/
+                
             if (close(pfd[1]) == -1)
                 errExit("close");
             /* Child now carries on to do other things... */
@@ -77,10 +181,16 @@ main(int argc, char *argv[])
 
 		char buf[SIZE];
 		memset(buf,0,sizeof(buf));
+    /* XXX: Parent is going to read msg by the multiple writer
+            Through the same write end of the pipe
+
+            And when all the write end of the pipe get closed.
+            Then only read end will get the 0 bye on read.
+    */
     while( read(pfd[0], &buf, READ_BYTES) != 0 ){
         //fatal("parent didn't get EOF");
 
-		    printf("Parent Reads:\n%s", buf);
+		    printf("Parent Reads:%s\n", buf);
         //printf("%s", buf);
         memset(buf,0,sizeof(buf));
 
@@ -88,6 +198,14 @@ main(int argc, char *argv[])
     printf("%s  Parent ready to go\n", currTime("%T"));
 
     /* Parent can now carry on to do other things... */
+
+    /*
+     *
+     * NOTE: Parent did not do wait
+     *       But still we are sure that all the pipe read end have been closed
+     *       So from the children side there is not much going on
+     *       But to be safe we should do wait() here
+     */
 
     exit(EXIT_SUCCESS);
 }

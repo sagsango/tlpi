@@ -10,6 +10,11 @@ TODO:
   eveywhere, and everything is a file.
 
 */
+/*
+    XXX: Typical use of pipe for running multiple processes
+         $ cat file.txt | grep "hello" | wc -l
+*/
+
 #include <sys/wait.h>
 #include "tlpi_hdr.h"
 int

@@ -12,6 +12,18 @@ int main (  )
         ssize_t nr;
         int fd, i;
 
+        /*
+         * XXX:
+         *      This is gather write
+         *      These buff will be produced by diff operations/functions
+         *      To write all :
+         *              1. do call write syscall 3 times
+         *              2. do coalesce them (copy) and do write syscall 1 time.
+         *      All the above 2 are expensive.
+         *      So we have new syscall which is writev()
+         */
+
+
         char *buf[] = {
                 "The term buccaneer comes from the word boucan.\n",
                 "A boucan is a wooden frame used for cooking meat.\n",

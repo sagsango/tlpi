@@ -28,8 +28,10 @@ main(int argc, char *argv[])
      *  XXX: Why we need open64?
      *       Because file struct will be having offset data member
      *       and it will be int32_t by default.
-     *      
+     *
      *       We want to use the 64 bit int64_t
+     *
+     *      open64 = open with O_LARGEFILE flag
      * 
      */
     fd = open64(argv[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);

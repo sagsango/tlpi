@@ -1,3 +1,12 @@
+/*
+ * 1. parent had fd1
+ * 2. parent did fd2 = dup(fd1)
+ *    Now fd1 & fd2 points to same file
+ * 3. parent did fork()
+ *    As eveything in parent is going to get copied to child
+ *    So does the file pointer of the fd table too
+ *    Now parent's (fd1 & fd2) and child's (fd1 & fd2) points to same file
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -74,7 +83,7 @@ int main() {
         }
 
         // Print which process and which fd read the character
-        printf("[%s] Read from fd%d: %c\n",
+        fprintf(stderr,"[%s] Read from fd%d: %c\n",
                (pid == 0) ? "Child" : "Parent",
                (fd == fd1) ? 1 : 2, ch);
 

@@ -24,6 +24,11 @@ main(int argc, char *argv[])
     /* Obtain the size of the file and use it to specify the size of
        the mapping and the size of the buffer to be written */
 
+    /* XXX: stat APIs:
+     * stat(const char *restrict file, struct stat *restrict buf)
+     * fstat(int fd, struct stat *buf)
+     * lstat(const char *restrict file, struct stat *restrict buf)
+     */  
     if (fstat(fd, &sb) == -1)
         errExit("fstat");
 

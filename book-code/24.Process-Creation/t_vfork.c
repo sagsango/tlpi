@@ -1,5 +1,7 @@
 /* t_vfork.c
 
+XXX: Interesting
+
    Demonstrate the use of vfork() to create a child process.
 
    Two features distinguish the vfork() system call from fork() and make it more efficient:
@@ -18,10 +20,16 @@
 #endif
 
 #include "tlpi_hdr.h"
+
+
+int global;
 int
 main(int argc, char *argv[])
 {
-    int istack = 222;
+  int istack = 222;
+
+
+  global = -1;
 
     switch (vfork()) {
     case -1:
@@ -31,12 +39,14 @@ main(int argc, char *argv[])
         sleep(3);                   /* Even if we sleep for a while,
                                        parent still is not scheduled */
         write(STDOUT_FILENO, "Child executing\n", 16);
-        istack *= 3;                /* This change will be seen by parent */
+        istack *= 3; /* This change will be seen by parent */
+        global = +1;
         _exit(EXIT_SUCCESS);
 
     default:            /* Parent is blocked until child exits */
         write(STDOUT_FILENO, "Parent executing\n", 17);
         printf("istack=%d\n", istack);
+        printf("global=%d\n", global);
         exit(EXIT_SUCCESS);
     }
 }

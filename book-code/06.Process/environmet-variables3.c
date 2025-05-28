@@ -13,4 +13,8 @@ main(int argc, char *argv[])
 		puts(val);
 
     exit(EXIT_SUCCESS);
+    /*
+        setenv(const char *name, const char *value, int replace);
+        putenv(char *string); // "name=value"
+    */
 }

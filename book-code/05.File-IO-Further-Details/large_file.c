@@ -24,6 +24,14 @@ main(int argc, char *argv[])
     if (argc != 3 || strcmp(argv[1], "--help") == 0)
         usageErr("%s pathname offset\n", argv[0]);
 
+    /*
+     *  XXX: Why we need open64?
+     *       Because file struct will be having offset data member
+     *       and it will be int32_t by default.
+     *      
+     *       We want to use the 64 bit int64_t
+     * 
+     */
     fd = open64(argv[1], O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
     if (fd == -1)
         errExit("open64");

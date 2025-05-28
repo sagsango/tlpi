@@ -23,13 +23,18 @@ main(int argc, char *argv[])
         errExit("pipe");
     if (pipe(inbound) == -1)
         errExit("pipe");
+    /*
+        Why pipe works; means read end and write end are visible (same pipe)
+        Because on fork() the fd's just points to same file struct.
 
+        see chapter 05. multi-descripters
+    */
     switch (fork()) {
     case -1:
         errExit("fork");
 
     case 0: /* Child */
-
+      
         /* Close unused pipe descriptors */
 
         if (close(outbound[1]) == -1)

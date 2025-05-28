@@ -1,7 +1,17 @@
-/* multi_descriptors.c
+/*
+ Nutanix Interview, MTS 2 in AHV (San Jose, USA)
+
+   XXX:
+   multi_descriptors.c
 
    Show the interaction of multiple descriptors accessing the same
    file (some via the same shared open file table entry).
+*/
+
+/*
+    XXX:
+    file locks are at inode level;
+    so eveyone can share the lock (every process and thread)
 */
 #include <sys/stat.h>
 #include <fcntl.h>

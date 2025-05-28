@@ -66,4 +66,10 @@ main(int argc, char *argv[])
     printf("mktime() of localtime() value: %ld secs\n", (long) mktime(&loc));
 
     exit(EXIT_SUCCESS);
+
+
+    // gettimeofday(struct timeval *restrict tv, void *restrict tz)
+    // struct timeval tv
+    // tv.tv_usec 
+        
 }

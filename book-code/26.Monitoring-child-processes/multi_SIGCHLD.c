@@ -10,6 +10,25 @@
 #include "curr_time.h"
 #include "tlpi_hdr.h"
 
+/*
+26.Monitoring-child-processes ❱❱❱ ./multi_SIGCHLD  1 1 1 1 1
+00:03:43 Child 1 (PID=1049695) exiting
+00:03:43 Child 2 (PID=1049696) exiting
+00:03:43 Child 3 (PID=1049697) exiting
+00:03:43 Child 4 (PID=1049698) exiting
+00:03:43 handler: Caught SIGCHLD
+00:03:43 handler: Reaped child 1049695 - child exited, status=0
+00:03:43 Child 5 (PID=1049699) exiting
+00:03:43 handler: Reaped child 1049696 - child exited, status=0
+00:03:43 handler: Reaped child 1049697 - child exited, status=0
+00:03:48 handler: returning
+00:03:48 handler: Caught SIGCHLD
+00:03:48 handler: Reaped child 1049698 - child exited, status=0
+00:03:48 handler: Reaped child 1049699 - child exited, status=0
+00:03:53 handler: returning
+00:03:53 All 5 children have terminated; SIGCHLD was caught 2 times
+*/
+
 static volatile int numLiveChildren = 0;
                 /* Number of children started but not yet waited on */
 static void
@@ -27,7 +46,7 @@ sigchldHandler(int sig)
 
     /* Do nonblocking waits until no more dead children are found */
 
-    while ((childPid = waitpid(-1, &status, WNOHANG)) > 0) {
+    while ((childPid = waitpid(-1, &status, WNOHANG)) > 0) { /* XXX: WNOHANG */
         printf("%s handler: Reaped child %ld - ", currTime("%T"),
                 (long) childPid);
         printWaitStatus(NULL, status);

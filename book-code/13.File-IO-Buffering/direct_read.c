@@ -1,5 +1,33 @@
 
 
+/*
+ *
+ * XXX:
+ *  O_DIRECT flag bypass all the buffers/caches
+ *  Mean it will directly transfer the buffer to disk-device-drivers
+ *  So there is a alighmnet restriction on buffer address
+ *
+ *
+ *  Just as review (page 244, of chaper 13 in book):
+ *      1. Avoid <glibc buffer>
+ *          use fflush()
+ *          or setbuf(stream, NULL)
+ *      2. Avoid <page cache & block layer buffering>
+ *          a. sync()
+ *             sync()
+ *          b. open(path, flags | O_SYNC, mode);
+ *      3. Avoid all the caches
+ *          Use O_DIRECT flag
+ *          open (path, flags | O_DIRECT, mode);
+ */
+
+
+/* TODO:
+ * Add Makefile
+ *      - to compile
+ *      - to run
+ */
+
 /* direct_read.c
 
    Demonstrate the use of O_DIRECT to perform I/O bypassing the buffer cache
@@ -9,6 +37,7 @@
 
    This program is Linux-specific.
 */
+
 #define _GNU_SOURCE     /* Obtain O_DIRECT definition from <fcntl.h> */
 #include <fcntl.h>
 #include <malloc.h>
@@ -53,7 +82,7 @@ main(int argc, char *argv[])
 
     numRead = read(fd, buf, length);
     if (numRead == -1){
-//        errExit("read");
+        // errExit("read");
         perror("raad()");
     }
     /*FIXME: should use %zd here, and remove (long) cast */
